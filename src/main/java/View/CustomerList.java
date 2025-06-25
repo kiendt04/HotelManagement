@@ -58,6 +58,12 @@ public class CustomerList extends JFrame{
     
     public void initComp()
     {
+        ImageIcon addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
+        ImageIcon rmIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
+        ImageIcon uptIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
+        ImageIcon  saveIcon = new ImageIcon(getClass().getResource("/img/check.png"));
+        ImageIcon  filterIcon = new ImageIcon(getClass().getResource("/img/search.png"));
+        ImageIcon  clearIcon = new ImageIcon(getClass().getResource("/img/clear.png"));
         header = new JPanel();
         header.setPreferredSize(new Dimension(0,40));
         main = new JPanel();
@@ -65,13 +71,13 @@ public class CustomerList extends JFrame{
         footer = new JPanel();
         footer.setLayout(new BoxLayout(footer,BoxLayout.Y_AXIS));
         footer.setPreferredSize(new Dimension(0, 100));
-        save = new JButton("Save");
+        save = new JButton(saveIcon);
         save.setEnabled(false);
-        addBtn = new JButton("Add");
-        remove = new JButton("Remove");
-        upt = new JButton("Update");
-        filter = new JButton("Search");
-        clear = new JButton("Clear");
+        addBtn = new JButton(addIcon);
+        remove = new JButton(rmIcon);
+        upt = new JButton(uptIcon);
+        filter = new JButton(filterIcon);
+        clear = new JButton(clearIcon);
         tbl = new JTable();
         tbl.setAutoCreateRowSorter(true);
         cccd = new JTextField(20);

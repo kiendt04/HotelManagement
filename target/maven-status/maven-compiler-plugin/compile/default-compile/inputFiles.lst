@@ -1,6 +1,7 @@
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\BillControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\billDetailControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\CustomerControl.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\FloorControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\myconnect.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\Room_typeControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\RoomControl.java
@@ -9,6 +10,7 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Mod
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\billDetail.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\customer.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\CustomerTableModel.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Floor.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\room.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\room_type.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\service.java
