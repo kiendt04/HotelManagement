@@ -32,7 +32,7 @@ public class Room_typeControl {
             ResultSet rs = st.executeQuery("SELECT * FROM room_type");
             while(rs.next())
             {
-                room_type r = new room_type(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
+                room_type r = new room_type(rs.getInt("id"), rs.getString("name"),rs.getInt("bed"),rs.getDouble("price"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -45,9 +45,10 @@ public class Room_typeControl {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,price) VALUES(,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,bed,price) VALUES(,?,?,?)");
             pt.setString(1, r.getName());
-            pt.setDouble(2, r.getPrice());
+            pt.setInt(2,r.getBed());
+            pt.setDouble(3, r.getPrice());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -72,10 +73,11 @@ public class Room_typeControl {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE room_type set name = ?,price = ?  WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE room_type set name = ?,bed = ?,price = ?  WHERE id = ?");
             pt.setString(1, r.getName());
-            pt.setDouble(2, r.getPrice());
-            pt.setInt(3, r.getId());
+            pt.setInt(2, r.getBed());
+            pt.setDouble(3, r.getPrice());
+            pt.setInt(4, r.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);

@@ -35,7 +35,7 @@ public class RoomTypeManagement extends JFrame {
     
     private void initComponents() {
         setTitle("Danh mục Loại phòng");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 450);
         setLocationRelativeTo(null);
         setResizable(false);

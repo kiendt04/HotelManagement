@@ -91,9 +91,9 @@ public class Payment extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         // Panel trên cùng - tiêu đề
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));  
         titlePanel.setBackground(new Color(240, 240, 240));
-        titlePanel.setBorder(BorderFactory.createEtchedBorder());
+         titlePanel.setBorder(BorderFactory.createEtchedBorder());
         
         JLabel titleLabel = new JLabel("📋 Đặt phòng khách lẻ");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
