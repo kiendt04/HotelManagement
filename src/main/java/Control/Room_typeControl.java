@@ -24,15 +24,15 @@ public class Room_typeControl {
     public Room_typeControl() {
     }
     
-    public List<room_type> getAll()
+    public List<Room_type> getAll()
     {
-        List<room_type> list = new ArrayList<>();
+        List<Room_type> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM room_type");
             while(rs.next())
             {
-                room_type r = new room_type(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
+                Room_type r = new Room_type(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class Room_typeControl {
         return list;
     }
     
-    public int insertRoom_type(room_type r)
+    public int insertRoom_type(Room_type r)
     {
         int rs=0;
         try {
@@ -68,7 +68,7 @@ public class Room_typeControl {
         return rs;
     }
     
-    public int uptRoom(room_type r)
+    public int uptRoom(Room_type r)
     {
         int rs = 0;
         try {

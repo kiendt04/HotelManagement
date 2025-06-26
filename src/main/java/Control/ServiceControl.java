@@ -24,15 +24,15 @@ public class ServiceControl {
     public ServiceControl() {
     }
     
-    public List<service> getAll()
+    public List<Service> getAll()
     {
-        List<service> list = new ArrayList<>();
+        List<Service> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM service");
             while(rs.next())
             {
-                service r = new service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
+                Service r = new Service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class ServiceControl {
         return list;
     }
     
-    public int insertRoom_type(service r)
+    public int insertRoom_type(Service r)
     {
         int rs=0;
         try {
@@ -68,7 +68,7 @@ public class ServiceControl {
         return rs;
     }
     
-    public int uptRoom(service r)
+    public int uptRoom(Service r)
     {
         int rs = 0;
         try {

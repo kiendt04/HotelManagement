@@ -8,15 +8,15 @@ package Model;
  *
  * @author ADMIN
  */
-public class room {
+public class Room {
     
     private String num,note;
     private int id,type,status,floor;
 
-    public room() {
+    public Room() {
     }
 
-    public room(int id, String num,int floor, int type,int status, String note ) {
+    public Room(int id, String num,int floor, int type,int status, String note ) {
         this.num = num;
         this.note = note;
         this.id = id;

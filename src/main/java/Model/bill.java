@@ -10,17 +10,17 @@ import java.sql.Date;
  *
  * @author ADMIN
  */
-public class bill {
+public class Bill {
     private int id,total_service;
     private String room,user;
     private Date check_in,check_out;
     private double total,total_time;
     private int status;
 
-    public bill() {
+    public Bill() {
     }
 
-    public bill(int id, String room, String user, Date check_in, Date check_out,double total_time,int total_service, double total, int status) {
+    public Bill(int id, String room, String user, Date check_in, Date check_out,double total_time,int total_service, double total, int status) {
         this.id = id;
         this.room = room;
         this.user = user;

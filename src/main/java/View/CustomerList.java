@@ -6,7 +6,7 @@ package View;
 
 import java.awt.HeadlessException;
 import javax.swing.JFrame;
-import Model.customer;
+import Model.Customer;
 import Control.*;
 import Model.CustomerTableModel;
 import java.awt.BorderLayout;
@@ -33,7 +33,7 @@ public class CustomerList extends JFrame{
     private myconnect mc = new myconnect();
     private CustomerControl cc = new CustomerControl();
     private CustomerTableModel model;
-    private List<customer> list = cc.getAll();
+    private List<Customer> list = cc.getAll();
     private JPanel header,main,footer;
     private JButton save,addBtn,remove,upt,filter,clear; 
     private JTable tbl;
@@ -220,7 +220,7 @@ public class CustomerList extends JFrame{
                 }
                 int modelRow = tbl.convertRowIndexToModel(row);
                 String oldID = tbl.getModel().getValueAt(modelRow, 0).toString();
-                customer cd = new customer(cccd.getText().trim(),name.getText().trim(),gender.isSelected() ? "Nam" : "Nu",phone.getText().trim(),region.getText().trim());
+                Customer cd = new Customer(cccd.getText().trim(),name.getText().trim(),gender.isSelected() ? "Nam" : "Nu",phone.getText().trim(),region.getText().trim());
                 if (JOptionPane.showConfirmDialog(rootPane, "Update customer information", "Confirm", JOptionPane.YES_NO_OPTION) == 0 && cc.uptCus(cd, oldID) != 0)
                 {
                     model.uptCus(cd, modelRow);
@@ -280,7 +280,7 @@ public class CustomerList extends JFrame{
                 int check = JOptionPane.showConfirmDialog(rootPane, "Adding confirm","Confirm",JOptionPane.YES_NO_OPTION);
                 if(check == 0)
                 {
-                    customer a = new customer(cccd.getText().trim(),name.getText().trim(),gender.isSelected() ? "Nam" : "Nu",phone.getText().trim(),region.getText().trim());
+                    Customer a = new Customer(cccd.getText().trim(),name.getText().trim(),gender.isSelected() ? "Nam" : "Nu",phone.getText().trim(),region.getText().trim());
                     if( cc.insertCus(a) > 0)
                     {
                         model.addCustomer(a);

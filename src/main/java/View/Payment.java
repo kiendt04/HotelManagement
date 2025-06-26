@@ -8,6 +8,9 @@ package View;
  *
  * @author ASUS
  */
+import Control.ServiceControl;
+import Control.myconnect;
+import Model.Service;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -15,10 +18,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class Payment extends JFrame {
-    
     private JTextField customerNameField;
     private JTextField checkInField;
     private JTextField checkOutField;
@@ -39,7 +42,7 @@ public class Payment extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
-        setTitle("Đặt phòng khách lẻ");
+        setTitle("Đặt phòng");
     }
     
     private void initializeComponents() {
@@ -89,16 +92,6 @@ public class Payment extends JFrame {
         // Panel chính
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Panel trên cùng - tiêu đề
-        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        titlePanel.setBackground(new Color(240, 240, 240));
-        titlePanel.setBorder(BorderFactory.createEtchedBorder());
-        
-        JLabel titleLabel = new JLabel("📋 Đặt phòng khách lẻ");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        titlePanel.add(titleLabel);
-        
         // Toolbar
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbarPanel.setBackground(new Color(240, 240, 240));
@@ -113,7 +106,6 @@ public class Payment extends JFrame {
         
         // Top panel container
         JPanel topContainer = new JPanel(new BorderLayout());
-        topContainer.add(titlePanel, BorderLayout.NORTH);
         topContainer.add(toolbarPanel, BorderLayout.SOUTH);
         
         // Panel thông tin khách hàng
@@ -165,7 +157,6 @@ public class Payment extends JFrame {
         gbc.gridx = 1; gbc.weightx = 1.0;
         panel.add(noteField, gbc);
         
-        // Cột 2
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0;
         panel.add(new JLabel("Ngày trả:"), gbc);
         gbc.gridx = 3; gbc.weightx = 1.0;
@@ -177,23 +168,45 @@ public class Payment extends JFrame {
         panel.add(statusComboBox, gbc);
         
         // Cột 3 - Thông tin phòng
-        JPanel roomInfoPanel = new JPanel();
-        roomInfoPanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
-        roomInfoPanel.setLayout(new GridLayout(6, 2, 5, 2));
-        
-        String[] services = {"Coca Cola", "Nước suối", "Redbull", "Fanta", "Cam ép", "Trà Ô Long"};
-        String[] prices = {"15000", "12000", "20000", "15000", "15000", "15000"};
-        
-        for (int i = 0; i < services.length; i++) {
-            roomInfoPanel.add(new JLabel("• " + services[i]));
-            roomInfoPanel.add(new JLabel(prices[i]));
-        }
-        
-        gbc.gridx = 4; gbc.gridy = 0; gbc.gridheight = 4; gbc.weightx = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        panel.add(roomInfoPanel, gbc);
-        
-        return panel;
+       JPanel roomInfoPanel = new JPanel(new BorderLayout());
+roomInfoPanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
+
+// Lấy danh sách dịch vụ từ cơ sở dữ liệu
+ServiceControl serviceControl = new ServiceControl();
+ArrayList<Service> serviceList = (ArrayList<Service>) serviceControl.getAll();  
+
+// Tạo model cho JList
+DefaultListModel<String> listModel = new DefaultListModel<>();
+for (Service s : serviceList) {
+    String itemText = s.toString();
+    listModel.addElement(itemText);
+}
+
+// Tạo JList từ model
+JList<String> serviceJList = new JList<>(listModel);
+serviceJList.setFont(new Font("Arial", Font.PLAIN, 14));
+serviceJList.setFixedCellHeight(26);
+
+serviceJList.addListSelectionListener((e) -> {
+    if(!e.getValueIsAdjusting()){
+        String value = serviceJList.getSelectedValue();
+        JOptionPane.showMessageDialog(null, "chọn " + value);
+    }
+});
+
+// Cho vào scroll pane để cuộn nếu danh sách dài
+JScrollPane scrollPane = new JScrollPane(serviceJList);
+roomInfoPanel.add(scrollPane, BorderLayout.CENTER);
+
+// Thêm panel vào vị trí layout cũ
+gbc.gridx = 4;
+gbc.gridy = 0;
+gbc.gridheight = 4;
+gbc.weightx = 0;
+gbc.fill = GridBagConstraints.BOTH;
+panel.add(roomInfoPanel, gbc);
+
+return panel;
     }
     
     private JPanel createServicePanel() {

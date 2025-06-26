@@ -8,14 +8,14 @@ package Model;
  *
  * @author ADMIN
  */
-public class billDetail {
+public class BillDetail {
     
     private int id_bill,service,quant,total;
 
-    public billDetail() {
+    public BillDetail() {
     }
 
-    public billDetail(int id_bill, int service, int quant, int total) {
+    public BillDetail(int id_bill, int service, int quant, int total) {
         this.id_bill = id_bill;
         this.service = service;
         this.quant = quant;

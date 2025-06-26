@@ -23,16 +23,16 @@ public class CustomerControl {
     public CustomerControl() {
     }
     
-    public List<customer> getAll()
+    public List<Customer> getAll()
     {
-        List<customer> list = new ArrayList<>();
+        List<Customer> list = new ArrayList<>();
         try {
             Statement st =conn.createStatement();
             ResultSet rs = st.executeQuery( "SELECT * FROM customer");
             while (rs.next())
             {
                 String gender = rs.getInt("gt") == 1 ? "Nam" : "Nu";
-                customer cs = new customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
+                Customer cs = new Customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
                 list.add(cs);
             }
         } catch (Exception e) { 
@@ -41,7 +41,7 @@ public class CustomerControl {
         return list;
     }
     
-    public int insertCus(customer cs)
+    public int insertCus(Customer cs)
     {
         int rs = 0;
         try {
@@ -59,7 +59,7 @@ public class CustomerControl {
         return rs;
     }
     
-    public int uptCus(customer cs ,String oldID)
+    public int uptCus(Customer cs ,String oldID)
     {
         int rs = 0;
         try {
@@ -107,9 +107,9 @@ public class CustomerControl {
         return true;
     }
     
-    public List<customer> filter(String id,String name,String phone,String adds)
+    public List<Customer> filter(String id,String name,String phone,String adds)
     {
-        List<customer> list = new ArrayList<>();
+        List<Customer> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM customer WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
@@ -138,7 +138,7 @@ public class CustomerControl {
             while (rs.next())
             {
                 String gender = rs.getInt("gt") == 1 ? "Nam" : "Nu";
-                customer cs = new customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
+                Customer cs = new Customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
                 list.add(cs);
             }
         } catch (Exception e) {

@@ -5,7 +5,7 @@
 package Control;
 
 import Model.*;
-import Model.bill;
+import Model.Bill;
 import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import java.sql.Connection;
 import java.sql.Date;
@@ -25,15 +25,15 @@ public class BillControl {
     public BillControl() {
     }
     
-    public List<bill> getAll()
+    public List<Bill> getAll()
     {
-        List<bill> list = new ArrayList<>();
+        List<Bill> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM bill");
             while(rs.next())
             {
-                bill b = new bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
                 list.add(b);
             }
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class BillControl {
         return list;
     }
     
-    public int insertBill(bill b)
+    public int insertBill(Bill b)
     {
         int rs = 0;
         try {
@@ -64,7 +64,7 @@ public class BillControl {
         return rs;
     }
     
-    public int uptBill(bill b)
+    public int uptBill(Bill b)
     {
         int rs =0;
         try {
@@ -85,9 +85,9 @@ public class BillControl {
         return rs;
     }
     
-    public List<bill> search(String x,Date in,Date out)
+    public List<Bill> search(String x,Date in,Date out)
     {
-        List<bill> list = new ArrayList<>();
+        List<Bill> list = new ArrayList<>();
         ResultSet rs ;
         try {
             if (x.isBlank())
@@ -118,7 +118,7 @@ public class BillControl {
             }
             while(rs.next())
                 {
-                    bill b = new bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                    Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
                     list.add(b);
                 } 
         } catch (Exception e) {

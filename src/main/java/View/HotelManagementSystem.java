@@ -108,76 +108,99 @@ public class HotelManagementSystem extends JFrame {
     }
     
     private JPanel createLeftPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setPreferredSize(new Dimension(200, 0));
-        panel.setBackground(new Color(240, 240, 240));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Tiêu đề Danh mục
-        JLabel lblDanhMuc = new JLabel("Danh mục");
-        lblDanhMuc.setFont(new Font("Arial", Font.BOLD, 14));
-        panel.add(lblDanhMuc);
-        panel.add(Box.createVerticalStrut(10));
-        
-        // Các menu item
-        String[] menuItems = {
-            "Khách hàng", 
-            "Quản lý tầng",
-            "Loại phòng",
-            "Quản lý phòng",
-            "Sản phẩm - Dịch vụ",
-            "Thiết bị",
-            "Phòng - Thiết bị",
-            "Đặt phòng theo đoàn"
-        };
-        
-        for (String item : menuItems) {
-            JButton btn = new JButton(item);
-            btn.setAlignmentX(Component.LEFT_ALIGNMENT);
-            btn.setBorderPainted(false);
-            btn.setContentAreaFilled(false);
-            btn.setHorizontalAlignment(SwingConstants.LEFT);
-            btn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (btn.getText() == "Khách hàng") { new CustomerList();}
-                    else if (btn.getText() == "Quản lý tầng") {new FloorManagement();}
-                    else if (btn.getText() == "Loại phòng") {new RoomTypeManagement();}
-                    else if (item == "Quản lý phòng") {}
-                    else if (item == "Sản phẩm - Dịch vụ") {}
-                    else if (item == "Thiết bị") {}
-                    else if (item == "Phòng - Thiết bị") {}
-                    else if (item == "Đặt phòng theo đoàn") {}
-                }
-            });
-            panel.add(btn);
-            panel.add(Box.createVerticalStrut(5));
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setPreferredSize(new Dimension(200, 0));
+    panel.setBackground(new Color(240, 240, 240));
+    panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    JLabel lblDanhMuc = new JLabel("Danh mục");
+    lblDanhMuc.setFont(new Font("Arial", Font.BOLD, 14));
+    panel.add(lblDanhMuc);
+    panel.add(Box.createVerticalStrut(10));
+
+    String[] menuItems = {
+        "Khách hàng",
+        "Quản lý tầng",
+        "Loại phòng",
+        "Quản lý phòng",
+        "Sản phẩm - Dịch vụ",
+        "Thiết bị",
+        "Phòng - Thiết bị",
+        "Đặt phòng theo đoàn"
+    };
+
+    JList<String> menuList = new JList<>(menuItems);
+    menuList.setFont(new Font("Arial", Font.PLAIN, 13));
+    menuList.setBackground(Color.WHITE);
+    menuList.setSelectionBackground(new Color(200, 230, 255));
+    menuList.setFixedCellHeight(30);
+    menuList.setVisibleRowCount(menuItems.length);
+    menuList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    menuList.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    // Xử lý sự kiện khi chọn mục trong danh sách
+    menuList.addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            String selected = menuList.getSelectedValue();
+            switch (selected) {
+                case "Khách hàng":
+                    new CustomerList();
+                    break;
+                case "Quản lý tầng":
+                    new FloorManagement();
+                    break;
+                case "Loại phòng":
+                    new RoomTypeManagement();
+                    break;
+                case "Quản lý phòng":
+                    // TODO: xử lý quản lý phòng
+                    break;
+                case "Sản phẩm - Dịch vụ":
+                    // TODO: xử lý sản phẩm dịch vụ
+                    break;
+                case "Thiết bị":
+                    // TODO: xử lý thiết bị
+                    break;
+                case "Phòng - Thiết bị":
+                    // TODO: xử lý phòng - thiết bị
+                    break;
+                case "Đặt phòng theo đoàn":
+                    // TODO: xử lý đặt phòng theo đoàn
+                    break;
+            }
         }
-        
-        // Hệ thống
-        panel.add(Box.createVerticalStrut(20));
-        JLabel lblHeThong = new JLabel("Hệ thống");
-        lblHeThong.setFont(new Font("Arial", Font.BOLD, 14));
-        panel.add(lblHeThong);
-        panel.add(Box.createVerticalStrut(10));
-        
-        JButton btnDoiMK = new JButton("Đổi mật khẩu");
-        btnDoiMK.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btnDoiMK.setBorderPainted(false);
-        btnDoiMK.setContentAreaFilled(false);
-        btnDoiMK.setHorizontalAlignment(SwingConstants.LEFT);
-        panel.add(btnDoiMK);
-        
-        JButton btnQuanTri = new JButton("Quản trị người dùng");
-        btnQuanTri.setAlignmentX(Component.LEFT_ALIGNMENT);
-        btnQuanTri.setBorderPainted(false);
-        btnQuanTri.setContentAreaFilled(false);
-        btnQuanTri.setHorizontalAlignment(SwingConstants.LEFT);
-        panel.add(btnQuanTri);
-        
-        return panel;
-    }
+    });
+
+    JScrollPane scrollPane = new JScrollPane(menuList);
+    scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+    scrollPane.setBorder(BorderFactory.createEmptyBorder());
+    panel.add(scrollPane);
+    panel.add(Box.createVerticalStrut(20));
+
+    // Hệ thống
+    JLabel lblHeThong = new JLabel("Hệ thống");
+    lblHeThong.setFont(new Font("Arial", Font.BOLD, 14));
+    panel.add(lblHeThong);
+    panel.add(Box.createVerticalStrut(10));
+
+    JButton btnDoiMK = new JButton("Đổi mật khẩu");
+    btnDoiMK.setAlignmentX(Component.LEFT_ALIGNMENT);
+    btnDoiMK.setBorderPainted(false);
+    btnDoiMK.setContentAreaFilled(false);
+    btnDoiMK.setHorizontalAlignment(SwingConstants.LEFT);
+    panel.add(btnDoiMK);
+
+    JButton btnQuanTri = new JButton("Quản trị người dùng");
+    btnQuanTri.setAlignmentX(Component.LEFT_ALIGNMENT);
+    btnQuanTri.setBorderPainted(false);
+    btnQuanTri.setContentAreaFilled(false);
+    btnQuanTri.setHorizontalAlignment(SwingConstants.LEFT);
+    panel.add(btnQuanTri);
+
+    return panel;
+}
+
     
     private JPanel createRightPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -207,7 +230,7 @@ public class HotelManagementSystem extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Tầng " + floor));
         panel.setBackground(Color.WHITE);
         
-        List<room> roomLst = rc.getByFloor(floor);
+        List<Room> roomLst = rc.getByFloor(floor);
         
         int roomCount = roomLst.size();
         panel.setLayout(new GridLayout(1, roomCount, 10, 10));
@@ -220,7 +243,7 @@ public class HotelManagementSystem extends JFrame {
         return panel;
     }
     
-    private JPanel createSingleRoomPanel(room r) {
+    private JPanel createSingleRoomPanel(Room r) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setPreferredSize(new Dimension(80, 100));
         panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));

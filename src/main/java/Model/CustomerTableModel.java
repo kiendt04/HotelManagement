@@ -13,10 +13,10 @@ import javax.swing.table.AbstractTableModel;
  */
 public class CustomerTableModel extends AbstractTableModel{
 
-    private List<customer> ds;
+    private List<Customer> ds;
     private String[] header = {"Id/PassPort","Name","Gender","Phone","Region"};
 
-    public CustomerTableModel(List<customer> ds)
+    public CustomerTableModel(List<Customer> ds)
     {
         this.ds = ds;
     }
@@ -33,7 +33,7 @@ public class CustomerTableModel extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        customer cs = ds.get(rowIndex);
+        Customer cs = ds.get(rowIndex);
         switch (columnIndex) {
             case 0: return cs.getId();
             case 1: return cs.getName();
@@ -49,12 +49,12 @@ public class CustomerTableModel extends AbstractTableModel{
         return header[column];
     }
     
-    public void addCustomer(customer c) {
+    public void addCustomer(Customer c) {
         ds.add(c);
         fireTableRowsInserted(ds.size() - 1, ds.size() - 1);
     }
     
-    public void uptCus(customer c,int row)
+    public void uptCus(Customer c,int row)
     {
         ds.remove(row);
         ds.add(row, c);
@@ -66,7 +66,7 @@ public class CustomerTableModel extends AbstractTableModel{
         fireTableRowsDeleted(row, row);
     }
     
-    public void loadData(List<customer> list)
+    public void loadData(List<Customer> list)
     {
         this.ds = list;
         fireTableDataChanged();

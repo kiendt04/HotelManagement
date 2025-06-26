@@ -8,14 +8,14 @@ package Model;
  *
  * @author ADMIN
  */
-public class customer {
+public class Customer {
     
     private String id,name,sdt,region,gender;
 
-    public customer() {
+    public Customer() {
     }
 
-    public customer(String id, String name,String gender, String sdt, String region) {
+    public Customer(String id, String name,String gender, String sdt, String region) {
         this.id = id;
         this.name = name;
         this.gender = gender;

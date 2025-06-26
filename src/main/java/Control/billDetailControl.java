@@ -24,15 +24,15 @@ public class billDetailControl {
     public billDetailControl() {
     }
     
-    public List<billDetail> getAll()
+    public List<BillDetail> getAll()
     {
-        List<billDetail> list = new ArrayList<>();
+        List<BillDetail> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM bill_detail");
             while (rs.next())
             {
-                billDetail bd = new billDetail(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4));
+                BillDetail bd = new BillDetail(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4));
                 list.add(bd);
             }
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class billDetailControl {
         return list;
     }
     
-    public int insertDetail(billDetail bd)
+    public int insertDetail(BillDetail bd)
     {
         int rs = 0;
         try {
@@ -71,7 +71,7 @@ public class billDetailControl {
         return rs;
     }
     
-    public int uptQuant(billDetail bd)
+    public int uptQuant(BillDetail bd)
     {
         int rs = 0;
         if(bd.getQuant() <= 0)

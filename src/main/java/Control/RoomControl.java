@@ -26,15 +26,15 @@ public class RoomControl {
         
     }
     
-    public List<room> getAll()
+    public List<Room> getAll()
     {
-        List<room> list = new ArrayList<>();
+        List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM room");
             while(rs.next())
             {
-                room r = new room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
+                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -43,7 +43,7 @@ public class RoomControl {
         return list;
     }
     
-    public int insertRoom(room r)
+    public int insertRoom(Room r)
     {
         int rs=0;
         try {
@@ -74,7 +74,7 @@ public class RoomControl {
         return rs;
     }
     
-    public int uptRoom(room r)
+    public int uptRoom(Room r)
     {
         int rs = 0;
         try {
@@ -92,15 +92,15 @@ public class RoomControl {
         return rs;
     }
     
-    public List<room> getByFloor(int fl)
+    public List<Room> getByFloor(int fl)
     {
-        List<room> list = new ArrayList<>();
+        List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT  * FROM room where floor = "+ fl + "");
             while (rs.next())
             {
-                room r = new room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
+                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
                 list.add(r);
             }
         } catch (Exception e) {
