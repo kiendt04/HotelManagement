@@ -1,5 +1,4 @@
 Model\Room.class
-Control\Room_typeControl.class
 Model\CustomerTableModel.class
 View\FloorManagement$6.class
 View\HotelManagementSystem$2.class
@@ -8,11 +7,9 @@ View\Hotel.class
 Model\BillDetail.class
 View\GroupBooking$1.class
 View\RoomTransfer$1.class
-View\RoomTypeManagement$2.class
 Project\prj.class
 View\FloorManagement$2.class
 Control\CustomerControl.class
-View\RoomTypeManagement.class
 View\RoomListTransfer$2.class
 Model\Bill.class
 View\CustomerList$5.class
@@ -26,7 +23,6 @@ View\GroupBooking$2.class
 View\FloorManagement$3.class
 View\HotelManagementSystem$3.class
 View\RoomTransfer$2.class
-View\RoomTypeManagement$RoomTypeDialog.class
 View\FloorManagement$4.class
 Model\Service.class
 View\GroupBooking.class
@@ -44,15 +40,13 @@ View\FloorManagement$7.class
 View\Payment.class
 View\CustomerList$4.class
 View\FloorManagement$5.class
-View\RoomTypeManagement$1.class
 View\GroupBooking$3.class
 View\HotelManagementSystem$1.class
 Model\Customer.class
 View\CustomerList$7.class
 View\CustomerList$1.class
-Model\Room_type.class
 View\HotelManagementSystem.class
 View\RoomListTransfer$1.class
-View\RoomTypeManagement$RoomTypeData.class
+Model\room_type.class
 View\AddGroupBooking.class
 View\RoomListTransfer.class

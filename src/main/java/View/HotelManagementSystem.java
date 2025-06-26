@@ -151,7 +151,7 @@ public class HotelManagementSystem extends JFrame {
                     new FloorManagement();
                     break;
                 case "Loại phòng":
-                    new RoomTypeManagement();
+//                    new RoomTypeManagement();
                     break;
                 case "Quản lý phòng":
                     // TODO: xử lý quản lý phòng
