@@ -84,4 +84,36 @@ public class Room_typeControl {
         }
         return rs;
     }
+    
+    public int size()
+    {
+        int size = 0;
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT count(*) as count FROM room_type");
+            while(rs.next())
+            {
+                size = rs.getInt("count");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return size;
+    }
+    
+    public int createNewId()
+    {
+        int id = 0;
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT id from room_type ORDER BY DESC LIMIT 1");
+            while(rs.next())
+            {
+                id = rs.getInt(id) +1;
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return id;
+    }
 }

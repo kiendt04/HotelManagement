@@ -17,6 +17,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.List;
+import Model.*;
+import Control.*;
+import java.text.DecimalFormat;
 
 public class RoomTypeManagement extends JFrame {
     
@@ -25,6 +29,7 @@ public class RoomTypeManagement extends JFrame {
     private JTextField nameField, priceField, guestCountField, bedCountField;
     private JButton addButton, editButton, deleteButton, settingsButton;
     private NumberFormat currencyFormat;
+    private Room_typeControl rtc = new Room_typeControl();
     
     public RoomTypeManagement() {
         currencyFormat = NumberFormat.getNumberInstance(Locale.US);
@@ -62,14 +67,15 @@ public class RoomTypeManagement extends JFrame {
         settingsButton.setPreferredSize(new Dimension(30, 30));
         
         // Tạo bảng dữ liệu
-        String[] columnNames = {"STT", "TÊN LOẠI PHÒNG", "ĐƠN GIÁ", "SỐ NGƯỜI", "SỐ GIƯỜNG"};
-        Object[][] data = {
-            {"1", "VIP 1", "3500000", "2", "2"},
-            {"2", "VIP 2", "3000000", "2", "2"},
-            {"3", "Loại 1", "2500000", "2", "2"},
-            {"4", "Loại 2", "2000000", "1", "1"},
-            {"5", "Loại 2", "1500000", "4", "2"}
-        };
+        int sizedt = rtc.size();
+        String[] columnNames = {"STT", "TÊN LOẠI PHÒNG", "SỐ GIƯỜNG", "ĐƠN GIÁ"};
+        
+        Object[][] data = new Object[sizedt][4];
+        List<room_type> db = rtc.getAll();
+        for(int i=0;i<db.size();i++)
+        {
+            data[i] = new Object[]{db.get(i).getId(),db.get(i).getName(),db.get(i).getBed(),formatDouble(db.get(i).getPrice())};
+        }
         
         tableModel = new DefaultTableModel(data, columnNames) {
             @Override
@@ -95,14 +101,12 @@ public class RoomTypeManagement extends JFrame {
         roomTypeTable.getColumnModel().getColumn(1).setPreferredWidth(120);
         roomTypeTable.getColumnModel().getColumn(2).setPreferredWidth(100);
         roomTypeTable.getColumnModel().getColumn(3).setPreferredWidth(80);
-        roomTypeTable.getColumnModel().getColumn(4).setPreferredWidth(80);
         
         // Căn giữa cho các cột số
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         roomTypeTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         roomTypeTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-        roomTypeTable.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
         
         // Căn phải cho cột đơn giá
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
@@ -115,9 +119,6 @@ public class RoomTypeManagement extends JFrame {
         
         priceField = new JTextField();
         priceField.setEnabled(false);
-        
-        guestCountField = new JTextField();
-        guestCountField.setEnabled(false);
         
         bedCountField = new JTextField();
         bedCountField.setEnabled(false);
@@ -178,11 +179,7 @@ public class RoomTypeManagement extends JFrame {
         row1.add(disabledLabel1);
         
         // Hàng 2: Số người và Số giường
-        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        row2.add(new JLabel("Số người:"));
-        guestCountField.setPreferredSize(new Dimension(120, 25));
-        row2.add(guestCountField);
-        
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));        
         row2.add(Box.createHorizontalStrut(35));
         row2.add(new JLabel("Số giường:"));
         bedCountField.setPreferredSize(new Dimension(100, 25));
@@ -204,10 +201,10 @@ public class RoomTypeManagement extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = roomTypeTable.getSelectedRow();
                 if (selectedRow >= 0) {
+                   
                     nameField.setText((String) tableModel.getValueAt(selectedRow, 1));
-                    priceField.setText((String) tableModel.getValueAt(selectedRow, 2));
-                    guestCountField.setText((String) tableModel.getValueAt(selectedRow, 3));
-                    bedCountField.setText((String) tableModel.getValueAt(selectedRow, 4));
+                    priceField.setText(tableModel.getValueAt(selectedRow, 3).toString());
+                    bedCountField.setText( tableModel.getValueAt(selectedRow, 2).toString());
                 }
             }
         });
@@ -259,7 +256,6 @@ public class RoomTypeManagement extends JFrame {
                 String.valueOf(rowCount + 1),
                 data.name,
                 data.price,
-                data.guestCount,
                 data.bedCount
             });
         }
@@ -270,9 +266,8 @@ public class RoomTypeManagement extends JFrame {
         if (selectedRow >= 0) {
             RoomTypeData currentData = new RoomTypeData(
                 (String) tableModel.getValueAt(selectedRow, 1),
-                (String) tableModel.getValueAt(selectedRow, 2),
                 (String) tableModel.getValueAt(selectedRow, 3),
-                (String) tableModel.getValueAt(selectedRow, 4)
+                (String) tableModel.getValueAt(selectedRow, 2)
             );
             
             RoomTypeDialog dialog = new RoomTypeDialog(this, "Sửa loại phòng", true);
@@ -282,14 +277,12 @@ public class RoomTypeManagement extends JFrame {
             if (dialog.isConfirmed()) {
                 RoomTypeData data = dialog.getRoomTypeData();
                 tableModel.setValueAt(data.name, selectedRow, 1);
-                tableModel.setValueAt(data.price, selectedRow, 2);
-                tableModel.setValueAt(data.guestCount, selectedRow, 3);
-                tableModel.setValueAt(data.bedCount, selectedRow, 4);
+                tableModel.setValueAt(data.price, selectedRow, 3);
+                tableModel.setValueAt(data.bedCount, selectedRow, 2);
                 
                 // Cập nhật form
                 nameField.setText(data.name);
                 priceField.setText(data.price);
-                guestCountField.setText(data.guestCount);
                 bedCountField.setText(data.bedCount);
             }
         } else {
@@ -320,7 +313,6 @@ public class RoomTypeManagement extends JFrame {
     private void clearFields() {
         nameField.setText("");
         priceField.setText("");
-        guestCountField.setText("");
         bedCountField.setText("");
     }
     
@@ -330,8 +322,9 @@ public class RoomTypeManagement extends JFrame {
     
     // Inner class cho dialog thêm/sửa
     private class RoomTypeDialog extends JDialog {
-        private JTextField dialogNameField, dialogPriceField, dialogGuestField, dialogBedField;
+        private JTextField dialogNameField, dialogPriceField, dialogBedField;
         private boolean confirmed = false;
+        private Room_typeControl rtc = new Room_typeControl();
         
         public RoomTypeDialog(Frame parent, String title, boolean modal) {
             super(parent, title, modal);
@@ -360,13 +353,6 @@ public class RoomTypeManagement extends JFrame {
             gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
             dialogPriceField = new JTextField(15);
             formPanel.add(dialogPriceField, gbc);
-            
-            // Số người
-            gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE;
-            formPanel.add(new JLabel("Số người:"), gbc);
-            gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
-            dialogGuestField = new JTextField(15);
-            formPanel.add(dialogGuestField, gbc);
             
             // Số giường
             gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE;
@@ -403,7 +389,6 @@ public class RoomTypeManagement extends JFrame {
             }
             try {
                 Integer.parseInt(dialogPriceField.getText().trim());
-                Integer.parseInt(dialogGuestField.getText().trim());
                 Integer.parseInt(dialogBedField.getText().trim());
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Đơn giá, số người và số giường phải là số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -412,18 +397,16 @@ public class RoomTypeManagement extends JFrame {
             return true;
         }
         
-        public void setRoomTypeData(RoomTypeData data) {
-            dialogNameField.setText(data.name);
-            dialogPriceField.setText(data.price);
-            dialogGuestField.setText(data.guestCount);
-            dialogBedField.setText(data.bedCount);
+        public void setRoomTypeData(room_type data) {
+            dialogNameField.setText(data.getName());
+            dialogPriceField.setText(formatDouble(data.getPrice()));
+            dialogBedField.setText(data.getBed() + "");
         }
         
         public RoomTypeData getRoomTypeData() {
             return new RoomTypeData(
                 dialogNameField.getText().trim(),
                 dialogPriceField.getText().trim(),
-                dialogGuestField.getText().trim(),
                 dialogBedField.getText().trim()
             );
         }
@@ -433,17 +416,27 @@ public class RoomTypeManagement extends JFrame {
         }
     }
     
+    public static String formatDouble(double value) {
+        DecimalFormat df = new DecimalFormat("00,000");
+        return df.format(value);
+    }
+    
+    public static String formatInt(int value) {
+        DecimalFormat df = new DecimalFormat("00,000");
+        return df.format(value);
+    }
+    
     // Data class
     private class RoomTypeData {
-        String name, price, guestCount, bedCount;
+        String name, price, bedCount;
         
-        public RoomTypeData(String name, String price, String guestCount, String bedCount) {
+        public RoomTypeData(String name, String price, String bedCount) {
             this.name = name;
             this.price = price;
-            this.guestCount = guestCount;
             this.bedCount = bedCount;
         }
     }
+
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
