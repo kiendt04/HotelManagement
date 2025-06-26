@@ -11,17 +11,18 @@ package Model;
 public class room {
     
     private String num,note;
-    private int id,type,status;
+    private int id,type,status,floor;
 
     public room() {
     }
 
-    public room(int id, String num, int type,int status, String note ) {
+    public room(int id, String num,int floor, int type,int status, String note ) {
         this.num = num;
         this.note = note;
         this.id = id;
         this.type = type;
         this.status = status;
+        this.floor = floor;
     }
 
     public String getNum() {
@@ -63,7 +64,11 @@ public class room {
         this.status = status;
     }
 
-    
-    
-    
+    public int getFloor() {
+        return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
 }

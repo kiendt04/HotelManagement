@@ -34,7 +34,7 @@ public class RoomControl {
             ResultSet rs = st.executeQuery("SELECT * FROM room");
             while(rs.next())
             {
-                room r = new room(rs.getInt("Id"),rs.getString("Number"), rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
+                room r = new room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -47,11 +47,12 @@ public class RoomControl {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO room(Id,Number,Type,Status,Note)  VALUES(,?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO room(Id,Number,floor,Type,Status,Note)  VALUES(,?,?,?,?,?)");
             pt.setString(1, r.getNum());
-            pt.setInt(2, r.getType());
-            pt.setInt(3, r.getStatus());
-            pt.setString(4, r.getNote());
+            pt.setInt(2, r.getFloor());
+            pt.setInt(3, r.getType());
+            pt.setInt(4, r.getStatus());
+            pt.setString(5, r.getNote());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -77,16 +78,35 @@ public class RoomControl {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE room set Number = ?,Type = ? ,Status = ?, Note = ? WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE room set Number = ?, floor = ? ,Type = ? ,Status = ?, Note = ? WHERE id = ?");
             pt.setString(1, r.getNum());
-            pt.setInt(2, r.getType());
-            pt.setInt(3, r.getStatus());
-            pt.setString(4, r.getNote());
-            pt.setInt(5, r.getId());
+            pt.setInt(2, r.getFloor());
+            pt.setInt(3, r.getType());
+            pt.setInt(4, r.getStatus());
+            pt.setString(5, r.getNote());
+            pt.setInt(6, r.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
         }
         return rs;
     }
+    
+    public List<room> getByFloor(int fl)
+    {
+        List<room> list = new ArrayList<>();
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT  * FROM room where floor = "+ fl + "");
+            while (rs.next())
+            {
+                room r = new room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+        }
+        return list;
+    }
+    
+    
 }

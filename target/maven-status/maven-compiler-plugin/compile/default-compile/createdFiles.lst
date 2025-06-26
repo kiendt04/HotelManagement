@@ -2,6 +2,7 @@ Control\Room_typeControl.class
 Model\CustomerTableModel.class
 View\FloorManagement$6.class
 View\HotelManagementSystem$2.class
+View\HotelManagementSystem$5.class
 Model\Floor.class
 View\Hotel.class
 View\GroupBooking$1.class

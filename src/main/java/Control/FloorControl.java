@@ -86,11 +86,30 @@ public class FloorControl {
         int n = 0;
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT count(*) FROM floor");
-            n = rs.getInt(0);
+            ResultSet rs = st.executeQuery("SELECT count(id) as count FROM floor");
+            while(rs.next())
+            {
+                n = rs.getInt("count");
+            }
         } catch (Exception e) {
+            System.err.println(e);
         }
         return n;
     }
     
+    public int creatNewID()
+    {
+        int id = 0;
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT id FROM floor ORDER BY id DESC LIMIT 1");
+            while(rs.next())
+            {
+                id = rs.getInt("id") + 1;
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return id;
+    }
 }

@@ -14,8 +14,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import Control.*;
+import Model.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class HotelManagementSystem extends JFrame {
+    
+    private FloorControl flc = new FloorControl();
+    private RoomControl rc = new RoomControl();
     
     public HotelManagementSystem() {
         initComponents();
@@ -131,7 +138,19 @@ public class HotelManagementSystem extends JFrame {
             btn.setBorderPainted(false);
             btn.setContentAreaFilled(false);
             btn.setHorizontalAlignment(SwingConstants.LEFT);
-            btn.addActionListener(e -> new CustomerList());
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (btn.getText() == "Khách hàng") { new CustomerList();}
+                    else if (btn.getText() == "Quản lý tầng") {new FloorManagement();}
+                    else if (btn.getText() == "Loại phòng") {new RoomTypeManagement();}
+                    else if (item == "Quản lý phòng") {}
+                    else if (item == "Sản phẩm - Dịch vụ") {}
+                    else if (item == "Thiết bị") {}
+                    else if (item == "Phòng - Thiết bị") {}
+                    else if (item == "Đặt phòng theo đoàn") {}
+                }
+            });
             panel.add(btn);
             panel.add(Box.createVerticalStrut(5));
         }
@@ -168,9 +187,11 @@ public class HotelManagementSystem extends JFrame {
         roomPanel.setLayout(new BoxLayout(roomPanel, BoxLayout.Y_AXIS));
         roomPanel.setBackground(Color.WHITE);
         
+        int floorCount = flc.countFloor();
+        
         // Tạo 4 tầng
-        for (int floor = 1; floor <= 4; floor++) {
-            JPanel floorPanel = createFloorPanel(floor);
+        for (int i = 0; i < floorCount; i++) {
+            JPanel floorPanel = createFloorPanel(i+1);
             roomPanel.add(floorPanel);
             roomPanel.add(Box.createVerticalStrut(20));
         }
@@ -186,19 +207,20 @@ public class HotelManagementSystem extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder("Tầng " + floor));
         panel.setBackground(Color.WHITE);
         
-        int roomCount = (floor <= 2) ? 7 : 5;
+        List<room> roomLst = rc.getByFloor(floor);
+        
+        int roomCount = roomLst.size();
         panel.setLayout(new GridLayout(1, roomCount, 10, 10));
         
-        for (int i = 1; i <= roomCount; i++) {
-            int roomNum = floor * 100 + i;
-            JPanel roomPanel = createSingleRoomPanel(roomNum);
+        for (int i = 0; i < roomCount; i++) {
+            JPanel roomPanel = createSingleRoomPanel(roomLst.get(i));
             panel.add(roomPanel);
         }
         
         return panel;
     }
     
-    private JPanel createSingleRoomPanel(int roomNumber) {
+    private JPanel createSingleRoomPanel(room r) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setPreferredSize(new Dimension(80, 100));
         panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -209,14 +231,14 @@ public class HotelManagementSystem extends JFrame {
         iconLabel.setOpaque(true);
         
         // Màu theo trạng thái (mặc định xanh = trống)
-        if (roomNumber == 202) {
+        if (r.getStatus() == 1) {
             iconLabel.setBackground(Color.PINK); // Đỏ = đã thuê
         } else {
             iconLabel.setBackground(Color.CYAN); // Xanh = trống
         }
         
         // Tên phòng
-        JLabel nameLabel = new JLabel("Phòng " + roomNumber);
+        JLabel nameLabel = new JLabel("Phòng " + r.getNum());
         nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 10));
         

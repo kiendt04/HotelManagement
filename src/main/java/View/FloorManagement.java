@@ -11,6 +11,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import Control.*;
+import Model.*;
+import java.util.List;
 
 public class FloorManagement extends JFrame {
     
@@ -18,6 +21,8 @@ public class FloorManagement extends JFrame {
     private DefaultTableModel tableModel;
     private JTextField nameField;
     private JButton addButton, editButton, deleteButton, settingsButton;
+    private ImageIcon addIcon,editIcon,delIcon,setIcon;
+    private FloorControl flc = new FloorControl();
     
     public FloorManagement() {
         initComponents();
@@ -27,41 +32,47 @@ public class FloorManagement extends JFrame {
     
     private void initComponents() {
         setTitle("Danh mục Tầng");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 350);
         setLocationRelativeTo(null);
         setResizable(false);
         
+        //Icon
+        addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
+        editIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
+        delIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
+        setIcon = new ImageIcon(getClass().getResource("/img/settings.png"));
+        
         // Tạo toolbar buttons với icons
         addButton = new JButton();
-        addButton.setIcon(createColoredIcon(Color.GREEN, 16, 16));
+        addButton.setIcon(addIcon);
         addButton.setToolTipText("Thêm");
         addButton.setPreferredSize(new Dimension(30, 30));
         
         editButton = new JButton();
-        editButton.setIcon(createColoredIcon(Color.BLUE, 16, 16));
+        editButton.setIcon(editIcon);
         editButton.setToolTipText("Sửa");
         editButton.setPreferredSize(new Dimension(30, 30));
         
         deleteButton = new JButton();
-        deleteButton.setIcon(createColoredIcon(Color.RED, 16, 16));
+        deleteButton.setIcon(delIcon);
         deleteButton.setToolTipText("Xóa");
         deleteButton.setPreferredSize(new Dimension(30, 30));
         
         settingsButton = new JButton();
-        settingsButton.setIcon(createColoredIcon(Color.GRAY, 16, 16));
+        settingsButton.setIcon(setIcon);
         settingsButton.setToolTipText("Thiết lập");
         settingsButton.setPreferredSize(new Dimension(30, 30));
         
         // Tạo bảng dữ liệu
+        int countFL = flc.countFloor();
         String[] columnNames = {"STT", "TÊN TẦNG"};
-        Object[][] data = {
-            {"1", "Tầng 1"},
-            {"2", "Tầng 2"},
-            {"3", "Tầng 3"},
-            {"4", "Tầng 4"},
-            {"5", "Tầng 5"}
-        };
+        Object[][] data = new Object[countFL][2] ;
+        List<Floor> flList = flc.getAll();
+        for (int i=0;i<countFL;i++)
+        {
+            data[i] = new Object[]{flList.get(i).getId(),flList.get(i).getName()};
+        }
         
         tableModel = new DefaultTableModel(data, columnNames) {
             @Override
@@ -69,6 +80,7 @@ public class FloorManagement extends JFrame {
                 return false; // Không cho phép chỉnh sửa trực tiếp
             }
         };
+       
         
         floorTable = new JTable(tableModel);
         floorTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -202,8 +214,9 @@ public class FloorManagement extends JFrame {
     private void addFloor() {
         String floorName = JOptionPane.showInputDialog(this, "Nhập tên tầng:", "Thêm tầng", JOptionPane.PLAIN_MESSAGE);
         if (floorName != null && !floorName.trim().isEmpty()) {
-            int rowCount = tableModel.getRowCount();
-            tableModel.addRow(new Object[]{String.valueOf(rowCount + 1), floorName.trim()});
+            int rowCount = flc.creatNewID();
+            tableModel.addRow(new Object[]{rowCount, floorName.trim()});
+            flc.insertFloor(new Floor(rowCount,floorName.trim()));
         }
     }
     
@@ -215,6 +228,8 @@ public class FloorManagement extends JFrame {
             if (newName != null && !newName.trim().isEmpty()) {
                 tableModel.setValueAt(newName.trim(), selectedRow, 1);
                 nameField.setText(newName.trim());
+                int id = (int) tableModel.getValueAt(selectedRow, 0);
+                flc.uptFloor(new Floor(id,newName));
             }
         } else {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn tầng cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -223,6 +238,7 @@ public class FloorManagement extends JFrame {
     
     private void deleteFloor() {
         int selectedRow = floorTable.getSelectedRow();
+        int id = (int) tableModel.getValueAt(selectedRow, 0);
         if (selectedRow >= 0) {
             int confirm = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa tầng này?", 
@@ -231,10 +247,8 @@ public class FloorManagement extends JFrame {
             if (confirm == JOptionPane.YES_OPTION) {
                 tableModel.removeRow(selectedRow);
                 nameField.setText("");
-                // Cập nhật lại STT
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    tableModel.setValueAt(String.valueOf(i + 1), i, 0);
-                }
+                
+                flc.delFloor(id);
             }
         } else {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn tầng cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);

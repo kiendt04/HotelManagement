@@ -40,6 +40,7 @@ public class CustomerList extends JFrame{
     private JTextField cccd,name,phone,region,filterId,filterName,filterPhone,filterAddress;
     private JCheckBox gender;
     private int func = -1,row = -1;
+    private ImageIcon addIcon,rmIcon,uptIcon,saveIcon,filterIcon,clearIcon,clIcon;
     
     
     public CustomerList() throws HeadlessException {
@@ -58,12 +59,13 @@ public class CustomerList extends JFrame{
     
     public void initComp()
     {
-        ImageIcon addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
-        ImageIcon rmIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
-        ImageIcon uptIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
-        ImageIcon  saveIcon = new ImageIcon(getClass().getResource("/img/check.png"));
-        ImageIcon  filterIcon = new ImageIcon(getClass().getResource("/img/search.png"));
-        ImageIcon  clearIcon = new ImageIcon(getClass().getResource("/img/clear.png"));
+        addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
+        rmIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
+        uptIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
+        saveIcon = new ImageIcon(getClass().getResource("/img/check.png"));
+        filterIcon = new ImageIcon(getClass().getResource("/img/search.png"));
+        clearIcon = new ImageIcon(getClass().getResource("/img/clear.png"));
+        clIcon = new ImageIcon(getClass().getResource("/img/cross.png"));
         header = new JPanel();
         header.setPreferredSize(new Dimension(0,40));
         main = new JPanel();
@@ -193,14 +195,14 @@ public class CustomerList extends JFrame{
                 if(func == 0 && (JOptionPane.showConfirmDialog(rootPane, "Stop process", "Confirm", JOptionPane.YES_NO_OPTION) == 0) )
                 {
                     save.setEnabled(false); remove.setEnabled(true); upt.setEnabled(true);
-                    addBtn.setText("Add");
+                    addBtn.setIcon(addIcon);
                     clearText();
                     func = -1;
                 }
                 else
                 {
                     save.setEnabled(true); remove.setEnabled(false); upt.setEnabled(false);
-                    addBtn.setText("Cancel"); 
+                    addBtn.setIcon(clIcon); 
                     clearText();
                     func = 0;
                 }
