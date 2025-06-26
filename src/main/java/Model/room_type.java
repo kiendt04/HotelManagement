@@ -8,17 +8,17 @@ package Model;
  *
  * @author ADMIN
  */
-public class room_type {
+public class Room_type {
     
     private int id,bed;
     private String name;
     private double price;
 
-    public room_type() {
+    public Room_type() {
     }
 
 
-    public room_type(int id, String name,int bed,double price) {
+    public Room_type(int id, String name,int bed,double price) {
         this.id = id;
         this.name = name;
         this.price = price;

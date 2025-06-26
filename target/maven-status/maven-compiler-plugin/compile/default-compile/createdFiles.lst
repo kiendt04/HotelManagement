@@ -47,6 +47,9 @@ View\CustomerList$7.class
 View\CustomerList$1.class
 View\HotelManagementSystem.class
 View\RoomListTransfer$1.class
+<<<<<<< HEAD
 Model\room_type.class
+=======
+>>>>>>> ed2f1276ce4a861c251315f9fa5367781834f541
 View\AddGroupBooking.class
 View\RoomListTransfer.class
