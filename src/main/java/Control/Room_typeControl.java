@@ -32,11 +32,7 @@ public class Room_typeControl {
             ResultSet rs = st.executeQuery("SELECT * FROM room_type");
             while(rs.next())
             {
-<<<<<<< HEAD
-                Room_type r = new Room_type(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
-=======
-                room_type r = new room_type(rs.getInt("id"), rs.getString("name"),rs.getInt("bed"),rs.getDouble("price"));
->>>>>>> main
+                Room_type r = new Room_type(rs.getInt("id"), rs.getString("name"),rs.getInt("bed"),rs.getDouble("price"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -49,10 +45,11 @@ public class Room_typeControl {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,bed,price) VALUES(,?,?,?)");
-            pt.setString(1, r.getName());
-            pt.setInt(2,r.getBed());
-            pt.setDouble(3, r.getPrice());
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,bed,price) VALUES(?,?,?,?)");
+            pt.setInt(1, r.getId());
+            pt.setString(2, r.getName());
+            pt.setInt(3,r.getBed());
+            pt.setDouble(4, r.getPrice());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -110,10 +107,10 @@ public class Room_typeControl {
         int id = 0;
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT id from room_type ORDER BY DESC LIMIT 1");
+            ResultSet rs = st.executeQuery("SELECT id from room_type ORDER BY id DESC LIMIT 1");
             while(rs.next())
             {
-                id = rs.getInt(id) +1;
+                id = rs.getInt("id") + 1;
             }
         } catch (Exception e) {
             System.err.println(e);

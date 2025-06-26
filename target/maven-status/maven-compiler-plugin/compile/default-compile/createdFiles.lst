@@ -8,7 +8,6 @@ View\Hotel.class
 Model\BillDetail.class
 View\GroupBooking$1.class
 View\RoomTransfer$1.class
-View\RoomTypeManagement$2.class
 Project\prj.class
 View\FloorManagement$2.class
 Control\CustomerControl.class
@@ -53,6 +52,5 @@ View\CustomerList$1.class
 Model\Room_type.class
 View\HotelManagementSystem.class
 View\RoomListTransfer$1.class
-View\RoomTypeManagement$RoomTypeData.class
 View\AddGroupBooking.class
 View\RoomListTransfer.class
