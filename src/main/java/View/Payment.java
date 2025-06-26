@@ -92,6 +92,7 @@ public class Payment extends JFrame {
         // Panel chính
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         // Toolbar
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbarPanel.setBackground(new Color(240, 240, 240));
