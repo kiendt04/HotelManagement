@@ -28,6 +28,7 @@ public class FloorManagement extends JFrame {
         initComponents();
         setupLayout();
         setupEventHandlers();
+        this.setVisible(true);
     }
     
     private void initComponents() {

@@ -4,6 +4,7 @@ Model\CustomerTableModel.class
 View\FloorManagement$6.class
 View\HotelManagementSystem$2.class
 Model\Floor.class
+View\Login.class
 View\Hotel.class
 Model\BillDetail.class
 View\GroupBooking$1.class
@@ -34,6 +35,7 @@ Control\RoomControl.class
 View\CustomerList.class
 View\view_main.class
 View\CustomerList$3.class
+Control\UserControl.class
 Control\FloorControl.class
 View\FloorManagement.class
 View\RoomTransfer.class
@@ -49,6 +51,7 @@ View\HotelManagementSystem$1.class
 Model\Customer.class
 View\CustomerList$7.class
 View\CustomerList$1.class
+Model\User.class
 Model\Room_type.class
 View\HotelManagementSystem.class
 View\RoomListTransfer$1.class

@@ -6,6 +6,7 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Con
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\Room_typeControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\RoomControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\ServiceControl.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Control\UserControl.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Bill.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\BillDetail.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Customer.java
@@ -14,6 +15,7 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Mod
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Room.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Room_type.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\Service.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Model\User.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Project\prj.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\AddGroupBooking.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\CustomerList.java
@@ -21,6 +23,7 @@ C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\Vie
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\GroupBooking.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\Hotel.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\HotelManagementSystem.java
+C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\Login.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\Payment.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\RoomBooking.java
 C:\Users\ADMIN\OneDrive\Documents\NetBeansProjects\BTL_QLyKSan\src\main\java\View\RoomListTransfer.java

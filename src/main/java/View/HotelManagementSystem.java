@@ -23,11 +23,17 @@ public class HotelManagementSystem extends JFrame {
     
     private FloorControl flc = new FloorControl();
     private RoomControl rc = new RoomControl();
+    private int role;
     
     public HotelManagementSystem() {
         initComponents();
     }
     
+    public HotelManagementSystem(int role)
+    {
+        this.role = role;
+        initComponents();
+    }
     private void initComponents() {
         setTitle("PHẦN MỀM QUẢN LÝ KHÁCH SẠN - Administrator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,8 +131,6 @@ public class HotelManagementSystem extends JFrame {
         "Loại phòng",
         "Quản lý phòng",
         "Sản phẩm - Dịch vụ",
-        "Thiết bị",
-        "Phòng - Thiết bị",
         "Đặt phòng theo đoàn"
     };
 
@@ -142,32 +146,64 @@ public class HotelManagementSystem extends JFrame {
     // Xử lý sự kiện khi chọn mục trong danh sách
     menuList.addListSelectionListener(e -> {
         if (!e.getValueIsAdjusting()) {
-            String selected = menuList.getSelectedValue();
+            int selected = menuList.getSelectedIndex();
             switch (selected) {
-                case "Khách hàng":
-                    new CustomerList();
+                case 0:
+                    if (role == 1)
+                    {
+                        new CustomerList();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
-                case "Quản lý tầng":
-                    new FloorManagement();
+                case 1:
+                    if (role == 1)
+                    {
+                        new FloorManagement();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
-                case "Loại phòng":
-                    new RoomTypeManagement();
+                case 2:
+                    if (role == 1)
+                    {
+                        new RoomTypeManagement();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
-                case "Quản lý phòng":
+                case 3:
+                    if (role == 1)
+                    {
+                        
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
+                    break;
                     // TODO: xử lý quản lý phòng
-                    break;
-                case "Sản phẩm - Dịch vụ":
+                case 4:
+                    if (role == 1)
+                    {
+                        
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     // TODO: xử lý sản phẩm dịch vụ
                     break;
-                case "Thiết bị":
-                    // TODO: xử lý thiết bị
+                case 5:
+                    
                     break;
-                case "Phòng - Thiết bị":
-                    // TODO: xử lý phòng - thiết bị
-                    break;
-                case "Đặt phòng theo đoàn":
                     // TODO: xử lý đặt phòng theo đoàn
-                    break;
             }
         }
     });
