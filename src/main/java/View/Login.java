@@ -97,7 +97,6 @@ public class Login extends JFrame {
         String password = String.valueOf(txtPassword.getPassword());
         UserControl uc = new UserControl();
         int role = uc.checkLogin(username,password);
-        System.err.println(uc.hashPass(password));
         if (role != -1) {
             // Chuyển sang frame chính
             new HotelManagementSystem(role);
@@ -118,7 +117,5 @@ public class Login extends JFrame {
         SwingUtilities.invokeLater(() -> {
             new Login().setVisible(true);
         });
-        UserControl uc = new UserControl();
-        System.err.println(uc.hashPass("staff123"));
     }
 }
