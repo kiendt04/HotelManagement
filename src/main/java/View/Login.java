@@ -99,7 +99,7 @@ public class Login extends JFrame {
         int role = uc.checkLogin(username,password);
         if (role != -1) {
             // Chuyển sang frame chính
-            new HotelManagementSystem(role);
+            new HotelManagementSystem(role,uc.getId(username));
             this.dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);

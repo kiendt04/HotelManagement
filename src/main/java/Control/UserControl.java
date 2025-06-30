@@ -86,7 +86,7 @@ public class UserControl {
         return rs;
     }
     
-    public String hashPass(String pass)
+    private String hashPass(String pass)
     {
         return BCrypt.hashpw(pass, BCrypt.gensalt());
     }
@@ -103,6 +103,20 @@ public class UserControl {
                 {
                    return  rs.getInt("role");
                 }
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return -1;
+    }
+    
+    public int getId(String name)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs  = st.executeQuery("SELECT id from user where name = '"+ name +"'");
+            while(rs.next()){
+                return rs.getInt("id");
             }
         } catch (Exception e) {
             System.err.println(e);
