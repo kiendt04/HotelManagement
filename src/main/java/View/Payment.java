@@ -8,6 +8,7 @@ package View;
  *
  * @author ASUS
  */
+import com.toedter.calendar.JDateChooser;
 import Control.ServiceControl;
 import Control.myconnect;
 import Model.Service;
@@ -17,14 +18,16 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class Payment extends JFrame {
     private JTextField customerNameField;
-    private JTextField checkInField;
-    private JTextField checkOutField;
+    private JDateChooser checkInField;
+    private JDateChooser checkOutField;
     private JTextField totalService;
     private JTextField totalRoom;
     private JComboBox<String> statusComboBox;
@@ -32,6 +35,8 @@ public class Payment extends JFrame {
     private DefaultTableModel tableModel;
     private JLabel totalAmountLabel;
     private NumberFormat currencyFormat;
+
+private long roomPricePerDay = 3000000;
     
     public Payment() {
         currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
@@ -47,8 +52,11 @@ public class Payment extends JFrame {
     private void initializeComponents() {
         // Khởi tạo các text field
         customerNameField = new JTextField("Đặng Trần Anh");
-        checkInField = new JTextField("01/09/2021");
-        checkOutField = new JTextField("02/09/2021");
+        checkOutField = new JDateChooser();
+checkInField = new JDateChooser();
+
+checkInField.setDateFormatString("dd/MM/yyyy");
+checkOutField.setDateFormatString("dd/MM/yyyy");
         totalRoom = new JTextField("6000000");
         totalService = new JTextField("100000");
         // Khởi tạo ComboBox cho trạng thái
@@ -190,8 +198,9 @@ public class Payment extends JFrame {
     JList<String> serviceJList = new JList<>(listModel);
     serviceJList.setFont(new Font("Arial", Font.PLAIN, 14));
     serviceJList.setFixedCellHeight(26);
-    serviceJList.addListSelectionListener(e -> {
-    if (!e.getValueIsAdjusting()) {
+    serviceJList.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
         String selected = serviceJList.getSelectedValue();
         if (selected == null || selected.trim().isEmpty()) return;
 
@@ -199,7 +208,7 @@ public class Payment extends JFrame {
         if (parts.length < 2) return;
 
         String tenDV = parts[0].trim();
-        long donGia = Long.parseLong(parts[1].replaceAll("[^0-9]", "")); 
+        long donGia = Long.parseLong(parts[1].replaceAll("[^0-9]", ""));
 
         boolean found = false;
         for (int i = 0; i < tableModel.getRowCount(); i++) {
@@ -208,14 +217,13 @@ public class Payment extends JFrame {
                 int currentSL = Integer.parseInt(tableModel.getValueAt(i, 1).toString());
                 currentSL++;
                 tableModel.setValueAt(currentSL, i, 1);
-                tableModel.setValueAt(donGia * currentSL, i, 3); 
+                tableModel.setValueAt(donGia * currentSL, i, 3);
                 found = true;
                 break;
             }
         }
 
         if (!found) {
-            // Thêm mới dịch vụ vào bảng
             tableModel.addRow(new Object[]{tenDV, 1, donGia, donGia});
         }
 
@@ -281,6 +289,33 @@ public class Payment extends JFrame {
                 calculateTotal();
             }
         });
+        serviceTable.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+        // Nếu click 2 lần
+        if (e.getClickCount() == 2) {
+            int row = serviceTable.getSelectedRow();
+            if (row != -1) {
+                try {
+                    int quantity = Integer.parseInt(tableModel.getValueAt(row, 1).toString());
+                    long unitPrice = Long.parseLong(tableModel.getValueAt(row, 2).toString());
+
+                    if (quantity > 1) {
+                        quantity--;
+                        tableModel.setValueAt(quantity, row, 1);
+                        tableModel.setValueAt(quantity * unitPrice, row, 3);
+                    } else {
+                        tableModel.removeRow(row);
+                    }
+
+                    calculateTotal();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+});
         
         // Thêm event handler cho ComboBox trạng thái
         statusComboBox.addActionListener(e -> {
@@ -288,7 +323,37 @@ public class Payment extends JFrame {
             System.out.println("Trạng thái đã chọn: " + selectedStatus);
             // Có thể thêm logic xử lý khác ở đây
         });
+        checkOutField.getDateEditor().addPropertyChangeListener(e -> {
+    if ("date".equals(e.getPropertyName())) {
+        validateAndCalculateDays();
     }
+});
+    }
+    
+   private void validateAndCalculateDays() {
+    java.util.Date checkIn = checkInField.getDate();
+    java.util.Date checkOut = checkOutField.getDate();
+
+    if (checkIn == null || checkOut == null) return;
+
+    long diffMillis = checkOut.getTime() - checkIn.getTime();
+    if (diffMillis < 0) {
+        JOptionPane.showMessageDialog(this, "Ngày trả phải sau ngày đặt!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    long days = diffMillis / (1000 * 60 * 60 * 24);
+    if (days == 0) days = 1;
+
+    long roomRate = 3000000;
+    long totalRoomPrice = roomRate * days;
+
+    totalRoom.setText(NumberFormat.getNumberInstance(new Locale("vi", "VN")).format(totalRoomPrice));
+    calculateTotal();
+}
+
+
+
     
     private void loadSampleData() {
         // Thêm dữ liệu mẫu vào bảng
@@ -304,24 +369,47 @@ public class Payment extends JFrame {
     }
     
     private void calculateTotal() {
-        long total = 3000000; // Giá phòng cơ bản
-        
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            Object thanhTienObj = tableModel.getValueAt(i, 3);
-            if (thanhTienObj != null && !thanhTienObj.toString().trim().isEmpty()) {
-                try {
-                    String thanhTienStr = thanhTienObj.toString().replaceAll("[^0-9]", "");
-                    if (!thanhTienStr.isEmpty()) {
-                        total += Long.parseLong(thanhTienStr);
-                    }
-                } catch (NumberFormatException e) {
-                    // Ignore invalid numbers
+    long tongDichVu = 0;
+
+    // Tính tổng tiền dịch vụ từ bảng
+    for (int i = 0; i < tableModel.getRowCount(); i++) {
+        Object thanhTienObj = tableModel.getValueAt(i, 3);
+        if (thanhTienObj != null && !thanhTienObj.toString().trim().isEmpty()) {
+            try {
+                String thanhTienStr = thanhTienObj.toString().replaceAll("[^0-9]", "");
+                if (!thanhTienStr.isEmpty()) {
+                    tongDichVu += Long.parseLong(thanhTienStr);
                 }
+            } catch (NumberFormatException e) {
+                // Bỏ qua lỗi
             }
         }
-        
-        totalAmountLabel.setText(currencyFormat.format(total) + " đồng");
     }
+
+    // Cập nhật totalService theo định dạng tiền tệ
+    totalService.setText(currencyFormat.format(tongDichVu));
+
+    // Parse lại giá trị từ totalRoom đang hiển thị có thể đã được format
+    long tienPhong = 0;
+try {
+    String rawText = totalRoom.getText().replaceAll("\\.", "").replaceAll("[^0-9]", "");
+    if (!rawText.isEmpty()) {
+        tienPhong = Long.parseLong(rawText);
+    }
+} catch (NumberFormatException e) {
+    tienPhong = 0;
+}
+
+
+    // Format lại totalRoom luôn
+    totalRoom.setText(currencyFormat.format(tienPhong));
+
+    // Tính và hiển thị tổng thanh toán
+    long tongThanhToan = tienPhong + tongDichVu;
+    totalAmountLabel.setText(currencyFormat.format(tongThanhToan) + " đồng");
+}
+
+
     
     public static void main(String[] args) {
         
