@@ -148,26 +148,6 @@ public class HotelManagementSystem extends JFrame {
                         JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
                     }
                     break;
-                case 2:
-                    if (role == 1)
-                    {
-                        new RoomTypeManagement();
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
-                    }
-                    break;
-                case 3:
-                    if (role == 1)
-                    {
-                        
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
-                    }
-                    break;
                     // TODO: xử lý quản lý phòng
                 case 4:
                     if (role == 1)
