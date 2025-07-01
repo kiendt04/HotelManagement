@@ -34,6 +34,7 @@ public class RoomTypeManagement extends JFrame {
         initComponents();
         setupLayout();
         setupEventHandlers();
+        this.setVisible(true);
     }
     
     private void initComponents() {

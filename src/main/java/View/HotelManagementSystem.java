@@ -23,11 +23,18 @@ public class HotelManagementSystem extends JFrame {
     
     private FloorControl flc = new FloorControl();
     private RoomControl rc = new RoomControl();
+    private int role,id;
     
     public HotelManagementSystem() {
         initComponents();
     }
     
+    public HotelManagementSystem(int role,int id)
+    {
+        this.id = id;
+        this.role = role;
+        initComponents();
+    }
     private void initComponents() {
         setTitle("PHẦN MỀM QUẢN LÝ KHÁCH SẠN - Administrator");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,54 +62,33 @@ public class HotelManagementSystem extends JFrame {
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         
+        JMenuItem qlyUser = new JMenuItem("Qly USer");
+        JMenuItem doimk = new JMenuItem("Đổi mật khẩu");
+        JMenuItem thoat = new JMenuItem("Thoat");
+        JMenuItem doanhthu = new JMenuItem("Doanh thu");
         // Menu Hệ thống
-        JMenu heThongMenu = new JMenu("Hệ thống");
-        heThongMenu.addMenuListener(new javax.swing.event.MenuListener() {
-            @Override
-            public void menuSelected(javax.swing.event.MenuEvent e) {
-                JOptionPane.showMessageDialog(HotelManagementSystem.this, "Chức năng Hệ thống");
+        qlyUser.addActionListener(e -> {JOptionPane.showMessageDialog(rootPane, "qluser");});
+        doimk.addActionListener(e -> {new ChangePass(id);});
+        thoat.addActionListener(e -> {
+            try {
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            } catch (Exception a) {
+                a.printStackTrace();
             }
-            @Override
-            public void menuDeselected(javax.swing.event.MenuEvent e) {}
-            @Override
-            public void menuCanceled(javax.swing.event.MenuEvent e) {}
+        SwingUtilities.invokeLater(() -> {
+            new Login().setVisible(true);
         });
+            this.dispose();
+        });
+        JMenu heThongMenu = new JMenu("Hệ thống");
+        heThongMenu.add(qlyUser); heThongMenu.add(doimk); heThongMenu.addSeparator(); heThongMenu.add(thoat);
         
         // Menu Báo cáo
         JMenu baoCaoMenu = new JMenu("Báo cáo");
-        baoCaoMenu.addMenuListener(new javax.swing.event.MenuListener() {
-            @Override
-            public void menuSelected(javax.swing.event.MenuEvent e) {
-                JOptionPane.showMessageDialog(HotelManagementSystem.this, "Chức năng Báo cáo");
-            }
-            @Override
-            public void menuDeselected(javax.swing.event.MenuEvent e) {}
-            @Override
-            public void menuCanceled(javax.swing.event.MenuEvent e) {}
-        });
-        
-        // Menu Thoát
-        JMenu thoatMenu = new JMenu("Thoát");
-        thoatMenu.addMenuListener(new javax.swing.event.MenuListener() {
-            @Override
-            public void menuSelected(javax.swing.event.MenuEvent e) {
-                int result = JOptionPane.showConfirmDialog(HotelManagementSystem.this, 
-                    "Bạn có chắc chắn muốn thoát?", 
-                    "Xác nhận", 
-                    JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
-            }
-            @Override
-            public void menuDeselected(javax.swing.event.MenuEvent e) {}
-            @Override
-            public void menuCanceled(javax.swing.event.MenuEvent e) {}
-        });
+        baoCaoMenu.add(doanhthu);
         
         menuBar.add(heThongMenu);
         menuBar.add(baoCaoMenu);
-        menuBar.add(thoatMenu);
         
         setJMenuBar(menuBar);
     }
@@ -125,8 +111,6 @@ public class HotelManagementSystem extends JFrame {
         "Loại phòng",
         "Quản lý phòng",
         "Sản phẩm - Dịch vụ",
-        "Thiết bị",
-        "Phòng - Thiết bị",
         "Đặt phòng theo đoàn"
     };
 
@@ -142,32 +126,44 @@ public class HotelManagementSystem extends JFrame {
     // Xử lý sự kiện khi chọn mục trong danh sách
     menuList.addListSelectionListener(e -> {
         if (!e.getValueIsAdjusting()) {
-            String selected = menuList.getSelectedValue();
+            int selected = menuList.getSelectedIndex();
             switch (selected) {
-                case "Khách hàng":
-                    new CustomerList();
+                case 0:
+                    if (role == 1)
+                    {
+                        new CustomerList();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
-                case "Quản lý tầng":
-                    new FloorManagement();
+                case 1:
+                    if (role == 1)
+                    {
+                        new FloorManagement();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
-                case "Loại phòng":
-//                    new RoomTypeManagement();
-                    break;
-                case "Quản lý phòng":
                     // TODO: xử lý quản lý phòng
-                    break;
-                case "Sản phẩm - Dịch vụ":
+                case 4:
+                    if (role == 1)
+                    {
+                        
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     // TODO: xử lý sản phẩm dịch vụ
                     break;
-                case "Thiết bị":
-                    // TODO: xử lý thiết bị
+                case 5:
+                    
                     break;
-                case "Phòng - Thiết bị":
-                    // TODO: xử lý phòng - thiết bị
-                    break;
-                case "Đặt phòng theo đoàn":
                     // TODO: xử lý đặt phòng theo đoàn
-                    break;
             }
         }
     });
@@ -177,26 +173,6 @@ public class HotelManagementSystem extends JFrame {
     scrollPane.setBorder(BorderFactory.createEmptyBorder());
     panel.add(scrollPane);
     panel.add(Box.createVerticalStrut(20));
-
-    // Hệ thống
-    JLabel lblHeThong = new JLabel("Hệ thống");
-    lblHeThong.setFont(new Font("Arial", Font.BOLD, 14));
-    panel.add(lblHeThong);
-    panel.add(Box.createVerticalStrut(10));
-
-    JButton btnDoiMK = new JButton("Đổi mật khẩu");
-    btnDoiMK.setAlignmentX(Component.LEFT_ALIGNMENT);
-    btnDoiMK.setBorderPainted(false);
-    btnDoiMK.setContentAreaFilled(false);
-    btnDoiMK.setHorizontalAlignment(SwingConstants.LEFT);
-    panel.add(btnDoiMK);
-
-    JButton btnQuanTri = new JButton("Quản trị người dùng");
-    btnQuanTri.setAlignmentX(Component.LEFT_ALIGNMENT);
-    btnQuanTri.setBorderPainted(false);
-    btnQuanTri.setContentAreaFilled(false);
-    btnQuanTri.setHorizontalAlignment(SwingConstants.LEFT);
-    panel.add(btnQuanTri);
 
     return panel;
 }
