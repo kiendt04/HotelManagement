@@ -27,7 +27,7 @@ public class ChangePass extends JFrame{
     
     public ChangePass(int id) throws HeadlessException {
         this.id = id;
-        this.setPreferredSize(new Dimension(300,200));
+        this.setSize(new Dimension(300,200));
         this.setLocationRelativeTo(null);
         initComp();
         initUI();
@@ -52,5 +52,9 @@ public class ChangePass extends JFrame{
         bot.add(new JLabel("RePass:   ")); bot.add(recheck);
         act.add(save); act.add(close); 
         this.add(top); this.add(main); this.add(bot); this.add(act);
+    }
+    
+    public static void main(String[] args) {
+        new ChangePass(1);
     }
 }

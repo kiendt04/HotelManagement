@@ -68,7 +68,7 @@ public class HotelManagementSystem extends JFrame {
         JMenuItem doanhthu = new JMenuItem("Doanh thu");
         // Menu Hệ thống
         qlyUser.addActionListener(e -> {JOptionPane.showMessageDialog(rootPane, "qluser");});
-        doimk.addActionListener(e -> {JOptionPane.showMessageDialog(rootPane, "doimk");});
+        doimk.addActionListener(e -> {new ChangePass(id);});
         thoat.addActionListener(e -> {
             try {
                 UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");

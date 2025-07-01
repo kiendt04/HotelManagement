@@ -33,6 +33,7 @@ Control\RoomControl.class
 View\CustomerList.class
 View\view_main.class
 View\CustomerList$3.class
+View\ChangePass.class
 Control\UserControl.class
 Control\FloorControl.class
 View\FloorManagement.class
