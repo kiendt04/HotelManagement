@@ -6,6 +6,9 @@ package View;
 
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.nio.file.Files;
 import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,14 +23,19 @@ public class ChangePass extends JFrame{
     
     private JPasswordField oldpass,newpass,recheck;
     private JButton save,close,showOldPass,showNewPass;
+    private ImageIcon show,hide;
     private int id;
     
     public ChangePass() throws HeadlessException {
     }
     
     public ChangePass(int id) throws HeadlessException {
+        super("Đổi mật khẩu");
         this.id = id;
-        this.setSize(new Dimension(300,200));
+        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        this.setPreferredSize(new Dimension(350,200));
+        pack();
+        setResizable(false);
         this.setLocationRelativeTo(null);
         initComp();
         initUI();
@@ -36,22 +44,83 @@ public class ChangePass extends JFrame{
     
     private void initComp()
     {
-        oldpass = new JPasswordField(20);
-        newpass = new JPasswordField(20);
-        recheck = new JPasswordField(20);
+        oldpass = new JPasswordField(10);
+        newpass = new JPasswordField(10);
+        recheck = new JPasswordField(10);
+        oldpass.setEchoChar('•');
+        newpass.setEchoChar('•');
+        recheck.setEchoChar('•');
         save = new JButton("Luu");
         close = new JButton("Dong");
-        showOldPass = new JButton("");
-        showNewPass = new JButton("");
+        show = new ImageIcon(getClass().getResource("/img/hide.png"));
+        hide = new ImageIcon(getClass().getResource("/img/hidden.png"));
+        showOldPass = new JButton();
+        showOldPass.setPreferredSize(new Dimension(18,18));
+        showOldPass.setIcon(show);
+        showNewPass = new JButton();
+        showNewPass.setPreferredSize(new Dimension(18,18));
+        showNewPass.setIcon(show);
+        showOldPass.setContentAreaFilled(false); // tắt nền
+        showOldPass.setBorderPainted(false);     // tắt viền
+        //showOldPass.setFocusPainted(false);      // tắt viền focus (màu xanh khi bấm)
+        showOldPass.setOpaque(false);            // đảm bảo nền trong suốt
+
+        showNewPass.setContentAreaFilled(false);
+        showNewPass.setBorderPainted(false);
+        //showNewPass.setFocusPainted(false);
+        showNewPass.setOpaque(false);
     }
     private void initUI()
     {
         JPanel main = new JPanel(), top = new JPanel(), bot = new JPanel(), act = new JPanel();
-        top.add(new JLabel("Old pass: ")); top.add(oldpass);
-        main.add(new JLabel("New pass: ")); main.add(newpass);
-        bot.add(new JLabel("RePass:   ")); bot.add(recheck);
+        top.add(new JLabel("Old pass: ")); top.add(oldpass); top.add(showOldPass);
+        main.add(new JLabel("New pass: ")); main.add(newpass); main.add(showNewPass);
+        bot.add(new JLabel("RePass:  ")); bot.add(recheck); bot.add(Box.createHorizontalStrut(showOldPass.getPreferredSize().width));
         act.add(save); act.add(close); 
         this.add(top); this.add(main); this.add(bot); this.add(act);
+    }
+    
+    private void action()
+    {
+        showNewPass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(newpass.getEchoChar() == '•')
+                {
+                    showNewPass.setIcon(hide);
+                    newpass.setEchoChar((char)0);
+                    recheck.setEchoChar((char)0);
+                }
+                else
+                {
+                    showNewPass.setIcon(show);
+                    newpass.setEchoChar('•');
+                    recheck.setEchoChar('•');
+                }
+            }
+        });
+        showOldPass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(oldpass.getEchoChar() == '•')
+                {
+                    showOldPass.setIcon(hide);
+                    oldpass.setEchoChar((char)0);
+                }
+                else
+                {
+                    showOldPass.setIcon(show);
+                    oldpass.setEchoChar('•');
+                }
+            }
+        });
+        
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+            }
+        });
     }
     
     public static void main(String[] args) {
