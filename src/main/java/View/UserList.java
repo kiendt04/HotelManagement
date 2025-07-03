@@ -43,7 +43,7 @@ public class UserList extends JFrame{
         super("Danh mục người dùng");
         //this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setSize(new Dimension(1000,500));
+        this.setSize(new Dimension(500,400));
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout(10,0));
         initComp();
@@ -57,7 +57,7 @@ public class UserList extends JFrame{
     {
         addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
         rmIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
-        uptIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
+        uptIcon = new ImageIcon(getClass().getResource("/img/save.png"));
         saveIcon = new ImageIcon(getClass().getResource("/img/check.png"));
         clIcon = new ImageIcon(getClass().getResource("/img/cross.png"));
         
@@ -74,20 +74,18 @@ public class UserList extends JFrame{
         addBtn = new JButton(addIcon);
         remove = new JButton(rmIcon);
         upt = new JButton(uptIcon);
-        
         tbl = new JTable();
         tbl.setAutoCreateRowSorter(true);
         
-        username = new JTextField(30);
-        password = new JTextField(30);
-        role = new JCheckBox("Có tất cả quyền ");
+        username = new JTextField(10);
+        password = new JTextField(10);
+        role = new JCheckBox("Admin");
     }
     
     public void initUI()
     {
         // Header với các nút chức năng
         header.add(addBtn);
-        header.add(upt);
         header.add(remove);
         header.add(save);
         header.setLayout(new BoxLayout(header,BoxLayout.X_AXIS));
@@ -107,14 +105,13 @@ public class UserList extends JFrame{
         // Footer chứa thông tin chi tiết
         JPanel p1 = new JPanel(); 
         JPanel p2 = new JPanel();
-        
+        p2.setPreferredSize(new Dimension(0,50));
         p1.add(new JLabel("Username: ")); 
         p1.add(username);
         p1.add(new JLabel("Password: ")); 
         p1.add(password);
-        
-        p2.add(role);
-        
+        p1.add(role);
+        p2.add(upt);
         footer.add(p1); 
         footer.add(p2);
         footer.setBorder(new TitledBorder("Information"));
@@ -128,7 +125,7 @@ public class UserList extends JFrame{
         model.setRowCount(0); // Xóa dữ liệu cũ
         for (int i = 0; i < list.size(); i++) {
             User user = list.get(i);
-            String roleDisplay = user.getRole() == 1 ? "Có tất cả quyền" : "Quyền bị hạn chế";
+            String roleDisplay = user.getRole() == 1 ? "Admin" : "Staffs";
             model.addRow(new Object[]{i + 1, user.getName(), roleDisplay});
         }
     }
@@ -194,7 +191,7 @@ public class UserList extends JFrame{
                     JOptionPane.showMessageDialog(rootPane, "Vui lòng chọn một người dùng trước");
                     return;
                 }
-                if(username.getText().isBlank() || password.getText().isBlank())
+                if(username.getText().isBlank())
                 {
                     JOptionPane.showMessageDialog(rootPane, "Thông tin thiếu");
                     return;
@@ -204,7 +201,7 @@ public class UserList extends JFrame{
                 int roleValue = role.isSelected() ? 1 : 0;
                 User user = new User(selectedUser.getId(), username.getText().trim(), password.getText().trim(), roleValue);
                 
-                if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && uc.uptUser(user) != 0)
+                if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (password.getText().isBlank() ? uc.uptWithoutPass(user) : uc.uptUser(user)) == 1)
                 {
                     loadData(); // Reload dữ liệu
                     clearText();
