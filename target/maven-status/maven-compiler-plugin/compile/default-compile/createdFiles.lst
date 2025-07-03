@@ -46,6 +46,7 @@ View\RoomTransfer.class
 View\FloorManagement$1.class
 View\FloorManagement$7.class
 View\Payment.class
+View\RoomManagement.class
 View\UserList$3.class
 View\CustomerList$4.class
 View\FloorManagement$5.class

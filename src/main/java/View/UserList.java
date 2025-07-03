@@ -125,7 +125,7 @@ public class UserList extends JFrame{
         model.setRowCount(0); // Xóa dữ liệu cũ
         for (int i = 0; i < list.size(); i++) {
             User user = list.get(i);
-            String roleDisplay = user.getRole() == 1 ? "Admin" : "Staffs";
+            String roleDisplay = user.getRole() == 1 ? "Admin" : "Staff";
             model.addRow(new Object[]{i + 1, user.getName(), roleDisplay});
         }
     }

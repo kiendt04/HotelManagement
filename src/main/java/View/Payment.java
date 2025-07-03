@@ -36,10 +36,12 @@ public class Payment extends JFrame {
     private DefaultTableModel tableModel;
     private JLabel totalAmountLabel;
     private NumberFormat currencyFormat;
+    private int id;
 
     private long roomPricePerDay = 3000000;
 
-    public Payment() {
+    public Payment(int id) {
+        this.id = id;
         currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
         initializeComponents();
         setupLayout();
@@ -426,7 +428,7 @@ public class Payment extends JFrame {
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
-            new Payment().setVisible(true);
+            new Payment(1).setVisible(true);
         });
     }
 }

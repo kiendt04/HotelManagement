@@ -126,7 +126,8 @@ public class HotelManagementSystem extends JFrame {
         "Loại phòng",
         "Quản lý phòng",
         "Sản phẩm - Dịch vụ",
-        "Đặt phòng theo đoàn"
+        "Đặt phòng theo đoàn",
+        "Lịch sử đặt"
     };
 
     JList<String> menuList = new JList<>(menuItems);
@@ -164,10 +165,10 @@ public class HotelManagementSystem extends JFrame {
                     }
                     break;
                     // TODO: xử lý quản lý phòng
-                case 4:
+                case 2:
                     if (role == 1)
                     {
-                        
+                        new RoomTypeManagement();
                     }
                     else
                     {
@@ -220,7 +221,6 @@ public class HotelManagementSystem extends JFrame {
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createTitledBorder("Tầng " + floor));
         panel.setBackground(Color.WHITE);
-        
         List<Room> roomLst = rc.getByFloor(floor);
         
         int roomCount = roomLst.size();
@@ -263,7 +263,9 @@ public class HotelManagementSystem extends JFrame {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-//                new RoomBooking();
+                SwingUtilities.invokeLater(() -> {
+            new Payment(r.getId()).setVisible(true);
+        });
             }
             
             @Override
