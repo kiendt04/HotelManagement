@@ -44,6 +44,7 @@ Control\FloorControl.class
 View\FloorManagement.class
 View\RoomTransfer.class
 View\FloorManagement$1.class
+View\Payment$4.class
 View\FloorManagement$7.class
 View\Payment.class
 View\UserList$3.class

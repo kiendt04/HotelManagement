@@ -8,9 +8,11 @@ package View;
  *
  * @author ASUS
  */
+import Control.CustomerControl;
 import com.toedter.calendar.JDateChooser;
 import Control.ServiceControl;
 import Control.myconnect;
+import Model.Customer;
 import Model.Service;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -23,10 +25,14 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 public class Payment extends JFrame {
 
-    private JTextField customerNameField;
+   private JComboBox<String> customerNameField;
+private DefaultComboBoxModel<String> customerNameModel;
+private CustomerControl customerControl = new CustomerControl(); 
+
     private JDateChooser checkInField;
     private JDateChooser checkOutField;
     private JTextField totalService;
@@ -52,7 +58,18 @@ public class Payment extends JFrame {
 
     private void initializeComponents() {
         // Khởi tạo các text field
-        customerNameField = new JTextField("Đặng Trần Anh");
+        customerNameModel = new DefaultComboBoxModel<>();
+customerNameField = new JComboBox<>(customerNameModel);
+customerNameField.setEditable(true);
+
+// Load dữ liệu từ CustomerControl
+List<Customer> customers = customerControl.getAll(); // hoặc getTop10() nếu bạn có
+int limit = 0;
+for (Customer c : customers) {
+    if (limit++ >= 10) break;
+    customerNameModel.addElement(c.getName());
+}
+
         checkOutField = new JDateChooser();
         checkInField = new JDateChooser();
 
@@ -131,134 +148,128 @@ public class Payment extends JFrame {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    private JPanel createCustomerInfoPanel() {
-        JPanel panel = new JPanel();
-        panel.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+   private JPanel createCustomerInfoPanel() {
+    // Panel chứa toàn bộ (trái + phải)
+    JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Hàng 0
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(new JLabel("Khách hàng:"), gbc);
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(customerNameField, gbc);
+    // ==================== PANEL TRÁI ====================
+    JPanel leftPanel = new JPanel();
+    leftPanel.setLayout(new GridBagLayout());
+    leftPanel.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5);
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    gbc.weightx = 1;
 
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Trạng thái:"), gbc);
-        gbc.gridx = 3;
-        gbc.weightx = 1.0;
-        panel.add(statusComboBox, gbc);
+    // Row 0 - Khách hàng
+    gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1;
+    leftPanel.add(new JLabel("Khách hàng:"), gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Ngày đặt:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        panel.add(checkInField, gbc);
+    JPanel customerInputPanel = new JPanel(new BorderLayout());
+    customerInputPanel.add(customerNameField, BorderLayout.CENTER);
+    JButton btnOpenCustomer = new JButton("...");
+    btnOpenCustomer.setPreferredSize(new Dimension(40, 25));
+    btnOpenCustomer.addActionListener(e -> {
+        new CustomerList().setVisible(true);
+    });
+    customerInputPanel.add(btnOpenCustomer, BorderLayout.EAST);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Ngày trả:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        panel.add(checkOutField, gbc);
+    gbc.gridx = 1; gbc.gridwidth = 2;
+    leftPanel.add(customerInputPanel, gbc);
 
-        gbc.gridx = 2;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Tiền dịch vụ:"), gbc);
-        gbc.gridx = 3;
-        gbc.weightx = 1.0;
-        panel.add(totalService, gbc);
+    // Row 0 - Trạng thái
+    gbc.gridx = 3; gbc.gridwidth = 1;
+    leftPanel.add(new JLabel("Trạng thái:"), gbc);
 
-        gbc.gridx = 2;
-        gbc.gridy = 2;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Tiền Phòng:"), gbc);
-        gbc.gridx = 3;
-        gbc.weightx = 1.0;
-        panel.add(totalRoom, gbc);
+    gbc.gridx = 4;
+    leftPanel.add(statusComboBox, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.weightx = 1;
-        panel.add(new JLabel("Tổng thanh toán:"), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        panel.add(totalAmountLabel, gbc);
+    // Row 1 - Ngày đặt
+    gbc.gridx = 0; gbc.gridy = 1;
+    leftPanel.add(new JLabel("Ngày đặt:"), gbc);
+    gbc.gridx = 1; gbc.gridwidth = 2;
+    leftPanel.add(checkInField, gbc);
 
-        // Dịch vụ (JList) bên phải
-        JPanel roomInfoPanel = new JPanel(new BorderLayout());
-        roomInfoPanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
+    // Row 1 - Tiền dịch vụ
+    gbc.gridx = 3; gbc.gridwidth = 1;
+    leftPanel.add(new JLabel("Tiền dịch vụ:"), gbc);
+    gbc.gridx = 4;
+    leftPanel.add(totalService, gbc);
 
-        ServiceControl serviceControl = new ServiceControl();
-        ArrayList<Service> serviceList = (ArrayList<Service>) serviceControl.getAll();
+    // Row 2 - Ngày trả
+    gbc.gridx = 0; gbc.gridy = 2;
+    leftPanel.add(new JLabel("Ngày trả:"), gbc);
+    gbc.gridx = 1; gbc.gridwidth = 2;
+    leftPanel.add(checkOutField, gbc);
 
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        for (Service s : serviceList) {
-            listModel.addElement(s.toString());
-        }
+    // Row 2 - Tiền phòng
+    gbc.gridx = 3; gbc.gridwidth = 1;
+    leftPanel.add(new JLabel("Tiền phòng:"), gbc);
+    gbc.gridx = 4;
+    leftPanel.add(totalRoom, gbc);
 
-        JList<String> serviceJList = new JList<>(listModel);
-        serviceJList.setFont(new Font("Arial", Font.PLAIN, 14));
-        serviceJList.setFixedCellHeight(26);
-        serviceJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                String selected = serviceJList.getSelectedValue();
-                if (selected == null || selected.trim().isEmpty()) {
-                    return;
-                }
+    // Row 3 - Tổng thanh toán
+    gbc.gridx = 0; gbc.gridy = 3;
+    leftPanel.add(new JLabel("Tổng thanh toán:"), gbc);
+    gbc.gridx = 1; gbc.gridwidth = 2;
+    leftPanel.add(totalAmountLabel, gbc);
 
-                String[] parts = selected.split(" - ");
-                if (parts.length < 2) {
-                    return;
-                }
+    // ==================== PANEL PHẢI ====================
+    JPanel rightPanel = new JPanel(new BorderLayout());
+    rightPanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
+    rightPanel.setPreferredSize(new Dimension(250, 200)); // đảm bảo không co
 
-                String tenDV = parts[0].trim();
-                long donGia = Long.parseLong(parts[1].replaceAll("[^0-9]", ""));
-
-                boolean found = false;
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    String tenTable = (String) tableModel.getValueAt(i, 0);
-                    if (tenDV.equalsIgnoreCase(tenTable)) {
-                        int currentSL = Integer.parseInt(tableModel.getValueAt(i, 1).toString());
-                        currentSL++;
-                        tableModel.setValueAt(currentSL, i, 1);
-                        tableModel.setValueAt(donGia * currentSL, i, 3);
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    tableModel.addRow(new Object[]{tenDV, 1, donGia, donGia});
-                }
-
-                calculateTotal();
-            }
-        });
-
-        JScrollPane scrollPane = new JScrollPane(serviceJList);
-        roomInfoPanel.add(scrollPane, BorderLayout.CENTER);
-
-        gbc.gridx = 4;
-        gbc.gridy = 0;
-        gbc.gridheight = 5;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 0.5;
-        panel.add(roomInfoPanel, gbc);
-
-        return panel;
+    DefaultListModel<String> model = new DefaultListModel<>();
+    for (Service s : new ServiceControl().getAll()) {
+        model.addElement(s.toString());
     }
+
+    JList<String> serviceList = new JList<>(model);
+    serviceList.setFont(new Font("Arial", Font.PLAIN, 14));
+    serviceList.setFixedCellHeight(26);
+
+    JScrollPane scrollPane = new JScrollPane(serviceList);
+    rightPanel.add(scrollPane, BorderLayout.CENTER);
+
+    // Mouse click để thêm DV
+    serviceList.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            String selected = serviceList.getSelectedValue();
+            if (selected == null || selected.isEmpty()) return;
+
+            String[] parts = selected.split(" - ");
+            if (parts.length < 2) return;
+
+            String name = parts[0].trim();
+            long price = Long.parseLong(parts[1].replaceAll("[^0-9]", ""));
+
+            boolean found = false;
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                if (name.equalsIgnoreCase(tableModel.getValueAt(i, 0).toString())) {
+                    int sl = Integer.parseInt(tableModel.getValueAt(i, 1).toString()) + 1;
+                    tableModel.setValueAt(sl, i, 1);
+                    tableModel.setValueAt(sl * price, i, 3);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                tableModel.addRow(new Object[]{name, 1, price, price});
+            }
+
+            calculateTotal();
+        }
+    });
+
+    // ==================== GỘP 2 PANEL LẠI ====================
+    mainPanel.add(leftPanel, BorderLayout.CENTER);
+    mainPanel.add(rightPanel, BorderLayout.EAST);
+
+    return mainPanel;
+}
+
+
+
 
     private JPanel createServicePanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -342,6 +353,29 @@ public class Payment extends JFrame {
                 validateAndCalculateDays();
             }
         });
+        JTextField editor = (JTextField) customerNameField.getEditor().getEditorComponent();
+editor.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+    public void insertUpdate(javax.swing.event.DocumentEvent e) { updateSuggestions(); }
+    public void removeUpdate(javax.swing.event.DocumentEvent e) { updateSuggestions(); }
+    public void changedUpdate(javax.swing.event.DocumentEvent e) { updateSuggestions(); }
+
+    private void updateSuggestions() {
+        SwingUtilities.invokeLater(() -> {
+            String text = editor.getText().trim();
+            if (text.length() == 0) return;
+
+            customerNameModel.removeAllElements();
+            ArrayList<Customer> matched = customerControl.searchByName(text);
+            int count = 0;
+            for (Customer c : matched) {
+                if (count++ >= 10) break;
+                customerNameModel.addElement(c.getName());
+            }
+            customerNameField.showPopup();
+        });
+    }
+});
+
     }
 
     private void validateAndCalculateDays() {

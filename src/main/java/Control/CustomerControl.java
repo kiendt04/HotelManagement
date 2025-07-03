@@ -107,6 +107,28 @@ public class CustomerControl {
         return true;
     }
     
+    public ArrayList<Customer> searchByName(String keyword) {
+    ArrayList<Customer> list = new ArrayList<>();
+    try {
+        String sql = "SELECT * FROM customer WHERE name LIKE ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, "%" + keyword + "%");
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Customer c = new Customer();
+            c.setId(rs.getString("cccd"));
+            c.setName(rs.getString("name"));
+            list.add(c);
+        }
+        rs.close(); ps.close(); conn.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+
+    
     public List<Customer> filter(String id,String name,String phone,String adds)
     {
         List<Customer> list = new ArrayList<>();
@@ -146,4 +168,5 @@ public class CustomerControl {
         }
         return list;
     }
+    
 }
