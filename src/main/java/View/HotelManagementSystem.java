@@ -102,8 +102,8 @@ public class HotelManagementSystem extends JFrame {
         
         menuBar.add(heThongMenu);
         if(role == 1)
-            
         {menuBar.add(baoCaoMenu);}
+            
         
         setJMenuBar(menuBar);
     }

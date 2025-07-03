@@ -40,6 +40,7 @@ public class ChangePass extends JFrame{
         this.setLocationRelativeTo(null);
         initComp();
         initUI();
+        action();
         this.setVisible(true);
     }
     
@@ -53,7 +54,7 @@ public class ChangePass extends JFrame{
         recheck.setEchoChar('•');
         save = new JButton("Luu");
         close = new JButton("Dong");
-        show = new ImageIcon(getClass().getResource("/img/hide.png"));
+        show = new ImageIcon(getClass().getResource("/img/eye.png"));
         hide = new ImageIcon(getClass().getResource("/img/hidden.png"));
         showOldPass = new JButton();
         showOldPass.setPreferredSize(new Dimension(18,18));
@@ -63,12 +64,10 @@ public class ChangePass extends JFrame{
         showNewPass.setIcon(show);
         showOldPass.setContentAreaFilled(false); // tắt nền
         showOldPass.setBorderPainted(false);     // tắt viền
-        //showOldPass.setFocusPainted(false);      // tắt viền focus (màu xanh khi bấm)
         showOldPass.setOpaque(false);            // đảm bảo nền trong suốt
 
         showNewPass.setContentAreaFilled(false);
         showNewPass.setBorderPainted(false);
-        //showNewPass.setFocusPainted(false);
         showNewPass.setOpaque(false);
     }
     private void initUI()
@@ -125,7 +124,7 @@ public class ChangePass extends JFrame{
                     JOptionPane.showMessageDialog(rootPane, "Mat khau khong dung");
                     return;
                 }
-                else if(String.valueOf(newpass.getPassword()) != String.valueOf(recheck.getPassword()))
+                else if(!String.valueOf(newpass.getPassword()).equals(String.valueOf(recheck.getPassword())))
                 {
                     JOptionPane.showMessageDialog(rootPane, "Mat khau nhap lai khong trung khop");
                     return;
@@ -147,6 +146,8 @@ public class ChangePass extends JFrame{
                 }
             }
         });
+        
+        close.addActionListener(e -> {this.dispose();});
     }
     
     private void close()
