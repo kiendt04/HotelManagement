@@ -123,4 +123,39 @@ public class UserControl {
         }
         return -1;
     }
+    
+    public boolean checkChangePass(int id,String pass)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT pass FROM user where id = ?");
+            pt.setInt(1, id);
+            ResultSet rs = pt.executeQuery();
+            while(rs.next())
+            {
+                if(BCrypt.checkpw(pass, rs.getString("pass")))
+                {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return false;
+    }
+        public boolean isValidPassword(String password) {
+        String allowedRegex = "^[a-zA-Z0-9@#$%!_]+$";
+        return password.matches(allowedRegex);
+    }
+    public int changePass(int id,String pass)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("UPDATE user set pass = ? where id = ?");
+            pt.setString(1, hashPass(pass));
+            pt.setInt(2, id);
+            return pt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return -1;
+    }
 }

@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import Control.*;
 
 /**
  *
@@ -118,9 +119,39 @@ public class ChangePass extends JFrame{
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                UserControl uc = new UserControl();
+                if(!uc.checkChangePass(id, String.valueOf(oldpass.getPassword())))
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Mat khau khong dung");
+                    return;
+                }
+                else if(String.valueOf(newpass.getPassword()) != String.valueOf(recheck.getPassword()))
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Mat khau nhap lai khong trung khop");
+                    return;
+                }
+                else if(String.valueOf(newpass.getPassword()).length() > 10)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Mat khau qua dai");
+                    return;
+                }
+                else if(!uc.isValidPassword(String.valueOf(newpass.getPassword())))
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Mat khau chua ky tu khong hop le");
+                    return;
+                }
+                if(uc.changePass(id, String.valueOf(newpass.getPassword())) != -1)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Doi mat khau thanh cong");
+                    close();
+                }
             }
         });
+    }
+    
+    private void close()
+    {
+        this.dispose();
     }
     
     public static void main(String[] args) {

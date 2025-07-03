@@ -67,7 +67,16 @@ public class HotelManagementSystem extends JFrame {
         JMenuItem thoat = new JMenuItem("Thoat");
         JMenuItem doanhthu = new JMenuItem("Doanh thu");
         // Menu Hệ thống
-        qlyUser.addActionListener(e -> {JOptionPane.showMessageDialog(rootPane, "qluser");});
+        qlyUser.addActionListener(e -> {
+            if(role == 1)
+            {
+                JOptionPane.showMessageDialog(rootPane, "qluser");
+            }
+            else 
+            {
+                JOptionPane.showMessageDialog(rootPane, "khong co quyen truy cap");
+            }
+        });
         doimk.addActionListener(e -> {new ChangePass(id);});
         thoat.addActionListener(e -> {
             try {
@@ -81,14 +90,20 @@ public class HotelManagementSystem extends JFrame {
             this.dispose();
         });
         JMenu heThongMenu = new JMenu("Hệ thống");
-        heThongMenu.add(qlyUser); heThongMenu.add(doimk); heThongMenu.addSeparator(); heThongMenu.add(thoat);
+        if(role == 1)
+        {
+            heThongMenu.add(qlyUser);
+        }
+            heThongMenu.add(doimk); heThongMenu.addSeparator(); heThongMenu.add(thoat);
         
         // Menu Báo cáo
         JMenu baoCaoMenu = new JMenu("Báo cáo");
         baoCaoMenu.add(doanhthu);
         
         menuBar.add(heThongMenu);
-        menuBar.add(baoCaoMenu);
+        if(role == 1)
+            
+        {menuBar.add(baoCaoMenu);}
         
         setJMenuBar(menuBar);
     }
