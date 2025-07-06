@@ -76,8 +76,8 @@ for (Customer c : customers) {
         checkInField.setDateFormatString("dd/MM/yyyy");
         checkOutField.setDateFormatString("dd/MM/yyyy");
         totalRoom = new JTextField("0");
-        totalService = new JTextField("0");
         // Khởi tạo ComboBox cho trạng thái
+        totalService = new JTextField("0");
         String[] statusOptions = {"Chưa hoàn tất", "Hoàn tất", "Chưa thanh toán"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
@@ -318,7 +318,7 @@ for (Customer c : customers) {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 // Nếu click 2 lần
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 1) {
                     int row = serviceTable.getSelectedRow();
                     if (row != -1) {
                         try {

@@ -70,7 +70,7 @@ public class HotelManagementSystem extends JFrame {
         qlyUser.addActionListener(e -> {
             if(role == 1)
             {
-                JOptionPane.showMessageDialog(rootPane, "qluser");
+                new UserList();
             }
             else 
             {

@@ -46,7 +46,7 @@ public class UserControl {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO user(id,name,pass,role) VALUES(,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO user(name,pass,role) VALUES(?,?,?)");
             pt.setString(1, us.getName());
             pt.setString(2, hashPass(us.getPass()));
             pt.setInt(3, us.getRole());
@@ -64,7 +64,7 @@ public class UserControl {
             PreparedStatement pt = conn.prepareStatement("UPDATE user set name = ?, pass = ?, role = ? where id = ?");
             pt.setString(1,us.getName());
             pt.setString(2, hashPass(us.getPass()));
-            pt.setInt(3, us.getId());
+            pt.setInt(3, us.getRole());
             pt.setInt(4, us.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
@@ -155,6 +155,19 @@ public class UserControl {
             return pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
+        }
+        return -1;
+    }
+    
+    public int uptWithoutPass(User us)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("UPDATE user set name = ?, role = ? where id = ?");
+            pt.setString(1,us.getName());
+            pt.setInt(2, us.getRole());
+            pt.setInt(3, us.getId());
+            return pt.executeUpdate();
+        } catch (Exception e) {
         }
         return -1;
     }
