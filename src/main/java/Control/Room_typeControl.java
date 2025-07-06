@@ -117,4 +117,19 @@ public class Room_typeControl {
         }
         return id;
     }
+    
+    public double getPrice(int id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT price FROM room_type where id = " + id  +"");
+            while (rs.next())
+            {
+                return rs.getDouble("price");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return 0;
+    }
 }

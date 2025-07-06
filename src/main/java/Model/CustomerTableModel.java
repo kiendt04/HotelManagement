@@ -58,6 +58,7 @@ public class CustomerTableModel extends AbstractTableModel{
     {
         ds.remove(row);
         ds.add(row, c);
+        fireTableDataChanged();
     }
     
     public void delCus(int row)

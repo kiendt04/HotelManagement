@@ -176,6 +176,15 @@ public class HotelManagementSystem extends JFrame {
                     }
                     // TODO: xử lý sản phẩm dịch vụ
                     break;
+                 case 3:
+                    if (role == 1)
+                    {
+                        new RoomManagement();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                 case 5:
                     
                     break;

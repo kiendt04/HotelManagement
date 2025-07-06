@@ -285,7 +285,7 @@ public class CustomerList extends JFrame{
                     {
                         model.addCustomer(a);
                         JOptionPane.showMessageDialog(rootPane, "Successfull");
-                        addBtn.setText("Add"); 
+                        addBtn.setIcon(addIcon); 
                         save.setEnabled(false); remove.setEnabled(true); upt.setEnabled(true);
                         clearText();
                     }

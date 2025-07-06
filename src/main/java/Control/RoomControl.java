@@ -43,11 +43,13 @@ public class RoomControl {
         return list;
     }
     
+    
+    
     public int insertRoom(Room r)
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO room(Id,Number,floor,Type,Status,Note)  VALUES(,?,?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO room(Number,floor,Type,Status,Note)  VALUES(?,?,?,?,?)");
             pt.setString(1, r.getNum());
             pt.setInt(2, r.getFloor());
             pt.setInt(3, r.getType());
@@ -64,7 +66,7 @@ public class RoomControl {
     {
         int rs =0;
         try {
-            PreparedStatement pt = conn.prepareStatement("DELETE FROM room where id = ?");
+            PreparedStatement pt = conn.prepareStatement("DELETE FROM room where Id = ?");
             pt.setInt(1, id);
             rs = pt.executeUpdate();
             
@@ -78,7 +80,7 @@ public class RoomControl {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE room set Number = ?, floor = ? ,Type = ? ,Status = ?, Note = ? WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE room set Number = ?, floor = ? ,Type = ? ,Status = ?, Note = ? WHERE Id = ?");
             pt.setString(1, r.getNum());
             pt.setInt(2, r.getFloor());
             pt.setInt(3, r.getType());
@@ -108,5 +110,128 @@ public class RoomControl {
         return list;
     }
     
+    public Room getbyID(int id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM room where Id = "+id+"");
+            while(rs.next())
+            {
+                return new Room(id,rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
     
+    public int count()
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT count(*) as count FROM room");
+            while(rs.next())
+            {
+                return rs.getInt("count");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return 0;
+    }
+    
+    public int count_filter(int floor,int type)
+    {
+        int count = 0;
+    StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM room WHERE 1=1");
+
+    if (floor != 0) {
+        sql.append(" AND floor = ?");
+    }
+
+    if (type != 0) {
+        sql.append(" AND type = ?");
+    }
+
+    try {
+        PreparedStatement pt = conn.prepareStatement(sql.toString());
+
+        int paramIndex = 1;
+        if (floor != 0) {
+            pt.setInt(paramIndex++, floor);
+        }
+
+        if (type != 0) {
+            pt.setInt(paramIndex++, type);
+        }
+
+        ResultSet rs = pt.executeQuery();
+        if (rs.next()) {
+            count = rs.getInt(1);
+        }
+
+        rs.close();
+        pt.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return count;
+    }
+    
+    
+    public List<Room> filter(int floor, int type)
+    {
+         List<Room> list = new ArrayList<>();
+    StringBuilder sql = new StringBuilder("SELECT * FROM room WHERE 1=1");
+
+    if (floor != 0) {
+        sql.append(" AND floor = ?");
+    }
+
+    if (type != 0) {
+        sql.append(" AND type = ?");
+    }
+
+    try {
+        PreparedStatement pt = conn.prepareStatement(sql.toString());
+
+        int paramIndex = 1;
+        if (floor != 0) {
+            pt.setInt(paramIndex++, floor);
+        }
+
+        if (type != 0) {
+            pt.setInt(paramIndex++, type);
+        }
+
+        ResultSet rs = pt.executeQuery();
+        while (rs.next()) {
+            Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
+            list.add(r);
+        }
+
+        rs.close();
+        pt.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+    }
+    
+    public boolean checkNum(String num)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM room where Number = '" + num +"'");
+            while (rs.next())
+            {
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return true;
+    }
 }

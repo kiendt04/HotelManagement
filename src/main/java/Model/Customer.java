@@ -57,7 +57,7 @@ public class Customer {
 
     @Override
     public String toString() {
-        return id;
+        return name;
     }
 
     public String getGender() {

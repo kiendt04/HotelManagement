@@ -57,5 +57,8 @@ public class Room_type {
         this.bed = bed;
     }
     
-    
+    @Override
+    public String toString() {
+        return name; 
+    }
 }

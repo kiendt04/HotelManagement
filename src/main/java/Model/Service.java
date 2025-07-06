@@ -4,6 +4,8 @@
  */
 package Model;
 
+import java.text.DecimalFormat;
+
 /**
  *
  * @author ADMIN
@@ -49,7 +51,12 @@ public class Service {
 
     @Override
     public String toString() {
-        return name +" - " +  price;
+        return name +" - " +  formatPrice(price);
     }
     
+    private String formatPrice(double p)
+    {
+        DecimalFormat df = new DecimalFormat("00,000");
+        return df.format(p);
+    }
 }
