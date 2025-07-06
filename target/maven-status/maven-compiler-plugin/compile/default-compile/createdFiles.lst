@@ -14,7 +14,11 @@ View\RoomTransfer$1.class
 Project\prj.class
 View\FloorManagement$2.class
 Control\CustomerControl.class
+<<<<<<< HEAD
 View\RoomManagement$6.class
+=======
+View\ServiceManager.class
+>>>>>>> devTu
 View\RoomListTransfer$2.class
 Model\Bill.class
 View\CustomerList$5.class
