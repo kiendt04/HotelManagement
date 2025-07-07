@@ -14,9 +14,9 @@ import Model.Service;
 
 public class ServiceManager extends JFrame {
 
-    private ServiceControl uc = new ServiceControl();
+    private ServiceControl sc = new ServiceControl();
     private DefaultTableModel model;
-    private List<Service> list = uc.getAll();
+    private List<Service> list = sc.getAll();
     private JPanel header, main, footer;
     private JButton save, addBtn, remove, upt;
     private JTable tbl;
@@ -95,7 +95,7 @@ public class ServiceManager extends JFrame {
     }
 
     public void loadData() {
-        list = uc.getAll();
+        list = sc.getAll();
         model.setRowCount(0);
         for (int i = 0; i < list.size(); i++) {
             Service s = list.get(i);
@@ -151,7 +151,7 @@ public class ServiceManager extends JFrame {
                 Service updated = new Service(old.getId(), name, price);
 
                 if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0
-                        && uc.uptRoom(updated) == 1) {
+                        && sc.uptService(updated) == 1) {
                     loadData();
                     clearText();
                     JOptionPane.showMessageDialog(rootPane, "Cập nhật thành công");
@@ -171,7 +171,7 @@ public class ServiceManager extends JFrame {
 
             Service s = list.get(row);
             if (JOptionPane.showConfirmDialog(rootPane, "Xoá dịch vụ này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0
-                    && uc.delRoom(s.getId()) > 0) {
+                    && sc.delService(s.getId()) > 0) {
                 loadData();
                 clearText();
                 JOptionPane.showMessageDialog(rootPane, "Xoá thành công");
@@ -186,7 +186,7 @@ public class ServiceManager extends JFrame {
                 double price = Double.parseDouble(priceService.getText().trim());
 
                 Service s = new Service(0, name, price);
-                if (uc.insertRoom_type(s) > 0) {
+                if (sc.insertService(s) > 0) {
                     loadData();
                     JOptionPane.showMessageDialog(rootPane, "Thêm thành công");
                     addBtn.setIcon(addIcon);

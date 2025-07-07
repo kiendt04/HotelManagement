@@ -126,7 +126,7 @@ public class HotelManagementSystem extends JFrame {
         "Loại phòng",
         "Quản lý phòng",
         "Sản phẩm - Dịch vụ",
-        "Đặt phòng theo đoàn",
+        //"Đặt phòng theo đoàn",
         "Lịch sử đặt"
     };
 
@@ -176,7 +176,7 @@ public class HotelManagementSystem extends JFrame {
                     }
                     // TODO: xử lý sản phẩm dịch vụ
                     break;
-                 case 3:
+                case 3:
                     if (role == 1)
                     {
                         new RoomManagement();
@@ -185,6 +185,17 @@ public class HotelManagementSystem extends JFrame {
                     {
                         JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
                     }
+                    break;
+                case 4:
+                    if (role == 1)
+                    {
+                        new ServiceManager();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
+                    break;
                 case 5:
                     
                     break;

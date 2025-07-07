@@ -41,11 +41,11 @@ public class ServiceControl {
         return list;
     }
     
-    public int insertRoom_type(Service r)
+    public int insertService(Service r)
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(id,name,price) VALUES(,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(name,price) VALUES(?,?)");
             pt.setString(1, r.getName());
             pt.setDouble(2, r.getPrice());
             rs = pt.executeUpdate();
@@ -55,7 +55,7 @@ public class ServiceControl {
         return rs;
     }
     
-    public int delRoom(int id)
+    public int delService(int id)
     {
         int rs =0;
         try {
@@ -68,7 +68,7 @@ public class ServiceControl {
         return rs;
     }
     
-    public int uptRoom(Service r)
+    public int uptService(Service r)
     {
         int rs = 0;
         try {
