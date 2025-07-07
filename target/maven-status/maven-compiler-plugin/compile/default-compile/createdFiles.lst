@@ -21,7 +21,6 @@ Model\Bill.class
 View\CustomerList$5.class
 View\RoomManagement$3.class
 View\RoomManagement$RoomDialog.class
-Control\myconnect.class
 View\RoomManagement$2.class
 View\CustomerList$2.class
 Control\billDetailControl.class

@@ -90,4 +90,21 @@ public class billDetailControl {
         }
         return rs;
     }
+    
+   public List<BillDetail> getByBill(int id)
+    {
+        List<BillDetail> list = new ArrayList<>();
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM bill_detail where id_bill = "+id+"");
+            while (rs.next())
+            {
+                BillDetail bd = new BillDetail(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4));
+                list.add(bd);
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return list;
+    } 
 }

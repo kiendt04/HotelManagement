@@ -169,4 +169,20 @@ public class CustomerControl {
         return list;
     }
     
+    
+    public Customer getById(String id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM customer where cccd = '" + id +"'");
+            while (rs.next())
+            {
+                String gender = rs.getInt("gt") == 1 ? "Nam" : "Nu";
+                return new Customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
 }

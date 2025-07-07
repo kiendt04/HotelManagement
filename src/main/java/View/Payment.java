@@ -42,14 +42,13 @@ public class Payment extends JFrame {
     private JLabel totalAmountLabel;
     private NumberFormat currencyFormat;
     private JButton saveBtn, printBtn, exitBtn;
-    private int id;
+    private int idRoom,idBill = 0;
     private boolean isClick = false;
     private Room slRoom;
-
-    private long roomPricePerDay = 3000000;
+    private BillControl bc = new BillControl();
 
     public Payment(int id) {
-        this.id = id;
+        this.idRoom = id;
         this.slRoom = new RoomControl().getbyID(id);
         currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
         initializeComponents();
@@ -58,6 +57,10 @@ public class Payment extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null);
         setTitle("Đặt phòng");
+        if(slRoom.getStatus() == 1 && bc.getRoomBill(slRoom.getNum()) != null)
+        {
+            billData(bc.getRoomBill(slRoom.getNum()));
+        }
     }
 
     private void initializeComponents() {
@@ -81,7 +84,7 @@ public class Payment extends JFrame {
         totalRoom = new JTextField("0");
         // Khởi tạo ComboBox cho trạng thái
         totalService = new JTextField("0");
-        String[] statusOptions = {"Chưa hoàn tất", "Hoàn tất", "Chưa thanh toán"};
+        String[] statusOptions = {"Hoàn tất", "Chưa thanh toán"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
 
@@ -150,7 +153,38 @@ public class Payment extends JFrame {
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         add(mainPanel, BorderLayout.CENTER);
     }
-
+    
+    private void billData(Bill b)
+    {
+        idBill = b.getId();
+        Customer csInfo = customerControl.getById(b.getUser());
+        customerCBX.setSelectedItem(csInfo);
+        checkInField.setDate(b.getCheck_in());
+        checkOutField.setDate(b.getCheck_out());
+        totalService.setText(formatPrice(b.getTotal_service()));
+        totalRoom.setText(formatPrice(b.getTotal_time()));
+        totalAmountLabel.setText(formatPrice(b.getTotal()));
+        setTblData(tableModel, new billDetailControl().getByBill(b.getId()));
+    }
+    
+    private void setTblData(DefaultTableModel model,List<BillDetail> list)
+    {
+        List<Service> svl = new ArrayList<>();
+        svl = new ServiceControl().getAll();
+        for (int i=0;i<list.size();i++)
+        {
+            String svName = "";
+            int j=0;
+            while(list.get(i).getService() != svl.get(j).getId())
+            {
+                j++;
+            }
+            svName = svl.get(j).getName();
+            model.addRow(new Object[]{svName,list.get(i).getQuant(),formatPrice(list.get(i).getTotal()/list.get(i).getQuant()),formatPrice(list.get(i).getTotal())});
+        }
+        model.fireTableDataChanged();
+    }
+    
    private JPanel createCustomerInfoPanel() {
     // Panel chứa toàn bộ (trái + phải)
     JPanel mainPanel = new JPanel(new BorderLayout());
@@ -225,6 +259,7 @@ public class Payment extends JFrame {
     DefaultListModel<Service> model = new DefaultListModel<>();
     for (Service s : new ServiceControl().getAll()) {
         model.addElement(s);
+        
     }
 
     JList<Service> serviceList = new JList<>(model);
@@ -254,7 +289,7 @@ public class Payment extends JFrame {
                 }
             }
             if (!found) {
-                tableModel.addRow(new Object[]{name, 1, price, formatPrice(price)});
+                tableModel.addRow(new Object[]{name, 1, formatPrice(price), formatPrice(price)});
             }
 
             calculateTotal();
@@ -413,7 +448,22 @@ public class Payment extends JFrame {
                 Customer cs = (Customer) customerCBX.getSelectedItem();
                 java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
                 java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
-                
+                double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
+                double totalservice = Double.parseDouble(totalService.getText().replace(".", ""));
+                double total = totalroom +totalservice;
+                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : 1;
+                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, stats, total, stats);
+                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 1 && (idBill == 0 ? bc.insertBill(b) : bc.uptBill(b)) != 0)
+                {
+                    int bdID = bc.getRoomBill(slRoom.getNum()).getId();
+                    List<BillDetail> lst = new ArrayList<>();
+                    List<Service> svl = new ServiceControl().getAll();
+                    for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
+                    {
+                        int j = 0;
+                        
+                    }
+                }
             }
         });
         

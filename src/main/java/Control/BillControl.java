@@ -142,5 +142,22 @@ public class BillControl {
         }
         return rs;
     }
-            
+    
+    
+    public Bill getRoomBill(String r)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill where room = ? and status = ? ORDER BY id DESC LIMIT 1");
+            pt.setString(1, r);
+            pt.setInt(2, 1);
+            ResultSet rs = pt.executeQuery();
+            while(rs.next())
+            {
+                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
 }

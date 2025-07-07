@@ -68,5 +68,16 @@ public class Customer {
         this.gender = gender;
     }
     
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Customer)) return false;
+        Customer other = (Customer) o;
+        return this.id != null && this.id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }
