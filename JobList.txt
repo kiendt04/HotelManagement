@@ -1,3 +1,0 @@
-- View Dịch vụ,Qly Phòng 
-- Check Exit on close view con trừ view main
-- Fix layout có danh sách dạng String[] sang List

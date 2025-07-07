@@ -46,7 +46,7 @@ public class BillControl {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO bill(room,user,check_in,check_out,total_time,total_service,total,status) VALUES(?,?,?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO bill(room,user,check_in,check_out,total_time,total_service,total,status) VALUES(?,?,?,?,?,?,?,?)");
             pt.setString(1, b.getRoom());
             pt.setString(2, b.getUser());
             pt.setDate(3, b.getCheck_in());
@@ -59,7 +59,6 @@ public class BillControl {
             pt.close();
         } catch (Exception e) {
             System.err.println(e);
-            
         }
         return rs;
     }

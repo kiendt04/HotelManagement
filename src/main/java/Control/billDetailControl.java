@@ -91,6 +91,27 @@ public class billDetailControl {
         return rs;
     }
     
+    public int uptBD(BillDetail bd)
+    {
+        int rs = 0;
+        if(bd.getQuant() <= 0)
+        {
+            delDetail(bd.getId_bill(), bd.getService());
+            return 1;
+        }
+        try {
+            PreparedStatement pt = conn.prepareStatement("UPDATE bill_detail set quantity = ?, total_service = ? where id_bill = ? and service = ?");
+            pt.setInt(1, bd.getQuant());
+            pt.setInt(2, bd.getTotal());
+            pt.setInt(3, bd.getId_bill());
+            pt.setInt(4, bd.getService());
+            rs = pt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return rs;
+    }
+    
    public List<BillDetail> getByBill(int id)
     {
         List<BillDetail> list = new ArrayList<>();

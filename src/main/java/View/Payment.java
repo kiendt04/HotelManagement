@@ -84,7 +84,7 @@ public class Payment extends JFrame {
         totalRoom = new JTextField("0");
         // Khởi tạo ComboBox cho trạng thái
         totalService = new JTextField("0");
-        String[] statusOptions = {"Hoàn tất", "Chưa thanh toán"};
+        String[] statusOptions = { "Chưa thanh toán","Hoàn tất"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
 
@@ -449,11 +449,11 @@ public class Payment extends JFrame {
                 java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
                 java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
                 double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
-                double totalservice = Double.parseDouble(totalService.getText().replace(".", ""));
-                double total = totalroom +totalservice;
+                int totalservice = Integer.parseInt(totalService.getText().replace(",", ""));
+                double total = totalroom + totalservice;
                 int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : 1;
-                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, stats, total, stats);
-                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 1 && (idBill == 0 ? bc.insertBill(b) : bc.uptBill(b)) != 0)
+                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, stats);
+                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? bc.insertBill(b) : bc.uptBill(b)) != 0)
                 {
                     int bdID = bc.getRoomBill(slRoom.getNum()).getId();
                     List<BillDetail> lst = new ArrayList<>();
@@ -461,8 +461,27 @@ public class Payment extends JFrame {
                     for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
                     {
                         int j = 0;
-                        
+                        while(!serviceTable.getModel().getValueAt(i, 0).equals(svl.get(j).getName()))
+                        {
+                            j++;
+                        }
+                        int srId = svl.get(j).getId();
+                        int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
+                        int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
+                        lst.add(new BillDetail(bdID,srId,quan,ttl));
                     }
+                    for (int i=0;i<lst.size();i++)
+                    {
+                        int rs = idBill == 0 ? new billDetailControl().insertDetail(lst.get(i)) : new billDetailControl().uptBD(lst.get(i));
+                    }
+                    JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
+                    slRoom.setStatus(stats);
+                    int s = statusComboBox.getSelectedItem().equals("Hoàn tất") ? new RoomControl().uptRoom(slRoom) : 1;
+                    dispose();
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Lỗi! Lưu thất bại");
                 }
             }
         });

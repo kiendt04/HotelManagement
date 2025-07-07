@@ -284,7 +284,12 @@ public class HotelManagementSystem extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 SwingUtilities.invokeLater(() -> {
-            new Payment(r.getId()).setVisible(true);
+            Payment pay =  new Payment(r.getId());
+            pay.setVisible(true);
+            if(!pay.isVisible())
+            {
+                repaint();
+            }
         });
             }
             
