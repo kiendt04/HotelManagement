@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Control;
+package DAO;
 import Model.*;
 import Model.Bill;
 import com.mysql.cj.x.protobuf.MysqlxPrepare;
@@ -18,11 +18,11 @@ import org.mindrot.jbcrypt.BCrypt;
  *
  * @author ADMIN
  */
-public class UserControl {
+public class UserDAO {
     private myconnect mc = new myconnect();
     private Connection conn = mc.getConnection();
 
-    public UserControl() {
+    public UserDAO() {
     }
     
     public List<User> getAll()
@@ -142,10 +142,7 @@ public class UserControl {
         }
         return false;
     }
-        public boolean isValidPassword(String password) {
-        String allowedRegex = "^[a-zA-Z0-9@#$%!_]+$";
-        return password.matches(allowedRegex);
-    }
+        
     public int changePass(int id,String pass)
     {
         try {

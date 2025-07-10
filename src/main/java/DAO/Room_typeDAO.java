@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Control;
+package DAO;
 
 import java.sql.Connection;
 import java.util.List;
@@ -16,12 +16,12 @@ import java.util.ArrayList;
  *
  * @author ADMIN
  */
-public class Room_typeControl {
+public class Room_typeDAO {
     
     private myconnect mc = new myconnect();
     private Connection conn = mc.getConnection();
 
-    public Room_typeControl() {
+    public Room_typeDAO() {
     }
     
     public List<Room_type> getAll()

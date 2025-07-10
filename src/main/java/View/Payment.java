@@ -9,8 +9,13 @@ package View;
  * @author ASUS
  */
 
+import DAO.Room_typeDAO;
+import DAO.RoomDAO;
+import DAO.BillDAO;
+import DAO.ServiceDAO;
+import DAO.CustomerDAO;
+import DAO.BillDetailDAO;
 import com.toedter.calendar.JDateChooser;
-import Control.*;
 import Model.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,16 +26,22 @@ import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperReport;
 
 public class Payment extends JFrame {
 
     private JComboBox<Customer> customerCBX;
     private DefaultComboBoxModel<Customer> customerNameModel;
-    private CustomerControl customerControl = new CustomerControl(); 
+    private CustomerDAO customerControl = new CustomerDAO(); 
 
     private JDateChooser checkInField;
     private JDateChooser checkOutField;
@@ -45,11 +56,11 @@ public class Payment extends JFrame {
     private int idRoom,idBill = 0;
     private boolean isClick = false;
     private Room slRoom;
-    private BillControl bc = new BillControl();
+    private BillDAO bc = new BillDAO();
 
     public Payment(int id) {
         this.idRoom = id;
-        this.slRoom = new RoomControl().getbyID(id);
+        this.slRoom = new RoomDAO().getbyID(id);
         currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
         initializeComponents();
         setupLayout();
@@ -57,9 +68,9 @@ public class Payment extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null);
         setTitle("Đặt phòng");
-        if(slRoom.getStatus() == 1 && bc.getRoomBill(slRoom.getNum()) != null)
+        if((slRoom.getStatus() == 1 || slRoom.getStatus() == -1) && bc.getRoomBill(slRoom.getNum(),slRoom.getStatus()) != null)
         {
-            billData(bc.getRoomBill(slRoom.getNum()));
+            billData(bc.getRoomBill(slRoom.getNum(),slRoom.getStatus()));
         }
     }
 
@@ -69,7 +80,7 @@ public class Payment extends JFrame {
         customerCBX = new JComboBox<>(customerNameModel);
         customerCBX.setEditable(true);
 
-        // Load dữ liệu từ CustomerControl
+        // Load dữ liệu từ CustomerDAO
         List<Customer> customers = customerControl.getAll(); // hoặc getTop10() nếu bạn có
         int limit = 0;
         for (Customer c : customers) {
@@ -84,7 +95,7 @@ public class Payment extends JFrame {
         totalRoom = new JTextField("0");
         // Khởi tạo ComboBox cho trạng thái
         totalService = new JTextField("0");
-        String[] statusOptions = { "Chưa thanh toán","Hoàn tất"};
+        String[] statusOptions = { "Đang dùng","Hoàn tất","Đã đặt"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
 
@@ -164,13 +175,13 @@ public class Payment extends JFrame {
         totalService.setText(formatPrice(b.getTotal_service()));
         totalRoom.setText(formatPrice(b.getTotal_time()));
         totalAmountLabel.setText(formatPrice(b.getTotal()));
-        setTblData(tableModel, new billDetailControl().getByBill(b.getId()));
+        setTblData(tableModel, new BillDetailDAO().getByBill(b.getId()));
     }
     
     private void setTblData(DefaultTableModel model,List<BillDetail> list)
     {
         List<Service> svl = new ArrayList<>();
-        svl = new ServiceControl().getAll();
+        svl = new ServiceDAO().getAll();
         for (int i=0;i<list.size();i++)
         {
             String svName = "";
@@ -257,7 +268,7 @@ public class Payment extends JFrame {
     rightPanel.setPreferredSize(new Dimension(250, 200)); // đảm bảo không co
 
     DefaultListModel<Service> model = new DefaultListModel<>();
-    for (Service s : new ServiceControl().getAll()) {
+    for (Service s : new ServiceDAO().getAll()) {
         model.addElement(s);
         
     }
@@ -402,13 +413,13 @@ public class Payment extends JFrame {
         
         JTextField editor = (JTextField) customerCBX.getEditor().getEditorComponent();
         editor.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-        public void insertUpdate(javax.swing.event.DocumentEvent e) { if(!isClick) updateSuggestions(); }
+        public void insertUpdate(javax.swing.event.DocumentEvent e) { }// if(!isClick) updateSuggestions(); }
         public void removeUpdate(javax.swing.event.DocumentEvent e) { 
-            if(!isClick) 
-            {
-                updateSuggestions();
-                //isClick = false;
-            }
+//            if(!isClick) 
+//            {
+//                updateSuggestions();
+//                //isClick = false;
+//            }
         }
         public void changedUpdate(javax.swing.event.DocumentEvent e) {}
         
@@ -426,7 +437,7 @@ public class Payment extends JFrame {
                 }
                 isClick = true;
                 prioritizeMatches(customerNameModel, text);
-                customerCBX.setSelectedItem(text);
+                //customerCBX.setSelectedItem(text);
                 isClick = false;
                 customerCBX.addActionListener(e -> {
                     isClick = true;
@@ -446,18 +457,23 @@ public class Payment extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Customer cs = (Customer) customerCBX.getSelectedItem();
+                if(checkInField.getDate() == null || checkOutField == null)
+                {
+                    JOptionPane.showMessageDialog(rootPane, "Chọn ngày đặt phòng !!!!");
+                    return;
+                }
                 java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
                 java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
                 double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
-                int totalservice = Integer.parseInt(totalService.getText().replace(",", ""));
+                int totalservice = Integer.parseInt(totalService.getText().replace(".", ""));
                 double total = totalroom + totalservice;
-                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : 1;
+                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
                 Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, stats);
                 if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? bc.insertBill(b) : bc.uptBill(b)) != 0)
                 {
-                    int bdID = bc.getRoomBill(slRoom.getNum()).getId();
+                    int bdID = bc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
                     List<BillDetail> lst = new ArrayList<>();
-                    List<Service> svl = new ServiceControl().getAll();
+                    List<Service> svl = new ServiceDAO().getAll();
                     for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
                     {
                         int j = 0;
@@ -472,12 +488,12 @@ public class Payment extends JFrame {
                     }
                     for (int i=0;i<lst.size();i++)
                     {
-                        int rs = idBill == 0 ? new billDetailControl().insertDetail(lst.get(i)) : new billDetailControl().uptBD(lst.get(i));
+                        int rs = idBill == 0 ? new BillDetailDAO().insertDetail(lst.get(i)) : new BillDetailDAO().uptBD(lst.get(i));
                     }
                     JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
                     slRoom.setStatus(stats);
-                    int s = statusComboBox.getSelectedItem().equals("Hoàn tất") ? new RoomControl().uptRoom(slRoom) : 1;
-                    dispose();
+                    int r = new RoomDAO().uptRoom(slRoom);
+//                    dispose();
                 }
                 else
                 {
@@ -485,9 +501,28 @@ public class Payment extends JFrame {
                 }
             }
         });
+        printBtn.addActionListener(new ActionListener() { 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    JasperReport phieuDat = JasperCompileManager.compileReport("D:/DH/Nam 2024-2025/JavaNC/HotelManagement/src/main/resources/report/PhieuDatPhong.jrxml");
+                    
+                } catch (JRException ex) {
+                    Logger.getLogger(Payment.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         
+        exitBtn.addActionListener(e -> {dispose();});
     }
     
+    
+    private List<PrintedData> setDataPrint()
+    {
+        List<PrintedData> list = new ArrayList<>();
+        
+        return null;
+    }
     
     private void prioritizeMatches(DefaultComboBoxModel<Customer> model, String key) {
     key = key.toLowerCase();
@@ -531,16 +566,20 @@ public class Payment extends JFrame {
         }
         
         // Kiểm tra check-in phải từ hôm nay trở đi
-        java.util.Date today = new java.util.Date();
-        // Đặt giờ phút giây millis về 0 để so sánh chỉ theo ngày
-        today.setHours(0);
-        today.setMinutes(0);
-        today.setSeconds(0);
-        checkIn.setHours(0);
-        checkIn.setMinutes(0);
-        checkIn.setSeconds(0);
+        // Ngày được chọn từ giao diện (JDateChooser)
+        java.util.Date checkInUtil = checkInField.getDate();
 
-        if (checkIn.before(today)) {
+        // Lấy ngày hôm nay
+        java.util.Date todayUtil = new java.util.Date();
+
+        // Chuyển cả hai về java.sql.Date (loại bỏ giờ/phút/giây)
+        java.sql.Date checkInD = new java.sql.Date(checkInUtil.getTime());
+       
+        LocalDate yesterday = LocalDate.now();
+        java.sql.Date today = java.sql.Date.valueOf(yesterday);
+
+        // So sánh
+        if (checkInD.before(today)) {
             JOptionPane.showMessageDialog(this, "Ngày đặt phòng phải từ hôm nay trở đi!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -555,7 +594,7 @@ public class Payment extends JFrame {
         if (days == 0) {
             days = 1;
         }
-        Room_typeControl rt = new Room_typeControl();
+        Room_typeDAO rt = new Room_typeDAO();
         
         double roomRate = rt.getPrice(slRoom.getType());
         double totalRoomPrice = roomRate * days;

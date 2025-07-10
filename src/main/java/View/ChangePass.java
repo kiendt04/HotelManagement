@@ -4,6 +4,8 @@
  */
 package View;
 
+import Control.ChangePassControl;
+import DAO.UserDAO;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
@@ -14,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import Control.*;
 
 /**
  *
@@ -26,6 +27,7 @@ public class ChangePass extends JFrame{
     private JButton save,close,showOldPass,showNewPass;
     private ImageIcon show,hide;
     private int id;
+    private ChangePassControl cpc = new ChangePassControl();
     
     public ChangePass() throws HeadlessException {
     }
@@ -79,83 +81,33 @@ public class ChangePass extends JFrame{
         act.add(save); act.add(close); 
         this.add(top); this.add(main); this.add(bot); this.add(act);
     }
-    
-    private void action()
+        
+    public void action()
     {
         showNewPass.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(newpass.getEchoChar() == '•')
-                {
-                    showNewPass.setIcon(hide);
-                    newpass.setEchoChar((char)0);
-                    recheck.setEchoChar((char)0);
-                }
-                else
-                {
-                    showNewPass.setIcon(show);
-                    newpass.setEchoChar('•');
-                    recheck.setEchoChar('•');
-                }
+                cpc.showNP(newpass, recheck, showNewPass, show, hide);
             }
         });
         showOldPass.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(oldpass.getEchoChar() == '•')
-                {
-                    showOldPass.setIcon(hide);
-                    oldpass.setEchoChar((char)0);
-                }
-                else
-                {
-                    showOldPass.setIcon(show);
-                    oldpass.setEchoChar('•');
-                }
+                cpc.showOP(oldpass, showOldPass, show, hide);
             }
         });
         
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UserControl uc = new UserControl();
-                if(!uc.checkChangePass(id, String.valueOf(oldpass.getPassword())))
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Mat khau khong dung");
-                    return;
-                }
-                else if(!String.valueOf(newpass.getPassword()).equals(String.valueOf(recheck.getPassword())))
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Mat khau nhap lai khong trung khop");
-                    return;
-                }
-                else if(String.valueOf(newpass.getPassword()).length() > 10)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Mat khau qua dai");
-                    return;
-                }
-                else if(!uc.isValidPassword(String.valueOf(newpass.getPassword())))
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Mat khau chua ky tu khong hop le");
-                    return;
-                }
-                if(uc.changePass(id, String.valueOf(newpass.getPassword())) != -1)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Doi mat khau thanh cong");
-                    close();
-                }
+                cpc.saveNP(ChangePass.this, id, oldpass, newpass, recheck);
             }
         });
         
-        close.addActionListener(e -> {this.dispose();});
-    }
-    
-    private void close()
-    {
-        this.dispose();
+        close.addActionListener(e -> {ChangePass.this.dispose();});
     }
     
     public static void main(String[] args) {
-        new ChangePass(1);
+        //new ChangePass(1);
     }
 }

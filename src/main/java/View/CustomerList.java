@@ -4,10 +4,12 @@
  */
 package View;
 
+import Control.CustomerListControl;
+import DAO.myconnect;
+import DAO.CustomerDAO;
 import java.awt.HeadlessException;
 import javax.swing.JFrame;
 import Model.Customer;
-import Control.*;
 import Model.CustomerTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -30,8 +32,7 @@ import javax.swing.event.ListSelectionListener;
  */
 public class CustomerList extends JFrame{
 
-    private myconnect mc = new myconnect();
-    private CustomerControl cc = new CustomerControl();
+    private CustomerListControl cc = new CustomerListControl();
     private CustomerTableModel model;
     private List<Customer> list = cc.getAll();
     private JPanel header,main,footer;

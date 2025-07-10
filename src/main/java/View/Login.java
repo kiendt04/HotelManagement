@@ -4,16 +4,18 @@
  */
 package View;
 
+import Control.LoginControl;
+import DAO.UserDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import Model.*;
-import Control.*;
 
 public class Login extends JFrame {
     private JTextField txtUsername;
     private JPasswordField txtPassword;
     private JButton btnLogin, btnExit;
+    private LoginControl lc = new LoginControl();
 
     public Login() {
         setTitle("Đăng nhập hệ thống");
@@ -88,23 +90,11 @@ public class Login extends JFrame {
         add(mainPanel);
 
         // Sự kiện nút
-        btnLogin.addActionListener(e -> handleLogin());
+        btnLogin.addActionListener(e -> lc.handleLogin(txtUsername,txtPassword,this));
         btnExit.addActionListener(e -> System.exit(0));
     }
 
-    private void handleLogin() {
-        String username = txtUsername.getText();
-        String password = String.valueOf(txtPassword.getPassword());
-        UserControl uc = new UserControl();
-        int role = uc.checkLogin(username,password);
-        if (role != -1) {
-            // Chuyển sang frame chính
-            new HotelManagementSystem(role,uc.getId(username));
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(this, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-    }
+    
 
     public static void main(String[] args) {
         // Giao diện phẳng (nếu muốn)

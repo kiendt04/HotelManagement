@@ -1,5 +1,6 @@
 package View;
 
+import DAO.ServiceDAO;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -9,12 +10,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.util.List;
 
-import Control.*;
 import Model.Service;
 
 public class ServiceManager extends JFrame {
 
-    private ServiceControl sc = new ServiceControl();
+    private ServiceDAO sc = new ServiceDAO();
     private DefaultTableModel model;
     private List<Service> list = sc.getAll();
     private JPanel header, main, footer;

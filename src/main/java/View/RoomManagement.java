@@ -4,13 +4,15 @@
  */
 package View;
 
+import DAO.Room_typeDAO;
+import DAO.RoomDAO;
+import DAO.FloorDAO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import Control.*;
 import Model.*;
 import java.util.List;
 
@@ -21,9 +23,9 @@ public class RoomManagement extends JFrame {
     private JTextField nameField;
     private JButton addButton, editButton, deleteButton;
     private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private FloorControl flc = new FloorControl();
-    private Room_typeControl rtc = new Room_typeControl();
-    private RoomControl rc = new RoomControl();
+    private FloorDAO flc = new FloorDAO();
+    private Room_typeDAO rtc = new Room_typeDAO();
+    private RoomDAO rc = new RoomDAO();
     private JComboBox<Floor> floorCbx;
     private JComboBox<Room_type> rtCbx;
     

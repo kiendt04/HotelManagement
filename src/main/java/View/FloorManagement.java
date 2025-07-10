@@ -5,13 +5,13 @@ package View;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import DAO.FloorDAO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import Control.*;
 import Model.*;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class FloorManagement extends JFrame {
     private JTextField nameField;
     private JButton addButton, editButton, deleteButton, settingsButton;
     private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private FloorControl flc = new FloorControl();
+    private FloorDAO flc = new FloorDAO();
     
     public FloorManagement() {
         initComponents();

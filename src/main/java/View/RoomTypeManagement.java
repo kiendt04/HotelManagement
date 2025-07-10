@@ -5,6 +5,7 @@ package View;
  *
  * @author ASUS
  */
+import DAO.Room_typeDAO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -16,7 +17,6 @@ import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.List;
 import Model.*;
-import Control.*;
 import java.text.DecimalFormat;
 
 public class RoomTypeManagement extends JFrame {
@@ -27,7 +27,7 @@ public class RoomTypeManagement extends JFrame {
     private JButton addButton, editButton, deleteButton, settingsButton;
     private NumberFormat currencyFormat;
     private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private Room_typeControl rtc = new Room_typeControl();
+    private Room_typeDAO rtc = new Room_typeDAO();
     
     public RoomTypeManagement() {
         currencyFormat = NumberFormat.getNumberInstance(Locale.US);
@@ -302,7 +302,7 @@ public class RoomTypeManagement extends JFrame {
     private class RoomTypeDialog extends JDialog {
         private JTextField dialogNameField, dialogPriceField, dialogBedField;
         private boolean confirmed = false;
-        private Room_typeControl rtc = new Room_typeControl();
+        private Room_typeDAO rtc = new Room_typeDAO();
         
         public RoomTypeDialog(Frame parent, String title, boolean modal) {
             super(parent, title, modal);

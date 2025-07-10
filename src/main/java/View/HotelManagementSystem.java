@@ -8,21 +8,25 @@ package View;
  *
  * @author ASUS
  */
+import Control.H_MControl;
+import DAO.RoomDAO;
+import DAO.FloorDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import Control.*;
 import Model.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Date;
 
 public class HotelManagementSystem extends JFrame {
     
-    private FloorControl flc = new FloorControl();
-    private RoomControl rc = new RoomControl();
+    private H_MControl control = new H_MControl();
     private int role,id;
     
     public HotelManagementSystem() {
@@ -103,8 +107,6 @@ public class HotelManagementSystem extends JFrame {
         menuBar.add(heThongMenu);
         if(role == 1)
         {menuBar.add(baoCaoMenu);}
-            
-        
         setJMenuBar(menuBar);
     }
     
@@ -222,7 +224,7 @@ public class HotelManagementSystem extends JFrame {
         roomPanel.setLayout(new BoxLayout(roomPanel, BoxLayout.Y_AXIS));
         roomPanel.setBackground(Color.WHITE);
         
-        int floorCount = flc.countFloor();
+        int floorCount = control.countFloor();
         
         // Tạo 4 tầng
         for (int i = 0; i < floorCount; i++) {
@@ -241,7 +243,7 @@ public class HotelManagementSystem extends JFrame {
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createTitledBorder("Tầng " + floor));
         panel.setBackground(Color.WHITE);
-        List<Room> roomLst = rc.getByFloor(floor);
+        List<Room> roomLst = control.getRoomData(floor);
         
         int roomCount = roomLst.size();
         panel.setLayout(new GridLayout(1, roomCount, 10, 10));
@@ -265,11 +267,9 @@ public class HotelManagementSystem extends JFrame {
         iconLabel.setOpaque(true);
         
         // Màu theo trạng thái (mặc định xanh = trống)
-        if (r.getStatus() == 1) {
-            iconLabel.setBackground(Color.PINK); // Đỏ = đã thuê
-        } else {
-            iconLabel.setBackground(Color.CYAN); // Xanh = trống
-        }
+        java.util.Date d = new java.util.Date();
+        java.sql.Date currentDate = new java.sql.Date(d.getTime());
+        control.checkRoomStats(r,iconLabel,currentDate);
         
         // Tên phòng
         JLabel nameLabel = new JLabel("Phòng " + r.getNum());
@@ -283,14 +283,7 @@ public class HotelManagementSystem extends JFrame {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                SwingUtilities.invokeLater(() -> {
-            Payment pay =  new Payment(r.getId());
-            pay.setVisible(true);
-            if(!pay.isVisible())
-            {
-                repaint();
-            }
-        });
+                control.PayMentFunc(HotelManagementSystem.this, r);
             }
             
             @Override

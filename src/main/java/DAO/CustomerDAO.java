@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Control;
+package DAO;
 
 import Model.*;
 import java.sql.Connection;
@@ -15,12 +15,12 @@ import java.util.List;
  *
  * @author ADMIN
  */
-public class CustomerControl {
+public class CustomerDAO {
     
     private myconnect mc = new myconnect();
     private Connection conn = mc.getConnection();
 
-    public CustomerControl() {
+    public CustomerDAO() {
     }
     
     public List<Customer> getAll()

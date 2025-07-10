@@ -2,11 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Control;
+package DAO;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import Model.*;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -16,12 +17,12 @@ import java.util.List;
  *
  * @author ADMIN
  */
-public class RoomControl {
+public class RoomDAO {
     
     private myconnect mc = new myconnect();
     private Connection conn = mc.getConnection();
     
-    public RoomControl ()
+    public RoomDAO ()
     {
         
     }
@@ -233,5 +234,22 @@ public class RoomControl {
             System.err.println(e);
         }
         return true;
+    }
+    
+    public boolean checkPreserver(Date d,String r)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT * FROM room join bill on room.Number = bill.room where check_in = ? and room = ? and bill.status = -1");
+            pt.setDate(1, d);
+            pt.setString(2, r);
+            ResultSet rs = pt.executeQuery();
+            while (rs.next())
+            {
+                return true;
+                    }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
     }
 }

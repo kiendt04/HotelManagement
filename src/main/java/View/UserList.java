@@ -4,10 +4,11 @@
  */
 package View;
 
+import DAO.myconnect;
+import DAO.UserDAO;
 import java.awt.HeadlessException;
 import javax.swing.JFrame;
 import Model.User;
-import Control.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -27,7 +28,7 @@ import javax.swing.table.DefaultTableModel;
 public class UserList extends JFrame{
 
     private myconnect mc = new myconnect();
-    private UserControl uc = new UserControl();
+    private UserDAO uc = new UserDAO();
     private DefaultTableModel model;
     private List<User> list = uc.getAll();
     private JPanel header,main,footer;

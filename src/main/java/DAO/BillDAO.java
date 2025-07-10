@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package Control;
+package DAO;
 
 import Model.*;
 import Model.Bill;
@@ -18,11 +18,11 @@ import java.util.List;
  *
  * @author ADMIN
  */
-public class BillControl {
+public class BillDAO {
     private myconnect mc = new myconnect();
     private Connection conn = mc.getConnection();
 
-    public BillControl() {
+    public BillDAO() {
     }
     
     public List<Bill> getAll()
@@ -143,12 +143,12 @@ public class BillControl {
     }
     
     
-    public Bill getRoomBill(String r)
+    public Bill getRoomBill(String r, int st)
     {
         try {
             PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill where room = ? and status = ? ORDER BY id DESC LIMIT 1");
             pt.setString(1, r);
-            pt.setInt(2, 1);
+            pt.setInt(2, st);
             ResultSet rs = pt.executeQuery();
             while(rs.next())
             {
