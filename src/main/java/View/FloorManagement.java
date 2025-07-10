@@ -5,6 +5,7 @@ package View;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import Control.FloorControl;
 import DAO.FloorDAO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -22,7 +23,8 @@ public class FloorManagement extends JFrame {
     private JTextField nameField;
     private JButton addButton, editButton, deleteButton, settingsButton;
     private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private FloorDAO flc = new FloorDAO();
+    private FloorControl flc = new FloorControl();
+
     
     public FloorManagement() {
         initComponents();
@@ -105,7 +107,6 @@ public class FloorManagement extends JFrame {
         toolbarPanel.add(addButton);
         toolbarPanel.add(editButton);
         toolbarPanel.add(deleteButton);
-        toolbarPanel.add(settingsButton);
         
         add(toolbarPanel, BorderLayout.NORTH);
         
@@ -185,37 +186,13 @@ public class FloorManagement extends JFrame {
                 deleteFloor();
             }
         });
-        
-        settingsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showSettings();
-            }
-        });
-    }
-    
-    private Icon createColoredIcon(Color color, int width, int height) {
-        return new Icon() {
-            @Override
-            public void paintIcon(Component c, Graphics g, int x, int y) {
-                g.setColor(color);
-                g.fillOval(x + 2, y + 2, width - 4, height - 4);
-                g.setColor(Color.WHITE);
-                g.drawString("+", x + width/2 - 3, y + height/2 + 3);
-            }
-            
-            @Override
-            public int getIconWidth() { return width; }
-            
-            @Override
-            public int getIconHeight() { return height; }
-        };
+               
     }
     
     private void addFloor() {
         String floorName = JOptionPane.showInputDialog(this, "Nhập tên tầng:", "Thêm tầng", JOptionPane.PLAIN_MESSAGE);
         if (floorName != null && !floorName.trim().isEmpty()) {
-            int rowCount = flc.creatNewID();
+            int rowCount = flc.createNewID();
             tableModel.addRow(new Object[]{rowCount, floorName.trim()});
             flc.insertFloor(new Floor(rowCount,floorName.trim()));
         }
@@ -256,9 +233,7 @@ public class FloorManagement extends JFrame {
         }
     }
     
-    private void showSettings() {
-        JOptionPane.showMessageDialog(this, "Chức năng thiết lập đang được phát triển!", "Thiết lập", JOptionPane.INFORMATION_MESSAGE);
-    }
+   
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
