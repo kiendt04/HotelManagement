@@ -1,6 +1,6 @@
 package View;
 
-import DAO.ServiceDAO;
+import Control.ServiceControl;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -14,9 +14,9 @@ import Model.Service;
 
 public class ServiceManager extends JFrame {
 
-    private ServiceDAO sc = new ServiceDAO();
+    private ServiceControl serviceControl = new ServiceControl();
     private DefaultTableModel model;
-    private List<Service> list = sc.getAll();
+    private List<Service> list;
     private JPanel header, main, footer;
     private JButton save, addBtn, remove, upt;
     private JTable tbl;
@@ -95,7 +95,7 @@ public class ServiceManager extends JFrame {
     }
 
     public void loadData() {
-        list = sc.getAll();
+        list = serviceControl.getAllServices();
         model.setRowCount(0);
         for (int i = 0; i < list.size(); i++) {
             Service s = list.get(i);
@@ -144,22 +144,31 @@ public class ServiceManager extends JFrame {
                 return;
             }
 
-            try {
-                String name = nameService.getText().trim();
-                double price = Double.parseDouble(priceService.getText().trim());
-                Service old = list.get(row);
-                Service updated = new Service(old.getId(), name, price);
+            String name = nameService.getText().trim();
+            String priceStr = priceService.getText().trim();
+            
+            // Kiểm tra tính hợp lệ của dữ liệu thông qua controller
+            String errorMessage = serviceControl.getValidationErrorMessage(name, priceStr);
+            if (errorMessage != null) {
+                JOptionPane.showMessageDialog(rootPane, errorMessage);
+                return;
+            }
 
-                if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0
-                        && sc.uptService(updated) == 1) {
-                    loadData();
-                    clearText();
-                    JOptionPane.showMessageDialog(rootPane, "Cập nhật thành công");
-                } else {
-                    JOptionPane.showMessageDialog(rootPane, "Cập nhật thất bại");
+            try {
+                Service old = list.get(row);
+                Service updated = serviceControl.createService(old.getId(), name, priceStr);
+                
+                if (updated != null && JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0) {
+                    if (serviceControl.updateService(updated)) {
+                        loadData();
+                        clearText();
+                        JOptionPane.showMessageDialog(rootPane, "Cập nhật thành công");
+                    } else {
+                        JOptionPane.showMessageDialog(rootPane, "Cập nhật thất bại");
+                    }
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(rootPane, "Dữ liệu không hợp lệ");
+                JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra khi cập nhật");
             }
         });
 
@@ -170,23 +179,31 @@ public class ServiceManager extends JFrame {
             }
 
             Service s = list.get(row);
-            if (JOptionPane.showConfirmDialog(rootPane, "Xoá dịch vụ này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0
-                    && sc.delService(s.getId()) > 0) {
-                loadData();
-                clearText();
-                JOptionPane.showMessageDialog(rootPane, "Xoá thành công");
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Xoá thất bại");
+            if (JOptionPane.showConfirmDialog(rootPane, "Xoá dịch vụ này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0) {
+                if (serviceControl.deleteService(s.getId())) {
+                    loadData();
+                    clearText();
+                    JOptionPane.showMessageDialog(rootPane, "Xoá thành công");
+                } else {
+                    JOptionPane.showMessageDialog(rootPane, "Xoá thất bại");
+                }
             }
         });
 
         save.addActionListener(e -> {
-            try {
-                String name = nameService.getText().trim();
-                double price = Double.parseDouble(priceService.getText().trim());
+            String name = nameService.getText().trim();
+            String priceStr = priceService.getText().trim();
+            
+            // Kiểm tra tính hợp lệ của dữ liệu thông qua controller
+            String errorMessage = serviceControl.getValidationErrorMessage(name, priceStr);
+            if (errorMessage != null) {
+                JOptionPane.showMessageDialog(rootPane, errorMessage);
+                return;
+            }
 
-                Service s = new Service(0, name, price);
-                if (sc.insertService(s) > 0) {
+            try {
+                Service s = serviceControl.createService(0, name, priceStr);
+                if (s != null && serviceControl.addService(s)) {
                     loadData();
                     JOptionPane.showMessageDialog(rootPane, "Thêm thành công");
                     addBtn.setIcon(addIcon);
@@ -198,8 +215,8 @@ public class ServiceManager extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(rootPane, "Thêm thất bại");
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(rootPane, "Giá tiền không hợp lệ");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(rootPane, "Có lỗi xảy ra khi thêm dịch vụ");
             }
         });
     }
