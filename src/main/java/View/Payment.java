@@ -481,34 +481,6 @@ public class Payment extends JFrame {
         return null;
     }
     
-    private void prioritizeMatches(DefaultComboBoxModel<Customer> model, String key) {
-    key = key.toLowerCase();
-    model.removeAllElements();
-    
-    List<Customer> all = clc.getAll();
-    List<Customer> matched = new ArrayList<>();
-    List<Customer> others = new ArrayList<>();
-
-    for (Customer c : all) {
-        String name = c.getName().toLowerCase();
-        if (name.contains(key)) {
-            matched.add(c);
-        } else {
-            others.add(c);
-        }
-    }
-
-    // Ưu tiên phần tử chứa key
-    for (Customer c : matched) {
-        model.addElement(c);
-    }
-
-    // Thêm phần còn lại phía sau
-    for (Customer c : others) {
-        model.addElement(c);
-    }
-    }
-    
     private boolean Like(String src,String key)
     {
         return src.toLowerCase().contains(key.toLowerCase());
