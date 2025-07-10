@@ -4,9 +4,7 @@
  */
 package View;
 
-import DAO.Room_typeDAO;
-import DAO.RoomDAO;
-import DAO.FloorDAO;
+import Control.RoomManagementControl;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -22,28 +20,27 @@ public class RoomManagement extends JFrame {
     private DefaultTableModel tableModel;
     private JTextField nameField;
     private JButton addButton, editButton, deleteButton;
-    private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private FloorDAO flc = new FloorDAO();
-    private Room_typeDAO rtc = new Room_typeDAO();
-    private RoomDAO rc = new RoomDAO();
+    private ImageIcon addIcon, editIcon, delIcon, setIcon;
+    private RoomManagementControl controller;
     private JComboBox<Floor> floorCbx;
     private JComboBox<Room_type> rtCbx;
     
     public RoomManagement() {
+        controller = new RoomManagementControl();
         initComponents();
         setupLayout();
         setupEventHandlers();
+        loadTableData();
         this.setVisible(true);
     }
     
     private void initComponents() {
         setTitle("Danh mục Phòng");
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(550, 400);
         setLocationRelativeTo(null);
         setResizable(false);
         
-        //Icon
+        // Icon
         addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
         editIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
         delIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
@@ -65,64 +62,48 @@ public class RoomManagement extends JFrame {
         deleteButton.setToolTipText("Xóa");
         deleteButton.setPreferredSize(new Dimension(30, 30));
         
+        // Initialize ComboBoxes
+        initializeComboBoxes();
+        
+        // Initialize table
+        initializeTable();
+        
+        // Text field cho thông tin
+        nameField = new JTextField();
+        nameField.setEnabled(false);
+    }
+    
+    private void initializeComboBoxes() {
         floorCbx = new JComboBox<>();
         rtCbx = new JComboBox<>();
         
-        // Tạo bảng dữ liệu
-        List<Floor> flList = flc.getAll();
+        // Floor ComboBox
+        List<Floor> floorList = controller.getAllFloors();
         DefaultComboBoxModel<Floor> floorModel = new DefaultComboBoxModel<>();
-        floorModel.addElement(new Floor(0,"All"));
-        for (int i=0;i<flList.size();i++)
-        {
-            floorModel.addElement(flList.get(i));
+        floorModel.addElement(controller.createAllFloorsOption());
+        for (Floor floor : floorList) {
+            floorModel.addElement(floor);
         }
         floorCbx.setModel(floorModel);
         
-        List<Room_type> rtList = rtc.getAll();
+        // Room Type ComboBox
+        List<Room_type> roomTypeList = controller.getAllRoomTypes();
         DefaultComboBoxModel<Room_type> rtModel = new DefaultComboBoxModel<>();
-        rtModel.addElement(new Room_type(0,"All",0,0));
-        for(int i=0;i<rtList.size();i++)
-        {
-            rtModel.addElement(rtList.get(i));
+        rtModel.addElement(controller.createAllRoomTypesOption());
+        for (Room_type roomType : roomTypeList) {
+            rtModel.addElement(roomType);
         }
         rtCbx.setModel(rtModel);
-        
-        int countRoom = rc.count();
-        String[] columnNames = {"STT", "Phòng","Tầng","Loại","Trạng thái"};
-        List<Room> roomList = rc.getAll();
-        Object[][] data = new Object[countRoom][5];
-        for (int i=0;i<roomList.size();i++)
-        {
-            String type = "";
-            String floor = "Tầng " + roomList.get(i).getFloor();
-            switch (roomList.get(i).getType()) {
-                case 1:
-                    type = "Đơn thường";
-                    break;
-                case 2:
-                    type = "Đôi thường";
-                    break;
-                case 3:
-                    type = "Đơn VIP";
-                    break;
-                case 4:
-                    type = "Đôi VIP";
-                    break;
-                case 5:
-                    type = "Vvip";
-                    break;
-                
-            }
-            data[i] = new Object[]{roomList.get(i).getId(),roomList.get(i).getNum(),floor,type,roomList.get(i).getStatus() == 0 ? "Trống": (roomList.get(i).getStatus() == 1 ? "Sử dụng" : "Dọn dẹp")};
-        }
-        
-        tableModel = new DefaultTableModel(data, columnNames) {
+    }
+    
+    private void initializeTable() {
+        String[] columnNames = controller.getTableColumnNames();
+        tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Không cho phép chỉnh sửa trực tiếp
+                return false;
             }
         };
-       
         
         roomTable = new JTable(tableModel);
         roomTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -132,45 +113,24 @@ public class RoomManagement extends JFrame {
         roomTable.getColumnModel().getColumn(0).setPreferredWidth(30);
         roomTable.getColumnModel().getColumn(0).setMaxWidth(30);
         roomTable.getColumnModel().getColumn(1).setPreferredWidth(60);
-        
-        // Text field cho thông tin
-        nameField = new JTextField();
-        nameField.setEnabled(false); // Disabled như trong hình
     }
     
-    private void setDatatbl(DefaultTableModel model,int floor,int type)
-    {
-        model.setRowCount(0);
-        int countRoom = rc.count_filter(floor,type);
-        String[] columnNames = {"STT", "Phòng","Tầng","Loại","Trạng thái"};
-        List<Room> roomList = rc.filter(floor, type);
-        Object[][] data = new Object[countRoom][5];
-        for (int i=0;i<roomList.size();i++)
-        {
-            String type_s = "";
-            String floor_s = "Tầng " + roomList.get(i).getFloor();
-            switch (roomList.get(i).getType()) {
-                case 1:
-                    type_s = "Đơn thường";
-                    break;
-                case 3:
-                    type_s = "Đôi thường";
-                    break;
-                case 2:
-                    type_s = "Đơn VIP";
-                    break;
-                case 4:
-                    type_s = "Đôi VIP";
-                    break;
-                case 5:
-                    type_s = "Vvip";
-                    break;
-                
-            }
-            model.addRow(new Object[]{roomList.get(i).getId(),roomList.get(i).getNum(),floor_s,type_s,roomList.get(i).getStatus() == 0 ? "Trống": (roomList.get(i).getStatus() == 1 ? "Sử dụng" : "Dọn dẹp")});
+    private void loadTableData() {
+        Floor selectedFloor = (Floor) floorCbx.getSelectedItem();
+        Room_type selectedRoomType = (Room_type) rtCbx.getSelectedItem();
+        
+        if (selectedFloor != null && selectedRoomType != null) {
+            refreshTableData(selectedFloor.getId(), selectedRoomType.getId());
         }
+    }
+    
+    private void refreshTableData(int floorId, int roomTypeId) {
+        tableModel.setRowCount(0);
+        Object[][] data = controller.getFilteredRoomTableData(floorId, roomTypeId);
         
-        
+        for (Object[] row : data) {
+            tableModel.addRow(row);
+        }
     }
     
     private void setupLayout() {
@@ -182,16 +142,15 @@ public class RoomManagement extends JFrame {
         toolbarPanel.add(editButton);
         toolbarPanel.add(deleteButton);
         toolbarPanel.add(Box.createHorizontalStrut(100));
-        toolbarPanel.add(new JLabel("Tầng: ")); toolbarPanel.add(floorCbx);
-        toolbarPanel.add(new JLabel("Loại: ")); toolbarPanel.add(rtCbx);
+        toolbarPanel.add(new JLabel("Tầng: "));
+        toolbarPanel.add(floorCbx);
+        toolbarPanel.add(new JLabel("Loại: "));
+        toolbarPanel.add(rtCbx);
         add(toolbarPanel, BorderLayout.NORTH);
         
         // Panel chính
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JPanel filter = new JPanel();
-        
         
         // Panel bảng dữ liệu
         JPanel tablePanel = new JPanel(new BorderLayout());
@@ -226,9 +185,7 @@ public class RoomManagement extends JFrame {
         
         infoPanel.add(fieldPanel, BorderLayout.NORTH);
         
-        //mainPanel.add(filter, BorderLayout.NORTH);
         mainPanel.add(tablePanel, BorderLayout.CENTER);
-        
         add(mainPanel, BorderLayout.CENTER);
     }
     
@@ -238,265 +195,220 @@ public class RoomManagement extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = roomTable.getSelectedRow();
                 if (selectedRow >= 0) {
-                    String floorName = (String) tableModel.getValueAt(selectedRow, 1);
-                    nameField.setText(floorName);
+                    String roomName = (String) tableModel.getValueAt(selectedRow, 1);
+                    nameField.setText(roomName);
                 }
             }
         });
         
-        floorCbx.addActionListener(e -> 
-        {
-            Floor flr = (Floor) floorCbx.getModel().getSelectedItem();
-            Room_type rt = (Room_type) rtCbx.getModel().getSelectedItem();
-            setDatatbl(tableModel, flr.getId(), rt.getId());
-        });
+        // Filter event handlers
+        floorCbx.addActionListener(e -> loadTableData());
+        rtCbx.addActionListener(e -> loadTableData());
         
-        rtCbx.addActionListener(e -> 
-        {
-            Floor flr = (Floor) floorCbx.getModel().getSelectedItem();
-            Room_type rt = (Room_type) rtCbx.getModel().getSelectedItem();
-            setDatatbl(tableModel, flr.getId(), rt.getId());
-        });
-        
-        // Xử lý sự kiện các nút
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addRoom();
-            }
-        });
-        
-        editButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editRoom();
-            }
-        });
-        
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteRoom();
-            }
-        });
-        
-    }
-    
-    private Icon createColoredIcon(Color color, int width, int height) {
-        return new Icon() {
-            @Override
-            public void paintIcon(Component c, Graphics g, int x, int y) {
-                g.setColor(color);
-                g.fillOval(x + 2, y + 2, width - 4, height - 4);
-                g.setColor(Color.WHITE);
-                g.drawString("+", x + width/2 - 3, y + height/2 + 3);
-            }
-            
-            @Override
-            public int getIconWidth() { return width; }
-            
-            @Override
-            public int getIconHeight() { return height; }
-        };
+        // Button event handlers
+        addButton.addActionListener(e -> addRoom());
+        editButton.addActionListener(e -> editRoom());
+        deleteButton.addActionListener(e -> deleteRoom());
     }
     
     private void addRoom() {
-        Room addRoom = new RoomDialog(this, flc.getAll(), rtc.getAll(), null).showDialog();
-        if(rc.insertRoom(addRoom) != 0)
-        {
-            JOptionPane.showMessageDialog(rootPane, "Thêm thành công");
-            Floor flr = (Floor) floorCbx.getModel().getSelectedItem();
-            Room_type rt = (Room_type) rtCbx.getModel().getSelectedItem();
-            setDatatbl(tableModel, flr.getId(), rt.getId());
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(rootPane, "Thêm thất bại");
+        List<Floor> floors = controller.getAllFloors();
+        List<Room_type> roomTypes = controller.getAllRoomTypes();
+        
+        Room newRoom = new RoomDialog(this, floors, roomTypes, null).showDialog();
+        if (newRoom != null) {
+            int result = controller.insertRoom(newRoom);
+            if (result != 0) {
+                JOptionPane.showMessageDialog(this, "Thêm thành công");
+                loadTableData();
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm thất bại");
+            }
         }
     }
     
     private void editRoom() {
         int selectedRow = roomTable.getSelectedRow();
         if (selectedRow >= 0) {
-            int idRoom = (int) tableModel.getValueAt(selectedRow, 0);
+            int roomId = (int) tableModel.getValueAt(selectedRow, 0);
+            Room roomToEdit = controller.getRoomById(roomId);
             
-            Room editroom = new RoomDialog(this, flc.getAll(), rtc.getAll(), rc.getbyID(idRoom)).showDialog();
-            if(rc.uptRoom(editroom) != 0)
-            {
-                JOptionPane.showMessageDialog(rootPane, "Sửa thành công");
-                Floor flr = (Floor) floorCbx.getModel().getSelectedItem();
-                Room_type rt = (Room_type) rtCbx.getModel().getSelectedItem();
-                setDatatbl(tableModel, flr.getId(), rt.getId());
+            if (roomToEdit != null) {
+                List<Floor> floors = controller.getAllFloors();
+                List<Room_type> roomTypes = controller.getAllRoomTypes();
+                
+                Room editedRoom = new RoomDialog(this, floors, roomTypes, roomToEdit).showDialog();
+                if (editedRoom != null) {
+                    int result = controller.updateRoom(editedRoom);
+                    if (result != 0) {
+                        JOptionPane.showMessageDialog(this, "Sửa thành công");
+                        loadTableData();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Sửa thất bại");
+                    }
+                }
             }
-            else
-            {
-                JOptionPane.showMessageDialog(rootPane, "Sửa thất bại");
-            }
-            
         } else {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn tầng cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phòng cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
         }
     }
     
     private void deleteRoom() {
         int selectedRow = roomTable.getSelectedRow();
-        int id = (int) tableModel.getValueAt(selectedRow, 0);
         if (selectedRow >= 0) {
+            int roomId = (int) tableModel.getValueAt(selectedRow, 0);
             int confirm = JOptionPane.showConfirmDialog(this, 
                 "Bạn có chắc chắn muốn xóa phòng này?", 
                 "Xác nhận xóa", 
                 JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION && rc.delRoom(id) != 0) {
-                tableModel.removeRow(selectedRow);
-                Floor flr = (Floor) floorCbx.getModel().getSelectedItem();
-                Room_type rt = (Room_type) rtCbx.getModel().getSelectedItem();
-                setDatatbl(tableModel, flr.getId(), rt.getId());
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                int result = controller.deleteRoom(roomId);
+                if (result != 0) {
+                    JOptionPane.showMessageDialog(this, "Xóa thành công");
+                    loadTableData();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại");
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn phòng cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
         }
     }
-    
 
     public class RoomDialog extends JDialog {
-    private JTextField txtRoomNum;
-    private JComboBox<Floor> cbxFloor;
-    private JComboBox<Room_type> cbxType;
-    private JComboBox<String> cbxStatus;
-    private JTextArea txtNote;
-    private Room input = null;
+        private JTextField txtRoomNum;
+        private JComboBox<Floor> cbxFloor;
+        private JComboBox<Room_type> cbxType;
+        private JComboBox<String> cbxStatus;
+        private JTextArea txtNote;
+        private Room originalRoom = null;
+        private Room result = null;
 
-    private Room result = null;
+        public RoomDialog(Frame parent, List<Floor> floorList, List<Room_type> typeList, Room roomToEdit) {
+            super(parent, true);
+            setTitle(roomToEdit == null ? "Thêm phòng" : "Cập nhật phòng");
+            this.originalRoom = roomToEdit;
 
-    public RoomDialog(Frame parent, List<Floor> floorList, List<Room_type> typeList, Room roomToEdit) {
-        super(parent, true);
-        setTitle(roomToEdit == null ? "Thêm phòng" : "Cập nhật phòng");
-
-        initComponents(floorList, typeList);
-        
-        if (roomToEdit != null) {
-            input = roomToEdit;
-            loadRoomData(roomToEdit);
-        }
-        
-        
-        
-        pack();
-        setLocationRelativeTo(parent);
-    }
-
-    private void initComponents(List<Floor> floors, List<Room_type> types) {
-        setLayout(new BorderLayout(10, 10));
-
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        txtRoomNum = new JTextField(15);
-        cbxFloor = new JComboBox<>(floors.toArray(new Floor[0]));
-        cbxType = new JComboBox<>(types.toArray(new Room_type[0]));
-        cbxStatus = new JComboBox<>(new String[]{"Trống", "Đã thuê", "Bảo trì"});
-        txtNote = new JTextArea(3, 20);
-        JScrollPane noteScrollPane = new JScrollPane(txtNote);
-
-        formPanel.add(createRow("Số phòng:", txtRoomNum));
-        formPanel.add(createRow("Tầng:", cbxFloor));
-        formPanel.add(createRow("Loại phòng:", cbxType));
-        formPanel.add(createRow("Trạng thái:", cbxStatus));
-        formPanel.add(createRow("Ghi chú:", noteScrollPane));
-
-        JButton btnSave = new JButton("Lưu");
-        JButton btnCancel = new JButton("Hủy");
-
-        btnSave.addActionListener(e -> onSave());
-        btnCancel.addActionListener(e -> dispose());
-
-        JPanel buttons = new JPanel();
-        buttons.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttons.add(btnSave);
-        buttons.add(btnCancel);
-
-        add(formPanel, BorderLayout.CENTER);
-        add(buttons, BorderLayout.SOUTH);
-    }
-
-    private JPanel createRow(String labelText, Component field) {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        JLabel label = new JLabel(labelText);
-        label.setPreferredSize(new Dimension(100, 25));
-        panel.add(label, BorderLayout.WEST);
-        panel.add(field, BorderLayout.CENTER);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        return panel;
-    }
-
-    private void loadRoomData(Room room) {
-        txtRoomNum.setText(room.getNum());
-        for (int i = 0; i < cbxFloor.getItemCount(); i++) {
-            if (cbxFloor.getItemAt(i).getId() == room.getFloor()) {
-                cbxFloor.setSelectedIndex(i);
-                break;
+            initComponents(floorList, typeList);
+            
+            if (roomToEdit != null) {
+                loadRoomData(roomToEdit);
             }
+            
+            pack();
+            setLocationRelativeTo(parent);
         }
-        for (int i = 0; i < cbxType.getItemCount(); i++) {
-            if (cbxType.getItemAt(i).getId() == room.getType()) {
-                cbxType.setSelectedIndex(i);
-                break;
+
+        private void initComponents(List<Floor> floors, List<Room_type> types) {
+            setLayout(new BorderLayout(10, 10));
+
+            JPanel formPanel = new JPanel();
+            formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+            formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            txtRoomNum = new JTextField(15);
+            cbxFloor = new JComboBox<>(floors.toArray(new Floor[0]));
+            cbxType = new JComboBox<>(types.toArray(new Room_type[0]));
+            cbxStatus = new JComboBox<>(controller.getStatusOptions());
+            txtNote = new JTextArea(3, 20);
+            JScrollPane noteScrollPane = new JScrollPane(txtNote);
+
+            formPanel.add(createRow("Số phòng:", txtRoomNum));
+            formPanel.add(createRow("Tầng:", cbxFloor));
+            formPanel.add(createRow("Loại phòng:", cbxType));
+            formPanel.add(createRow("Trạng thái:", cbxStatus));
+            formPanel.add(createRow("Ghi chú:", noteScrollPane));
+
+            JButton btnSave = new JButton("Lưu");
+            JButton btnCancel = new JButton("Hủy");
+
+            btnSave.addActionListener(e -> onSave());
+            btnCancel.addActionListener(e -> dispose());
+
+            JPanel buttons = new JPanel();
+            buttons.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            buttons.add(btnSave);
+            buttons.add(btnCancel);
+
+            add(formPanel, BorderLayout.CENTER);
+            add(buttons, BorderLayout.SOUTH);
+        }
+
+        private JPanel createRow(String labelText, Component field) {
+            JPanel panel = new JPanel(new BorderLayout(5, 5));
+            JLabel label = new JLabel(labelText);
+            label.setPreferredSize(new Dimension(100, 25));
+            panel.add(label, BorderLayout.WEST);
+            panel.add(field, BorderLayout.CENTER);
+            panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+            return panel;
+        }
+
+        private void loadRoomData(Room room) {
+            txtRoomNum.setText(room.getNum());
+            
+            for (int i = 0; i < cbxFloor.getItemCount(); i++) {
+                if (cbxFloor.getItemAt(i).getId() == room.getFloor()) {
+                    cbxFloor.setSelectedIndex(i);
+                    break;
+                }
             }
-        }
-        cbxStatus.setSelectedIndex(room.getStatus());
-        txtNote.setText(room.getNote());
-    }
-    
-    private boolean checkNum(String num,int fl)
-    {
-        if(Integer.parseInt(num) / 100 != fl) return false;
-        return true;
-    }
-    
-    private void onSave() {
-        String num = txtRoomNum.getText().trim();
-        Floor fl = (Floor) cbxFloor.getModel().getSelectedItem();
-        if (num.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Số phòng không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
+            
+            for (int i = 0; i < cbxType.getItemCount(); i++) {
+                if (cbxType.getItemAt(i).getId() == room.getType()) {
+                    cbxType.setSelectedIndex(i);
+                    break;
+                }
+            }
+            
+            cbxStatus.setSelectedIndex(room.getStatus());
+            txtNote.setText(room.getNote());
         }
         
-        if (!checkNum(num,fl.getId()) && input==null)
-        {
-            JOptionPane.showMessageDialog(this, "Số phòng phải bắt đầu theo số tầng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
+        private void onSave() {
+            String num = txtRoomNum.getText().trim();
+            Floor selectedFloor = (Floor) cbxFloor.getSelectedItem();
+            
+            if (num.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Số phòng không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (selectedFloor == null) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn tầng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Validate room number format (only for new rooms)
+            if (originalRoom == null && !controller.validateRoomNumber(num, selectedFloor.getId())) {
+                JOptionPane.showMessageDialog(this, "Số phòng phải bắt đầu theo số tầng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Check if room number already exists (only for new rooms)
+            if (originalRoom == null && controller.isRoomNumberExists(num)) {
+                JOptionPane.showMessageDialog(this, "Số phòng đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            int floor = selectedFloor.getId();
+            int type = ((Room_type) cbxType.getSelectedItem()).getId();
+            int status = cbxStatus.getSelectedIndex();
+            String note = txtNote.getText().trim();
+            int id = originalRoom == null ? 0 : originalRoom.getId();
+            
+            result = new Room(id, num, floor, type, status, note);
+            dispose();
         }
-        
-        if (!rc.checkNum(num) && input == null)
-        {
-            JOptionPane.showMessageDialog(this, "Số phòng đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
+
+        public Room showDialog() {
+            setVisible(true);
+            return result;
         }
-        int floor = ((Floor) cbxFloor.getSelectedItem()).getId();
-        int type = ((Room_type) cbxType.getSelectedItem()).getId();
-        int status = cbxStatus.getSelectedIndex();
-        String note = txtNote.getText().trim();
-        int id = input == null ? 0 : input.getId();
-        result = new Room(id, num, floor, type, status, note);
-        dispose();
     }
-
-    public Room showDialog() {
-        setVisible(true);
-        return result;
-    }
-}
-
-
     
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new RoomManagement().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new RoomManagement().setVisible(true));
     }
 }
-
