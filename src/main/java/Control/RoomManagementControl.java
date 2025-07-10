@@ -150,10 +150,10 @@ public class RoomManagementControl {
                 return "Trống";
             case 1:
                 return "Sử dụng";
-            case 2:
-                return "Dọn dẹp";
+            case -1:
+                return "Đặt trước";
             default:
-                return "Không xác định";
+                return "";
         }
     }
     
@@ -219,7 +219,7 @@ public class RoomManagementControl {
     }
     
     public String[] getStatusOptions() {
-        return new String[]{"Trống", "Đã thuê", "Bảo trì"};
+        return new String[]{"Trống", "Sử dụng", "Đặt trước"};
     }
     
     public String[] getTableColumnNames() {

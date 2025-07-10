@@ -394,7 +394,7 @@ public class RoomManagement extends JFrame {
             
             int floor = selectedFloor.getId();
             int type = ((Room_type) cbxType.getSelectedItem()).getId();
-            int status = cbxStatus.getSelectedIndex();
+            int status = cbxStatus.getSelectedItem().equals("Trống") ? 0 : (cbxStatus.getSelectedItem().equals("Sử dụng") ? 1 : -1);
             String note = txtNote.getText().trim();
             int id = originalRoom == null ? 0 : originalRoom.getId();
             

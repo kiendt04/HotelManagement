@@ -28,6 +28,7 @@ public class HotelManagementSystem extends JFrame {
     
     private H_MControl control = new H_MControl();
     private int role,id;
+    private JPanel rightPanel;
     
     public HotelManagementSystem() {
         initComponents();
@@ -57,7 +58,7 @@ public class HotelManagementSystem extends JFrame {
         add(leftPanel, BorderLayout.WEST);
         
         // Panel phải - Hiển thị phòng
-        JPanel rightPanel = createRightPanel();
+        rightPanel = createRightPanel();
         add(rightPanel, BorderLayout.CENTER);
         
         setVisible(true);
@@ -149,7 +150,7 @@ public class HotelManagementSystem extends JFrame {
                 case 0:
                     if (role == 1)
                     {
-                        new CustomerList();
+                        new CustomerList(null);
                     }
                     else
                     {
@@ -299,6 +300,22 @@ public class HotelManagementSystem extends JFrame {
         
         return panel;
     }
+    
+    public void refreshRoomDisplay() {
+    SwingUtilities.invokeLater(() -> {
+        // Xóa panel cũ
+        remove(rightPanel);
+        
+        // Tạo lại panel mới
+        rightPanel = createRightPanel();
+        add(rightPanel, BorderLayout.CENTER);
+        
+        // Cập nhật giao diện
+        revalidate();
+        repaint();
+    });
+}
+
     
     public static void main(String[] args) {
         new HotelManagementSystem();

@@ -16,6 +16,7 @@ import java.awt.Dimension;
 //import java.awt.EventFilter;
 import java.awt.Insets;
 import java.awt.Panel;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.*;
@@ -40,13 +41,14 @@ public class CustomerList extends JFrame{
     private JTable tbl;
     private JTextField cccd,name,phone,region,filterId,filterName,filterPhone,filterAddress;
     private JCheckBox gender;
-    private int func = -1,row = -1;
+    private int func = -1,row = -1,slPay = -1;
     private ImageIcon addIcon,rmIcon,uptIcon,saveIcon,filterIcon,clearIcon,clIcon;
+    private JFrame parent;
     
-    
-    public CustomerList() throws HeadlessException {
+    public CustomerList(JFrame parent) throws HeadlessException {
         super("Danh nục khách hàng");
-        //this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        this.parent = parent;
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setResizable(false);
         this.setSize(new Dimension(1000,500));
         this.setLocationRelativeTo(null);
@@ -190,6 +192,17 @@ public class CustomerList extends JFrame{
                 }
             }
         });
+        
+        tbl.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                
+                if (e.getClickCount() == 2 && parent != null) {
+                slPay = tbl.getSelectedRow();
+                CustomerList.this.dispose();
+                }
+            }
+        });
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -268,7 +281,7 @@ public class CustomerList extends JFrame{
                     JOptionPane.showMessageDialog(rootPane, "Information missing");
                     return;
                 }
-                if (isNumeric(cccd.getText().trim()) == false || isNumeric(phone.getText().trim()) == false)
+                if (cc.isNumeric(cccd.getText().trim()) == false || cc.isNumeric(phone.getText().trim()) == false)
                 {
                     JOptionPane.showMessageDialog(rootPane, "Id and phone must be numeric");
                     return;
@@ -301,19 +314,19 @@ public class CustomerList extends JFrame{
         });
     }
     
-    public boolean isNumeric(String x)
+    
+    public Customer getSlCus()
     {
-        try {
-            Long.parseLong(x);
-            return true;
-        } catch (Exception e) {
-            System.err.println(e);
-            return false;
-        }
+        return cc.selectCus(model, slPay);
+    }
+    
+    public int getSlPay()
+    {
+        return slPay;
     }
     
     public static void main(String[] args) {
-        new CustomerList();
+        new CustomerList(null);
     }
     
     

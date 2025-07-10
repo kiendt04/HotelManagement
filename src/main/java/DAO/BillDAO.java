@@ -67,7 +67,7 @@ public class BillDAO {
     {
         int rs =0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE bill SET room = ?,user = ?,check_in = ?,check_out= ?,total_time = ?, total_service = ? ,total= ?  WHERE id = ? ");
+            PreparedStatement pt = conn.prepareStatement("UPDATE bill SET room = ?,user = ?,check_in = ?,check_out= ?,total_time = ?, total_service = ? ,total= ?,status = ?  WHERE id = ? ");
             pt.setString(1, b.getRoom());
             pt.setString(2, b.getUser());
             pt.setDate(3, b.getCheck_in());
@@ -75,7 +75,8 @@ public class BillDAO {
             pt.setDouble(5, b.getTotal_time());
             pt.setInt(6, b.getTotal_service());
             pt.setDouble(7, b.getTotal());
-            pt.setInt(8, b.getId());
+            pt.setInt(8, b.getStatus());
+            pt.setInt(9, b.getId());
             rs = pt.executeUpdate();
             pt.close();
         } catch (Exception e) {

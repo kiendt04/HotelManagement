@@ -68,7 +68,7 @@ public class H_MControl {
             pay.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    frame.repaint();
+                    frame.refreshRoomDisplay();
                 }
             });
             pay.setVisible(true);
