@@ -1,11 +1,10 @@
-
 package View;
 
 /**
  *
  * @author ASUS
  */
-import DAO.Room_typeDAO;
+import Control.RoomManagementControl;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -26,11 +25,12 @@ public class RoomTypeManagement extends JFrame {
     private JTextField nameField, priceField, guestCountField, bedCountField;
     private JButton addButton, editButton, deleteButton, settingsButton;
     private NumberFormat currencyFormat;
-    private ImageIcon addIcon,editIcon,delIcon,setIcon;
-    private Room_typeDAO rtc = new Room_typeDAO();
+    private ImageIcon addIcon, editIcon, delIcon, setIcon;
+    private RoomManagementControl controller;
     
     public RoomTypeManagement() {
         currencyFormat = NumberFormat.getNumberInstance(Locale.US);
+        controller = new RoomManagementControl();
         initComponents();
         setupLayout();
         setupEventHandlers();
@@ -39,16 +39,17 @@ public class RoomTypeManagement extends JFrame {
     
     private void initComponents() {
         setTitle("Danh mục Loại phòng");
-        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 450);
         setLocationRelativeTo(null);
         setResizable(false);
         
+        // Initialize icons
         addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
         editIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
         delIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
         setIcon = new ImageIcon(getClass().getResource("/img/settings.png"));
-        // Tạo toolbar buttons với icons
+        
+        // Create toolbar buttons with icons
         addButton = new JButton();
         addButton.setIcon(addIcon);
         addButton.setToolTipText("Thêm");
@@ -69,15 +70,35 @@ public class RoomTypeManagement extends JFrame {
         settingsButton.setToolTipText("Thiết lập");
         settingsButton.setPreferredSize(new Dimension(30, 30));
         
-        // Tạo bảng dữ liệu
-        int sizedt = rtc.size();
+        // Create data table
+        initializeTable();
+        
+        // Text fields for information
+        nameField = new JTextField();
+        nameField.setEnabled(false);
+        
+        priceField = new JTextField();
+        priceField.setEnabled(false);
+        
+        bedCountField = new JTextField();
+        bedCountField.setEnabled(false);
+    }
+    
+    private void initializeTable() {
         String[] columnNames = {"STT", "TÊN LOẠI PHÒNG", "SỐ GIƯỜNG", "ĐƠN GIÁ"};
         
-        Object[][] data = new Object[sizedt][4];
-        List<Room_type> db = rtc.getAll();
-        for(int i=0;i<db.size();i++)
-        {
-            data[i] = new Object[]{db.get(i).getId(),db.get(i).getName(),db.get(i).getBed(),formatDouble(db.get(i).getPrice())};
+        // Get data from controller
+        List<Room_type> roomTypes = controller.getAllRoomTypes();
+        Object[][] data = new Object[roomTypes.size()][4];
+        
+        for (int i = 0; i < roomTypes.size(); i++) {
+            Room_type roomType = roomTypes.get(i);
+            data[i] = new Object[]{
+                roomType.getId(),
+                roomType.getName(),
+                roomType.getBed(),
+                formatDouble(roomType.getPrice())
+            };
         }
         
         tableModel = new DefaultTableModel(data, columnNames) {
@@ -98,39 +119,28 @@ public class RoomTypeManagement extends JFrame {
         roomTypeTable.getTableHeader().setReorderingAllowed(false);
         roomTypeTable.setRowHeight(25);
         
-        // Thiết lập độ rộng cột
+        // Set column widths
         roomTypeTable.getColumnModel().getColumn(0).setPreferredWidth(40);
         roomTypeTable.getColumnModel().getColumn(0).setMaxWidth(40);
         roomTypeTable.getColumnModel().getColumn(1).setPreferredWidth(120);
         roomTypeTable.getColumnModel().getColumn(2).setPreferredWidth(100);
         roomTypeTable.getColumnModel().getColumn(3).setPreferredWidth(80);
         
-        // Căn giữa cho các cột số
+        // Set cell renderers
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         roomTypeTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         roomTypeTable.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         
-        // Căn phải cho cột đơn giá
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
         roomTypeTable.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        
-        // Text fields cho thông tin
-        nameField = new JTextField();
-        nameField.setEnabled(false);
-        
-        priceField = new JTextField();
-        priceField.setEnabled(false);
-        
-        bedCountField = new JTextField();
-        bedCountField.setEnabled(false);
     }
     
     private void setupLayout() {
         setLayout(new BorderLayout());
         
-        // Panel toolbar
+        // Toolbar panel
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         toolbarPanel.add(addButton);
         toolbarPanel.add(editButton);
@@ -139,11 +149,11 @@ public class RoomTypeManagement extends JFrame {
         
         add(toolbarPanel, BorderLayout.NORTH);
         
-        // Panel chính
+        // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Panel bảng dữ liệu
+        // Table panel
         JPanel tablePanel = new JPanel(new BorderLayout());
         tablePanel.setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createEtchedBorder(), 
@@ -156,7 +166,7 @@ public class RoomTypeManagement extends JFrame {
         scrollPane.setPreferredSize(new Dimension(450, 200));
         tablePanel.add(scrollPane, BorderLayout.CENTER);
         
-        // Panel thông tin
+        // Info panel
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBorder(BorderFactory.createTitledBorder(
@@ -166,7 +176,7 @@ public class RoomTypeManagement extends JFrame {
             TitledBorder.TOP
         ));
         
-        // Hàng 1: Tên loại phòng và Đơn giá
+        // Row 1: Room type name and price
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         row1.add(new JLabel("Tên loại phòng:"));
         nameField.setPreferredSize(new Dimension(120, 25));
@@ -181,7 +191,7 @@ public class RoomTypeManagement extends JFrame {
         disabledLabel1.setForeground(Color.GRAY);
         row1.add(disabledLabel1);
         
-        // Hàng 2: Số người và Số giường
+        // Row 2: Number of beds
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));        
         row2.add(Box.createHorizontalStrut(35));
         row2.add(new JLabel("Số giường:"));
@@ -199,19 +209,19 @@ public class RoomTypeManagement extends JFrame {
     }
     
     private void setupEventHandlers() {
-        // Xử lý sự kiện chọn hàng trong bảng
+        // Handle table row selection
         roomTypeTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = roomTypeTable.getSelectedRow();
                 if (selectedRow >= 0) {
                     nameField.setText((String) tableModel.getValueAt(selectedRow, 1));
                     priceField.setText(tableModel.getValueAt(selectedRow, 3).toString());
-                    bedCountField.setText( tableModel.getValueAt(selectedRow, 2).toString());
+                    bedCountField.setText(tableModel.getValueAt(selectedRow, 2).toString());
                 }
             }
         });
         
-        // Xử lý sự kiện các nút
+        // Handle button events
         addButton.addActionListener(e -> addRoomType());
         editButton.addActionListener(e -> editRoomType());
         deleteButton.addActionListener(e -> deleteRoomType());
@@ -224,14 +234,21 @@ public class RoomTypeManagement extends JFrame {
         
         if (dialog.isConfirmed()) {
             Room_type data = dialog.getRoomTypeData();
-            int rowCount = tableModel.getRowCount();
-            tableModel.addRow(new Object[]{
-                data.getId(),
-                data.getName(),
-                data.getBed(),
-                data.getPrice()
-            });
-            rtc.insertRoom_type(data);
+            int result = controller.insertRoomType(data);
+            
+            if (result > 0) {
+                // Add to table
+                tableModel.addRow(new Object[]{
+                    data.getId(),
+                    data.getName(),
+                    data.getBed(),
+                    formatDouble(data.getPrice())
+                });
+                
+                JOptionPane.showMessageDialog(this, "Thêm loại phòng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm loại phòng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
     
@@ -250,16 +267,24 @@ public class RoomTypeManagement extends JFrame {
             dialog.setVisible(true);
             
             if (dialog.isConfirmed()) {
-                Room_type data = dialog.getUptdata(selectedRow);
-                tableModel.setValueAt(data.getName(), selectedRow, 1);
-                tableModel.setValueAt(formatDouble(data.getPrice()), selectedRow, 3);
-                tableModel.setValueAt(data.getBed(), selectedRow, 2);
+                Room_type data = dialog.getUpdatedData(currentData.getId());
+                int result = controller.updateRoomType(data);
                 
-                // Cập nhật form
-                nameField.setText(data.getName());
-                priceField.setText(formatDouble(data.getPrice()));
-                bedCountField.setText(data.getBed() + "");
-                rtc.uptRoom(data);
+                if (result > 0) {
+                    // Update table
+                    tableModel.setValueAt(data.getName(), selectedRow, 1);
+                    tableModel.setValueAt(formatDouble(data.getPrice()), selectedRow, 3);
+                    tableModel.setValueAt(data.getBed(), selectedRow, 2);
+                    
+                    // Update form
+                    nameField.setText(data.getName());
+                    priceField.setText(formatDouble(data.getPrice()));
+                    bedCountField.setText(data.getBed() + "");
+                    
+                    JOptionPane.showMessageDialog(this, "Cập nhật loại phòng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật loại phòng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn loại phòng cần sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -273,15 +298,18 @@ public class RoomTypeManagement extends JFrame {
                 "Bạn có chắc chắn muốn xóa loại phòng này?", 
                 "Xác nhận xóa", 
                 JOptionPane.YES_NO_OPTION);
+            
             if (confirm == JOptionPane.YES_OPTION) {
-                rtc.delRoom(Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString()));
-                tableModel.removeRow(selectedRow);
-                clearFields();
-                // Cập nhật lại STT
-                for (int i = 0; i < tableModel.getRowCount(); i++) {
-                    tableModel.setValueAt(String.valueOf(i + 1), i, 0);
-                }
+                int id = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+                int result = controller.deleteRoomType(id);
                 
+                if (result > 0) {
+                    tableModel.removeRow(selectedRow);
+                    clearFields();
+                    JOptionPane.showMessageDialog(this, "Xóa loại phòng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa loại phòng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } else {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn loại phòng cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -298,11 +326,24 @@ public class RoomTypeManagement extends JFrame {
         JOptionPane.showMessageDialog(this, "Chức năng thiết lập đang được phát triển!", "Thiết lập", JOptionPane.INFORMATION_MESSAGE);
     }
     
-    // Inner class cho dialog thêm/sửa
+    private void refreshTable() {
+        tableModel.setRowCount(0);
+        List<Room_type> roomTypes = controller.getAllRoomTypes();
+        
+        for (Room_type roomType : roomTypes) {
+            tableModel.addRow(new Object[]{
+                roomType.getId(),
+                roomType.getName(),
+                roomType.getBed(),
+                formatDouble(roomType.getPrice())
+            });
+        }
+    }
+    
+    // Inner class for add/edit dialog
     private class RoomTypeDialog extends JDialog {
         private JTextField dialogNameField, dialogPriceField, dialogBedField;
         private boolean confirmed = false;
-        private Room_typeDAO rtc = new Room_typeDAO();
         
         public RoomTypeDialog(Frame parent, String title, boolean modal) {
             super(parent, title, modal);
@@ -318,22 +359,22 @@ public class RoomTypeManagement extends JFrame {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets = new Insets(5, 5, 5, 5);
             
-            // Tên loại phòng
+            // Room type name
             gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
             formPanel.add(new JLabel("Tên loại phòng:"), gbc);
             gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
             dialogNameField = new JTextField(15);
             formPanel.add(dialogNameField, gbc);
             
-            // Đơn giá
+            // Price
             gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE;
             formPanel.add(new JLabel("Đơn giá:"), gbc);
             gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
             dialogPriceField = new JTextField(15);
             formPanel.add(dialogPriceField, gbc);
             
-            // Số giường
-            gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE;
+            // Number of beds
+            gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE;
             formPanel.add(new JLabel("Số giường:"), gbc);
             gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
             dialogBedField = new JTextField(15);
@@ -366,10 +407,10 @@ public class RoomTypeManagement extends JFrame {
                 return false;
             }
             try {
-                Integer.parseInt(dialogPriceField.getText().trim().replace(",", ""));
+                Double.parseDouble(dialogPriceField.getText().trim().replace(",", ""));
                 Integer.parseInt(dialogBedField.getText().trim());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Đơn giá, số người và số giường phải là số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Đơn giá và số giường phải là số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
             return true;
@@ -381,10 +422,9 @@ public class RoomTypeManagement extends JFrame {
             dialogBedField.setText(data.getBed() + "");
         }
         
-        public Room_type getUptdata(int row)
-        {
+        public Room_type getUpdatedData(int id) {
             return new Room_type(
-                Integer.parseInt(tableModel.getValueAt(row, 0).toString()),
+                id,
                 dialogNameField.getText().trim(),
                 Integer.parseInt(dialogBedField.getText().trim()),
                 Double.parseDouble(dialogPriceField.getText().trim().replace(",", ""))
@@ -393,7 +433,7 @@ public class RoomTypeManagement extends JFrame {
         
         public Room_type getRoomTypeData() {
             return new Room_type(
-                rtc.createNewId(),
+                controller.createNewRoomTypeId(),
                 dialogNameField.getText().trim(),
                 Integer.parseInt(dialogBedField.getText().trim()),
                 Double.parseDouble(dialogPriceField.getText().trim().replace(",", ""))

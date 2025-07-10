@@ -39,7 +39,7 @@ public class CustomerListControl {
     
     public boolean  checkID(String id)
     {
-        return checkID(id);
+        return cc.checkID(id);
     }
     
     public int insertCus(Customer c)
