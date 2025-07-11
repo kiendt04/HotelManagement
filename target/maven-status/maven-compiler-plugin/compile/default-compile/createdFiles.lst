@@ -35,7 +35,6 @@ Control\RoomManagementControl.class
 View\Payment.class
 View\UserList$3.class
 View\FloorManagement$5.class
-View\Payment$6.class
 View\GroupBooking$3.class
 Control\H_MControl.class
 Model\Customer.class
@@ -64,6 +63,7 @@ View\GroupBooking$2.class
 View\UserList.class
 View\GroupBooking.class
 View\CustomerList$3.class
+Control\UserControl.class
 View\FloorManagement.class
 View\RoomTransfer.class
 View\FloorManagement$1.class
