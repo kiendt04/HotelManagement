@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -118,10 +120,92 @@ public class PaymentControl {
         return new BillDetailDAO().uptBD(bd);
     }
     
-    private List<PrintedData> setDataPrint(List<Service> svrLS,Customer cus,Bill b,Room r)
-    {
-        List<PrintedData> list = new ArrayList<>();
-        
-        return null;
+    public void printed(List<Object> dataSRC, Map<String, Object> mainParam) {
+    try {
+        // Tạo datasource cho bảng
+        JRDataSource tableDS = new JRBeanCollectionDataSource(dataSRC);
+
+        // Gắn vào parameter tên đúng với dataset expression trong report
+        mainParam.put("TableDataSource", tableDS);
+
+        // Compile report
+        JasperReport report = JasperCompileManager.compileReport("src/main/resources/report/PhieuDatPhong.jrxml");
+
+        // Fill report với JREmptyDataSource (không dùng JDBC)
+        JasperPrint print = JasperFillManager.fillReport(report, mainParam, new JREmptyDataSource());
+
+        // Lưu thành PDF
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        String outputPath = "src/main/resources/report/PhieuDatPhong_" + timestamp + ".pdf";
+        JasperExportManager.exportReportToPdfFile(print, outputPath);
+
+        System.out.println("In thành công: " + outputPath);
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.err.println("In thất bại: " + e.getMessage());
+    }
+}
+    
+    public List<Object> setDataPrint(List<BillDetail> bdls, Room r,Bill b) {
+    List<Object> list = new ArrayList<>();
+
+    // Lấy giá phòng và định dạng
+    double roomPrice = new RoomDAO().getPrice(r.getType());
+    String formattedRoomPrice = formatPrice(roomPrice);
+
+    // Dòng đầu tiên: thông tin phòng
+    Map<String, Object> roomRow = new HashMap<>();
+    roomRow.put("STT", 1);
+    roomRow.put("noidung", "Room " + r.getNum());
+    roomRow.put("soluong", 1);
+    roomRow.put("dongia", formattedRoomPrice);
+    roomRow.put("thanhtien", formattedRoomPrice);
+    list.add(roomRow);
+
+    // Dịch vụ
+    int i = 2;
+    for (BillDetail bd : bdls) {
+        String serviceName = new ServiceDAO().getName(bd.getService());
+        double servicePrice = new ServiceDAO().getPrice(bd.getService());
+        double total = servicePrice * bd.getQuant();
+
+        Map<String, Object> serviceRow = new HashMap<>();
+        serviceRow.put("STT", i++);
+        serviceRow.put("noidung", serviceName);
+        serviceRow.put("soluong", bd.getQuant());
+        serviceRow.put("dongia", formatPrice(servicePrice));
+        serviceRow.put("thanhtien", formatPrice(total));
+        list.add(serviceRow);
+    }
+    Map<String,Object> sub =  new HashMap<>();
+    sub.put("total", formatPrice(b.getTotal()));
+    //list.add(sub);
+    return list;
+}
+    
+             
+    
+    public Map<String, Object> setupParameter(Bill b, String note) {
+    Map<String, Object> data = new HashMap<>();
+    Customer cs = new CustomerDAO().getById(b.getUser());
+
+    data.put("id_bill", b.getId());
+    data.put("cusname", cs.getName());
+    data.put("check_in", b.getCheck_in());
+    data.put("check_out", b.getCheck_out());
+    data.put("phone", cs.getSdt());
+    data.put("note", note);
+    //data.put("total", formatPrice(b.getTotal())); // Gắn luôn tổng tiền
+    data.put("createDate", new Date());
+    data.put("summary", formatPrice(b.getTotal()));
+    return data;
+}
+    
+    public List<BillDetail> getBDList(int id){
+        return new BillDetailDAO().getByBill(id);
+    }
+    
+    public Bill getBill(int id){
+        return new BillDAO().getBill(id);
     }
 }

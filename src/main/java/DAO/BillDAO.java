@@ -160,4 +160,20 @@ public class BillDAO {
         }
         return null;
     }
+    
+    public Bill getBill(int id)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill  where id = ?");
+            pt.setInt(1, id);
+             ResultSet rs = pt.executeQuery();
+            if(rs.next())
+            {
+                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
 }

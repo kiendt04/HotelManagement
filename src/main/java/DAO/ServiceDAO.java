@@ -83,5 +83,33 @@ public class ServiceDAO {
         return rs;
     }
     
+    public String getName(int id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs  =st.executeQuery("SELECT name FROM service where id = " + id);
+            while (rs.next())
+            {
+                return rs.getString("name");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return null;
+    }
     
+    public double getPrice(int id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT price FROM service where id = " + id);
+            while(rs.next())
+            {
+               return rs.getDouble("price");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return 0;
+    }
 }

@@ -302,9 +302,6 @@ public class Payment extends JFrame {
     return mainPanel;
 }
 
-    
-
-
     private JPanel createServicePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Danh sách Sản phẩm - Dịch vụ"));
@@ -362,29 +359,32 @@ public class Payment extends JFrame {
         // Thêm event handler cho ComboBox trạng thái
         statusComboBox.addActionListener(e -> {
             String selectedStatus = (String) statusComboBox.getSelectedItem();
-            System.out.println("Trạng thái đã chọn: " + selectedStatus);
             // Có thể thêm logic xử lý khác ở đây
         });
         checkInField.addPropertyChangeListener("date", e -> {
     if (e.getOldValue() != e.getNewValue()) {
         validateAndCalculateDays();
-        
-        Date selectedDate = (Date) e.getNewValue();
-        if (selectedDate != null) {
-            // So sánh chỉ ngày, không tính giờ
+
+        Object newValue = e.getNewValue();
+        if (newValue instanceof java.util.Date) {
+            java.util.Date selectedDate = (java.util.Date) newValue;
+
             Calendar selected = Calendar.getInstance();
             selected.setTime(selectedDate);
-            
+
             Calendar today = Calendar.getInstance();
-            
-            if (selected.get(Calendar.DAY_OF_YEAR) > today.get(Calendar.DAY_OF_YEAR) ||
-                selected.get(Calendar.YEAR) > today.get(Calendar.YEAR)) {
+            // So sánh ngày, không tính giờ
+            if (selected.get(Calendar.YEAR) > today.get(Calendar.YEAR) ||
+                (selected.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                 selected.get(Calendar.DAY_OF_YEAR) > today.get(Calendar.DAY_OF_YEAR))) {
                 statusComboBox.setSelectedItem("Đã đặt");
                 statusComboBox.setEnabled(false);
             } else {
                 statusComboBox.setSelectedItem("Đang dùng");
                 statusComboBox.setEnabled(true);
             }
+        } else {
+            System.err.println("Giá trị không phải kiểu java.util.Date: " + newValue);
         }
     }
 });
@@ -411,12 +411,10 @@ public class Payment extends JFrame {
                 int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
                 double total = totalroom + totalservice;
                 int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
-                System.out.println("Before : " + stats + " - " + idBill);
                 Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, stats);
                 if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
                 {
                     slRoom.setStatus(stats);
-                    System.err.println(slRoom.getStatus() + " - " + slRoom.getNum());
                     int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
                     List<BillDetail> lst = new ArrayList<>();
                     List<Service> svl = new ServiceDAO().getAll();
@@ -461,29 +459,13 @@ public class Payment extends JFrame {
         printBtn.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    JasperReport phieuDat = JasperCompileManager.compileReport("D:/DH/Nam 2024-2025/JavaNC/HotelManagement/src/main/resources/report/PhieuDatPhong.jrxml");
-                    
-                } catch (JRException ex) {
-                    Logger.getLogger(Payment.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                List<Object> datasrc = pc.setDataPrint(pc.getBDList(idBill),slRoom,pc.getBill(idBill));
+                Map<String ,Object> mainparam = pc.setupParameter(pc.getBill(idBill), "");
+                pc.printed(datasrc, mainparam);
             }
         });
         
         exitBtn.addActionListener(e -> {dispose();});
-    }
-    
-    
-    private List<PrintedData> setDataPrint()
-    {
-        List<PrintedData> list = new ArrayList<>();
-        
-        return null;
-    }
-    
-    private boolean Like(String src,String key)
-    {
-        return src.toLowerCase().contains(key.toLowerCase());
     }
     
     private void validateAndCalculateDays() {

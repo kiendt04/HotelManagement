@@ -35,7 +35,6 @@ Control\RoomManagementControl.class
 View\Payment.class
 View\UserList$3.class
 View\FloorManagement$5.class
-View\Payment$6.class
 View\GroupBooking$3.class
 Control\H_MControl.class
 Model\Customer.class
@@ -71,7 +70,6 @@ View\Payment$4.class
 View\RoomManagement.class
 DAO\UserDAO.class
 View\CustomerList$4.class
-Model\PrintedData.class
 View\HotelManagementSystem$1.class
 DAO\BillDAO.class
 Model\Room_type.class

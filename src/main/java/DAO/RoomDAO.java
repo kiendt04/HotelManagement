@@ -252,4 +252,19 @@ public class RoomDAO {
         }
         return false;
     }
+    
+    public double getPrice(int type)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT price FROM room_type where id = " + type + "");
+            while(rs.next())
+            {
+                return rs.getDouble("price");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return 0;
+    }
 }
