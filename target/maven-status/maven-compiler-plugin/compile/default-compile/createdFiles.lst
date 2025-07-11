@@ -63,6 +63,7 @@ View\GroupBooking$2.class
 View\UserList.class
 View\GroupBooking.class
 View\CustomerList$3.class
+Control\UserControl.class
 View\FloorManagement.class
 View\RoomTransfer.class
 View\FloorManagement$1.class

@@ -4,8 +4,8 @@
  */
 package View;
 
+import Control.UserControl;
 import DAO.myconnect;
-import DAO.UserDAO;
 import java.awt.HeadlessException;
 import javax.swing.JFrame;
 import Model.User;
@@ -28,13 +28,14 @@ import javax.swing.table.DefaultTableModel;
 public class UserList extends JFrame{
 
     private myconnect mc = new myconnect();
-    private UserDAO uc = new UserDAO();
+    private UserControl uc = new UserControl();
     private DefaultTableModel model;
-    private List<User> list = uc.getAll();
+    private List<User> list = uc.getAllUsers();
     private JPanel header,main,footer;
     private JButton save,addBtn,remove,upt; 
     private JTable tbl;
-    private JTextField username,password;
+    private JTextField username;
+    private JPasswordField password;
     private JCheckBox role;
     private int func = -1,row = -1;
     private ImageIcon addIcon,rmIcon,uptIcon,saveIcon,clIcon;
@@ -79,7 +80,7 @@ public class UserList extends JFrame{
         tbl.setAutoCreateRowSorter(true);
         
         username = new JTextField(10);
-        password = new JTextField(10);
+        password = new JPasswordField(10);
         role = new JCheckBox("Admin");
     }
     
@@ -122,11 +123,11 @@ public class UserList extends JFrame{
     
     public void loadData()
     {
-        list = uc.getAll();
+        list = uc.getAllUsers();
         model.setRowCount(0); // Xóa dữ liệu cũ
         for (int i = 0; i < list.size(); i++) {
             User user = list.get(i);
-            String roleDisplay = user.getRole() == 1 ? "Admin" : "Staff";
+            String roleDisplay = uc.getRoleDisplayName(user.getRole());
             model.addRow(new Object[]{i + 1, user.getName(), roleDisplay});
         }
     }
@@ -192,26 +193,33 @@ public class UserList extends JFrame{
                     JOptionPane.showMessageDialog(rootPane, "Vui lòng chọn một người dùng trước");
                     return;
                 }
-                if(username.getText().isBlank())
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Thông tin thiếu");
+                
+                String errorMsg = uc.getValidationErrorMessage(username.getText(), String.valueOf(password.getPassword()), true);
+                if (errorMsg != null) {
+                    JOptionPane.showMessageDialog(rootPane, errorMsg);
                     return;
                 }
                 
                 User selectedUser = list.get(row);
                 int roleValue = role.isSelected() ? 1 : 0;
-                User user = new User(selectedUser.getId(), username.getText().trim(), password.getText().trim(), roleValue);
+                User user = uc.createUser(selectedUser.getId(), username.getText(), String.valueOf(password.getPassword()), roleValue);
                 
-                if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (password.getText().isBlank() ? uc.uptWithoutPass(user) : uc.uptUser(user)) == 1)
-                {
-                    loadData(); // Reload dữ liệu
-                    clearText();
-                    JOptionPane.showMessageDialog(rootPane, "Cập nhật thành công");
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Cập nhật thất bại");
+                if (user == null) {
+                    JOptionPane.showMessageDialog(rootPane, "Dữ liệu không hợp lệ");
                     return;
+                }
+                
+                if (JOptionPane.showConfirmDialog(rootPane, "Cập nhật thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0) {
+                    boolean result = String.valueOf(password.getPassword()).isBlank() ? 
+                                   uc.updateUserWithoutPassword(user) : uc.updateUser(user);
+                    
+                    if (result) {
+                        loadData(); // Reload dữ liệu
+                        clearText();
+                        JOptionPane.showMessageDialog(rootPane, "Cập nhật thành công");
+                    } else {
+                        JOptionPane.showMessageDialog(rootPane, "Cập nhật thất bại");
+                    }
                 }
             }
         });
@@ -228,16 +236,14 @@ public class UserList extends JFrame{
                 
                 User selectedUser = list.get(row);
                 
-                if (JOptionPane.showConfirmDialog(rootPane, "Xóa thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && uc.delUser(selectedUser.getId()) != 0)
-                {
-                    loadData(); // Reload dữ liệu
-                    clearText();
-                    JOptionPane.showMessageDialog(rootPane, "Xóa thành công");
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Xóa thất bại");
-                    return;
+                if (JOptionPane.showConfirmDialog(rootPane, "Xóa thông tin người dùng", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0) {
+                    if (uc.deleteUser(selectedUser.getId())) {
+                        loadData(); // Reload dữ liệu
+                        clearText();
+                        JOptionPane.showMessageDialog(rootPane, "Xóa thành công");
+                    } else {
+                        JOptionPane.showMessageDialog(rootPane, "Xóa thất bại");
+                    }
                 }
             }
         });
@@ -246,9 +252,9 @@ public class UserList extends JFrame{
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(username.getText().isBlank() || password.getText().isBlank())
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Thông tin thiếu");
+                String errorMsg = uc.getValidationErrorMessage(username.getText(), String.valueOf(password.getPassword()), false);
+                if (errorMsg != null) {
+                    JOptionPane.showMessageDialog(rootPane, errorMsg);
                     return;
                 }
                 
@@ -256,9 +262,14 @@ public class UserList extends JFrame{
                 if(check == 0)
                 {
                     int roleValue = role.isSelected() ? 1 : 0;
-                    User user = new User(0, username.getText().trim(), password.getText().trim(), roleValue);
+                    User user = uc.createUser(0, username.getText(), String.valueOf(password.getPassword()), roleValue);
                     
-                    if( uc.insertUser(user) > 0)
+                    if (user == null) {
+                        JOptionPane.showMessageDialog(rootPane, "Dữ liệu không hợp lệ");
+                        return;
+                    }
+                    
+                    if(uc.addUser(user))
                     {
                         loadData(); // Reload dữ liệu
                         JOptionPane.showMessageDialog(rootPane, "Thành công");
