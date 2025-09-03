@@ -108,7 +108,7 @@ public class HotelManagementSystem extends JFrame {
         menuBar.add(heThongMenu);
         if(role == 1)
         {menuBar.add(baoCaoMenu);}
-        setJMenuBar(menuBar);
+            setJMenuBar(menuBar);
     }
     
     private JPanel createLeftPanel() {
@@ -128,9 +128,9 @@ public class HotelManagementSystem extends JFrame {
         "Quản lý tầng",
         "Loại phòng",
         "Quản lý phòng",
-        "Sản phẩm - Dịch vụ",
+        "Sản phẩm - Dịch vụ"
         //"Đặt phòng theo đoàn",
-        "Lịch sử đặt"
+        //"Lịch sử đặt"
     };
 
     JList<String> menuList = new JList<>(menuItems);
