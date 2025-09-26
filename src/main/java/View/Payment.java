@@ -60,6 +60,7 @@ public class Payment extends JFrame {
     private Room slRoom;
     private PaymentControl pc = new PaymentControl();
     private CustomerListControl clc = new CustomerListControl();
+    private JPanel mainPanel;
 
     public Payment(int id) {
         this.idRoom = id;
@@ -132,7 +133,7 @@ public class Payment extends JFrame {
         setLayout(new BorderLayout());
 
         // Panel chính
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Toolbar
@@ -142,7 +143,7 @@ public class Payment extends JFrame {
         saveBtn = new JButton("💾 Lưu");
         printBtn = new JButton("🖨️ In");
         exitBtn = new JButton("❌ Thoát");
-
+        printBtn.setEnabled(false);
         toolbarPanel.add(saveBtn);
         toolbarPanel.add(printBtn);
         toolbarPanel.add(exitBtn);
@@ -407,10 +408,10 @@ public class Payment extends JFrame {
                 }
                 java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
                 java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
+                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
                 double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
                 int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
                 double total = totalroom + totalservice;
-                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
                 Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, stats);
                 if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
                 {
@@ -438,17 +439,21 @@ public class Payment extends JFrame {
                     if(stats == 0)
                     {
                         saveBtn.setEnabled(false);
+                        printBtn.setEnabled(true);
                     }
                     if(stats == -1)
                     {
                         slRoom.setStatus(0);
+                        pc.uptRoom(slRoom);
+                        idBill = bdID;
+                        dispose();
                     }
                     else
                     {
                         slRoom.setStatus(stats);
+                        pc.uptRoom(slRoom);
+                        idBill = bdID;
                     }
-                    int r = pc.uptRoom(slRoom);
-//                    dispose();
                 }
                 else
                 {
