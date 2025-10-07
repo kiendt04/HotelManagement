@@ -78,7 +78,7 @@ public class RoomManagementControl {
     }
     
     public double getRoomTypePrice(int id) {
-        return roomTypeDAO.getPrice(id);
+        return roomTypeDAO.getPricePH(id);
     }
     
     // Room operations
@@ -215,7 +215,7 @@ public class RoomManagementControl {
     }
     
     public Room_type createAllRoomTypesOption() {
-        return new Room_type(0, "All", 0, 0);
+        return new Room_type(0, "All", 0, 0,0);
     }
     
     public String[] getStatusOptions() {

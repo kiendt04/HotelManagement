@@ -354,8 +354,15 @@ public class Payment extends JFrame {
                         }
                     }
                 }
+                else if (e.getClickCount() == 2)
+                {
+                    tableModel.removeRow(serviceTable.getSelectedRow());
+                    calculateTotal();
+                }
             }
         });
+        
+        
 
         // Thêm event handler cho ComboBox trạng thái
         statusComboBox.addActionListener(e -> {
@@ -412,7 +419,7 @@ public class Payment extends JFrame {
                 double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
                 int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
                 double total = totalroom + totalservice;
-                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, stats);
+                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, total, stats);
                 if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
                 {
                     slRoom.setStatus(stats);
@@ -512,7 +519,7 @@ public class Payment extends JFrame {
         }
         Room_typeDAO rt = new Room_typeDAO();
         
-        double roomRate = rt.getPrice(slRoom.getType());
+        double roomRate = rt.getPricePH(slRoom.getType());
         double totalRoomPrice = roomRate * days;
 
         totalRoom.setText(NumberFormat.getNumberInstance(new Locale("vi", "VN")).format(totalRoomPrice));

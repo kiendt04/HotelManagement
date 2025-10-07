@@ -32,7 +32,7 @@ public class Room_typeDAO {
             ResultSet rs = st.executeQuery("SELECT * FROM room_type");
             while(rs.next())
             {
-                Room_type r = new Room_type(rs.getInt("id"), rs.getString("name"),rs.getInt("bed"),rs.getDouble("price"));
+                Room_type r = new Room_type(rs.getInt("id"), rs.getString("name"),rs.getInt("bed"),rs.getDouble("price_per_hour"), rs.getDouble("price_per_night"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -45,11 +45,12 @@ public class Room_typeDAO {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,bed,price) VALUES(?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO room_type(id,name,bed,price_per_hour,price_per_night) VALUES(?,?,?,?,?)");
             pt.setInt(1, r.getId());
             pt.setString(2, r.getName());
             pt.setInt(3,r.getBed());
-            pt.setDouble(4, r.getPrice());
+            pt.setDouble(4, r.getPrice_per_hour());
+            pt.setDouble(5, r.getPrice_per_night());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -74,11 +75,12 @@ public class Room_typeDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE room_type set name = ?,bed = ?,price = ?  WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE room_type set name = ?,bed = ?,price_per_hour = ?, price_per_night = ?  WHERE id = ?");
             pt.setString(1, r.getName());
             pt.setInt(2, r.getBed());
-            pt.setDouble(3, r.getPrice());
-            pt.setInt(4, r.getId());
+            pt.setDouble(3, r.getPrice_per_hour());
+            pt.setDouble(4, r.getPrice_per_night());
+            pt.setInt(5, r.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -118,14 +120,29 @@ public class Room_typeDAO {
         return id;
     }
     
-    public double getPrice(int id)
+    public double getPricePH(int id)
     {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT price FROM room_type where id = " + id  +"");
+            ResultSet rs = st.executeQuery("SELECT price_per_hour FROM room_type where id = " + id  +"");
             while (rs.next())
             {
-                return rs.getDouble("price");
+                return rs.getDouble("price_per_hour");
+            }
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return 0;
+    }
+    
+    public double getPricePN(int id)
+    {
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT price_per_night FROM room_type where id = " + id  +"");
+            while (rs.next())
+            {
+                return rs.getDouble("price_per_night");
             }
         } catch (Exception e) {
             System.err.println(e);

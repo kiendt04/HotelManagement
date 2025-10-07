@@ -1,0 +1,15 @@
+digraph CRUD_UseCase {
+	rankdir=LR size=8
+	actor [label="Nhân viên" shape=plaintext]
+	subgraph cluster_system {
+		color=black label="Hệ thống: Quản lý khách hàng" style=rounded
+		create [label="Thêm khách hàng" shape=ellipse]
+		read [label="Xem danh sách khách hàng" shape=ellipse]
+		update [label="Cập nhật khách hàng" shape=ellipse]
+		delete [label="Xóa khách hàng" shape=ellipse]
+	}
+	actor -> create
+	actor -> read
+	actor -> update
+	actor -> delete
+}

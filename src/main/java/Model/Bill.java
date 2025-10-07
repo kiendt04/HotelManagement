@@ -6,6 +6,7 @@ package Model;
 
 import java.sql.Date;
 
+
 /**
  *
  * @author ADMIN
@@ -14,13 +15,13 @@ public class Bill {
     private int id,total_service;
     private String room,user;
     private Date check_in,check_out;
-    private double total,total_time;
+    private double total,total_time,actual_pay;
     private int status;
 
     public Bill() {
     }
 
-    public Bill(int id, String room, String user, Date check_in, Date check_out,double total_time,int total_service, double total, int status) {
+    public Bill(int id, String room, String user, Date check_in, Date check_out,double total_time,int total_service, double total, double actual_pay, int status) {
         this.id = id;
         this.room = room;
         this.user = user;
@@ -30,6 +31,7 @@ public class Bill {
         this.status = status;
         this.total_time = total_time;
         this.total_service = total_service;
+        this.actual_pay = actual_pay;
     }
 
     public int getId() {
@@ -102,6 +104,14 @@ public class Bill {
 
     public void setTotal_time(double total_time) {
         this.total_time = total_time;
+    }
+
+    public double getActual_pay() {
+        return actual_pay;
+    }
+
+    public void setActual_pay(double actual_pay) {
+        this.actual_pay = actual_pay;
     }
     
     

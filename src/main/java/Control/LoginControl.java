@@ -33,4 +33,5 @@ public class LoginControl {
             JOptionPane.showMessageDialog(frame, "Sai tài khoản hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 }

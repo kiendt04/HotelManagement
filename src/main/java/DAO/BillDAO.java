@@ -33,7 +33,7 @@ public class BillDAO {
             ResultSet rs = st.executeQuery("SELECT * FROM bill");
             while(rs.next())
             {
-                Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"),rs.getDouble("actual_pay"), rs.getInt("status"));
                 list.add(b);
             }
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class BillDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO bill(room,user,check_in,check_out,total_time,total_service,total,status) VALUES(?,?,?,?,?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO bill(room,user,check_in,check_out,total_time,total_service,total,actual_pay,status) VALUES(?,?,?,?,?,?,?,?,?)");
             pt.setString(1, b.getRoom());
             pt.setString(2, b.getUser());
             pt.setDate(3, b.getCheck_in());
@@ -54,7 +54,8 @@ public class BillDAO {
             pt.setDouble(5, b.getTotal_time());
             pt.setInt(6, b.getTotal_service());
             pt.setDouble(7, b.getTotal());
-            pt.setInt(8, b.getStatus());
+            pt.setDouble(8, b.getActual_pay());
+            pt.setInt(9, b.getStatus());
             rs = pt.executeUpdate();
             pt.close();
         } catch (Exception e) {
@@ -67,7 +68,7 @@ public class BillDAO {
     {
         int rs =0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE bill SET room = ?,user = ?,check_in = ?,check_out= ?,total_time = ?, total_service = ? ,total= ?,status = ?  WHERE id = ? ");
+            PreparedStatement pt = conn.prepareStatement("UPDATE bill SET room = ?,user = ?,check_in = ?,check_out= ?,total_time = ?, total_service = ? ,total= ?,actual_pay = ?,status = ?  WHERE id = ? ");
             pt.setString(1, b.getRoom());
             pt.setString(2, b.getUser());
             pt.setDate(3, b.getCheck_in());
@@ -75,8 +76,9 @@ public class BillDAO {
             pt.setDouble(5, b.getTotal_time());
             pt.setInt(6, b.getTotal_service());
             pt.setDouble(7, b.getTotal());
-            pt.setInt(8, b.getStatus());
-            pt.setInt(9, b.getId());
+            pt.setDouble(8, b.getActual_pay());
+            pt.setInt(9, b.getStatus());
+            pt.setInt(10, b.getId());
             rs = pt.executeUpdate();
             pt.close();
         } catch (Exception e) {
@@ -118,7 +120,7 @@ public class BillDAO {
             }
             while(rs.next())
                 {
-                    Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                    Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"),rs.getDouble("actual_pay") ,rs.getInt("status"));
                     list.add(b);
                 } 
         } catch (Exception e) {
@@ -153,7 +155,7 @@ public class BillDAO {
             ResultSet rs = pt.executeQuery();
             while(rs.next())
             {
-                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"),rs.getDouble("actual_pay") ,rs.getInt("status"));
             }
         } catch (Exception e) {
             System.err.println(e);
@@ -169,7 +171,7 @@ public class BillDAO {
              ResultSet rs = pt.executeQuery();
             if(rs.next())
             {
-                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"), rs.getInt("status"));
+                return new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getDate("check_in"), rs.getDate("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"),rs.getDouble("actual_pay") ,rs.getInt("status"));
             }
         } catch (Exception e) {
             System.err.println(e);
