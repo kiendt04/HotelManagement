@@ -328,6 +328,17 @@ public class HotelManagementSystem extends JFrame {
     });
 }
 
+    private class changeRoom extends JDialog {
+        private int id_bill;
+
+        public changeRoom(int id_bill) {
+            this.id_bill = id_bill;
+            this.setSize(new Dimension(300,400));
+        }
+        
+        
+        
+    }
     
     public static void main(String[] args) {
         new HotelManagementSystem();

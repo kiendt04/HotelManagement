@@ -26,6 +26,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -404,70 +405,72 @@ public class Payment extends JFrame {
             }
         });
         
-        saveBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Customer cs = (Customer) customerCBX.getSelectedItem();
-                if(checkInField.getDate() == null || checkOutField == null)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Chọn ngày đặt phòng !!!!");
-                    return;
-                }
-                java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
-                java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
-                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
-                double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
-                int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
-                double total = totalroom + totalservice;
-                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, total, stats);
-                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
-                {
-                    slRoom.setStatus(stats);
-                    int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
-                    List<BillDetail> lst = new ArrayList<>();
-                    List<Service> svl = new ServiceDAO().getAll();
-                    for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
-                    {
-                        int j = 0;
-                        while(!serviceTable.getModel().getValueAt(i, 0).equals(svl.get(j).getName()))
-                        {
-                            j++;
-                        }
-                        int srId = svl.get(j).getId();
-                        int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
-                        int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
-                        lst.add(new BillDetail(bdID,srId,quan,ttl));
-                    }
-                    for (int i=0;i<lst.size();i++)
-                    {
-                        int rs = idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i));
-                    }
-                    JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
-                    if(stats == 0)
-                    {
-                        saveBtn.setEnabled(false);
-                        printBtn.setEnabled(true);
-                    }
-                    if(stats == -1)
-                    {
-                        slRoom.setStatus(0);
-                        pc.uptRoom(slRoom);
-                        idBill = bdID;
-                        dispose();
-                    }
-                    else
-                    {
-                        slRoom.setStatus(stats);
-                        pc.uptRoom(slRoom);
-                        idBill = bdID;
-                    }
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Lỗi! Lưu thất bại");
-                }
-            }
-        });
+//        saveBtn.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                Customer cs = (Customer) customerCBX.getSelectedItem();
+//                if(checkInField.getDate() == null || checkOutField == null)
+//                {
+//                    JOptionPane.showMessageDialog(rootPane, "Chọn ngày đặt phòng !!!!");
+//                    return;
+//                }
+//                java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
+//                java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
+//                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
+//                double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
+//                int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
+//                double total = totalroom + totalservice;
+//                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, total, stats);
+//                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
+//                {
+//                    slRoom.setStatus(stats);
+//                    int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
+//                    List<BillDetail> lst = new ArrayList<>();
+//                    List<Service> svl = new ServiceDAO().getAll();
+//                    for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
+//                    {
+//                        int j = 0;
+//                        while(!serviceTable.getModel().getValueAt(i, 0).equals(svl.get(j).getName()))
+//                        {
+//                            j++;
+//                        }
+//                        int srId = svl.get(j).getId();
+//                        int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
+//                        int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
+//                        lst.add(new BillDetail(bdID,srId,quan,ttl));
+//                    }
+//                    for (int i=0;i<lst.size();i++)
+//                    {
+//                        int rs = idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i));
+//                    }
+//                    JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
+//                    if(stats == 0)
+//                    {
+//                        saveBtn.setEnabled(false);
+//                        printBtn.setEnabled(true);
+//                    }
+//                    if(stats == -1)
+//                    {
+//                        slRoom.setStatus(0);
+//                        pc.uptRoom(slRoom);
+//                        idBill = bdID;
+//                        dispose();
+//                    }
+//                    else
+//                    {
+//                        slRoom.setStatus(stats);
+//                        pc.uptRoom(slRoom);
+//                        idBill = bdID;
+//                    }
+//                }
+//                else
+//                {
+//                    JOptionPane.showMessageDialog(rootPane, "Lỗi! Lưu thất bại");
+//                }
+//            }
+//        });
+
+
         printBtn.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {

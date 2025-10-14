@@ -6,7 +6,13 @@ package Control;
 
 import DAO.ServiceDAO;
 import Model.Service;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  *
@@ -24,6 +30,35 @@ public class ServiceControl {
         return serviceDAO.getAll();
     }
     
+    public void action(JButton save,JButton canl,JTextField id, JTextField name,JTextField price, JTextField quant, JDialog parent)
+    {
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int res = JOptionPane.showConfirmDialog(parent,"Thêm dịch vụ","Xác nhận", JOptionPane.YES_NO_OPTION);
+                if(res == JOptionPane.NO_OPTION)
+                {
+                   parent.dispose();
+                }
+                else
+                {
+                    
+                }
+            }
+        
+        });
+        canl.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               int res = JOptionPane.showConfirmDialog(parent,"Hủy tạo mới","Xác nhận", JOptionPane.YES_NO_OPTION);
+               if(res == JOptionPane.YES_OPTION)
+               {
+                   parent.dispose();
+               }
+            }
+        });
+    }
+    
     public boolean addService(Service service) {
         if (service == null) {
             return false;
@@ -33,7 +68,7 @@ public class ServiceControl {
             return false;
         }
         
-        if (service.getPrice() < 0) {
+        if (service.getPrice() < 0 || service.getQuant() < 0) {
             return false;
         }
         
@@ -50,7 +85,7 @@ public class ServiceControl {
             return false;
         }
         
-        if (service.getPrice() < 0) {
+        if (service.getPrice() < 0 || service.getQuant() < 0) {
             return false;
         }
         
@@ -65,7 +100,7 @@ public class ServiceControl {
         return serviceDAO.delService(serviceId) > 0;
     }
     
-    public Service createService(int id, String name, String priceStr) {
+    public Service createService(String name, String priceStr,String quant) {
         try {
             if (name == null || name.trim().isEmpty()) {
                 return null;
@@ -76,34 +111,39 @@ public class ServiceControl {
                 return null;
             }
             
-            return new Service(id, name.trim(), price);
+            return new Service(0, name.trim(), price,Integer.parseInt(quant));
         } catch (NumberFormatException e) {
             return null;
         }
     }
     
-    public boolean validateServiceData(String name, String priceStr) {
+    public boolean validateServiceData(String name, String priceStr,String quant) {
         if (name == null || name.trim().isEmpty()) {
             return false;
         }
         
         try {
             double price = Double.parseDouble(priceStr.trim());
-            return price >= 0;
+            int quan = Integer.parseInt(quant);
+            return price >= 0 && quan >=0;
         } catch (NumberFormatException e) {
             return false;
         }
     }
     
-    public String getValidationErrorMessage(String name, String priceStr) {
+    public String getValidationErrorMessage(String name, String priceStr, String quant) {
         if (name == null || name.trim().isEmpty()) {
             return "Tên dịch vụ không được để trống";
         }
         
         try {
             double price = Double.parseDouble(priceStr.trim());
+            int qun = Integer.parseInt(quant);
             if (price < 0) {
-                return "Giá dịch vụ không được âm";
+                return "Giá dịch vụ không hợp lệ";
+            }
+            if (qun < 0) {
+                return "Số lượng dịch vụ không hợp lệ";
             }
         } catch (NumberFormatException e) {
             return "Giá dịch vụ không hợp lệ";

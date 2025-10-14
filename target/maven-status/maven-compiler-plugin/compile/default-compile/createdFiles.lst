@@ -3,7 +3,6 @@ DAO\CustomerDAO.class
 DAO\BillDetailDAO.class
 Model\CustomerTableModel.class
 View\Payment$2.class
-View\Payment$5.class
 View\Login.class
 View\GroupBooking$1.class
 Control\PaymentControl.class
@@ -14,6 +13,7 @@ DAO\FloorDAO.class
 View\RoomManagement$RoomDialog.class
 Control\H_MControl$1.class
 View\UserList$1.class
+Control\ServiceControl$2.class
 Control\CustomerListControl.class
 View\UserList$4.class
 View\CustomerList$6.class
@@ -27,6 +27,7 @@ Model\Service.class
 Control\ServiceControl.class
 Control\ChangePassControl.class
 View\RoomManagement$1.class
+View\ServiceManager$ServiceDialog.class
 View\CustomerList.class
 View\ChangePass.class
 Control\FloorControl.class
@@ -54,6 +55,7 @@ Project\prj.class
 View\FloorManagement$2.class
 View\CustomerList$8.class
 View\ServiceManager.class
+Control\ServiceControl$1.class
 View\CustomerList$5.class
 DAO\Room_typeDAO.class
 View\CustomerList$2.class
@@ -68,6 +70,7 @@ View\FloorManagement.class
 View\RoomTransfer.class
 View\FloorManagement$1.class
 View\Payment$4.class
+View\HotelManagementSystem$changeRoom.class
 View\RoomManagement.class
 DAO\UserDAO.class
 View\CustomerList$4.class
