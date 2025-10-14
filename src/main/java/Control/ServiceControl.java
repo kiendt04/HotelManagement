@@ -42,7 +42,24 @@ public class ServiceControl {
                 }
                 else
                 {
+                    if(!validateServiceData(name.getText().trim(), price.getText().trim(), quant.getText().trim()))
+                    {
+                        JOptionPane.showMessageDialog(parent, getValidationErrorMessage(name.getText().trim(), price.getText().trim(), quant.getText().trim()));
+                        return;
+                    }
                     
+                    try {
+                        Service ser = createService(name.getText().trim(), price.getText().trim(), quant.getText().trim());
+                        ser.setId( id.getText().isBlank() ? 0 : Integer.parseInt(id.getText().trim()));
+                        if(ser.getId() == 0 ? addService(ser) : updateService(ser))
+                        {
+                            JOptionPane.showMessageDialog(parent, "Thành công");
+                            parent.dispose();
+                        }
+                        else JOptionPane.showMessageDialog(parent, "Thất bại!!!"); 
+                    } catch (Exception l) {
+                        JOptionPane.showMessageDialog(parent, l.getMessage());
+                    }
                 }
             }
         
@@ -50,7 +67,7 @@ public class ServiceControl {
         canl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               int res = JOptionPane.showConfirmDialog(parent,"Hủy tạo mới","Xác nhận", JOptionPane.YES_NO_OPTION);
+               int res = JOptionPane.showConfirmDialog(parent,"Hủy tác vụ","Xác nhận", JOptionPane.YES_NO_OPTION);
                if(res == JOptionPane.YES_OPTION)
                {
                    parent.dispose();
@@ -117,7 +134,7 @@ public class ServiceControl {
         }
     }
     
-    public boolean validateServiceData(String name, String priceStr,String quant) {
+    public boolean validateServiceData (String name, String priceStr,String quant) {
         if (name == null || name.trim().isEmpty()) {
             return false;
         }

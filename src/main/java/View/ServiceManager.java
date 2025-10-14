@@ -20,7 +20,7 @@ public class ServiceManager extends JFrame {
     private JPanel header, main, footer;
     private JButton save, addBtn, remove, upt;
     private JTable tbl;
-    private JTextField nameService, priceService,quantService;
+    private JTextField nameService, priceService,quantService,idService;
     private int func = -1, row = -1;
     private ImageIcon addIcon, rmIcon, uptIcon, saveIcon, clIcon;
 
@@ -61,6 +61,8 @@ public class ServiceManager extends JFrame {
 
         nameService = new JTextField(10);
         priceService = new JTextField(10);
+        quantService = new JTextField();
+        idService = new JTextField();
     }
 
     public void initUI() {
@@ -117,6 +119,8 @@ public class ServiceManager extends JFrame {
                     Service s = list.get(row);
                     nameService.setText(s.getName());
                     priceService.setText(String.valueOf(s.getPrice()));
+                    quantService.setText(String.valueOf(s.getQuant()));
+                    idService.setText(String.valueOf(s.getId()));
                 }
             }
         });
@@ -124,6 +128,7 @@ public class ServiceManager extends JFrame {
         addBtn.addActionListener(e -> {
             ServiceDialog sdl = new ServiceDialog(this, null);
             sdl.showDialog();
+            loadData();
         });
 
         upt.addActionListener(e -> {
@@ -141,8 +146,11 @@ public class ServiceManager extends JFrame {
                 JOptionPane.showMessageDialog(rootPane, errorMessage);
                 return;
             }
-
-            
+            Service crt = serviceControl.createService(name, priceStr, quantStr);
+            crt.setId(Integer.parseInt(idService.getText().trim()));
+            ServiceDialog uptDia = new ServiceDialog(this,crt);
+            uptDia.showDialog();
+            loadData();
         });
 
         remove.addActionListener(e -> {
