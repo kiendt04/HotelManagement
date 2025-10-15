@@ -12,7 +12,12 @@ import javax.swing.JFrame;
 import Model.Customer;
 import Model.CustomerTableModel;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 //import java.awt.EventFilter;
 import java.awt.Insets;
 import java.awt.Panel;
@@ -206,21 +211,9 @@ public class CustomerList extends JFrame{
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(func == 0 && (JOptionPane.showConfirmDialog(rootPane, "Stop process", "Confirm", JOptionPane.YES_NO_OPTION) == 0) )
-                {
-                    save.setEnabled(false); remove.setEnabled(true); upt.setEnabled(true);
-                    addBtn.setIcon(addIcon);
-                    clearText();
-                    func = -1;
-                }
-                else
-                {
-                    save.setEnabled(true); remove.setEnabled(false); upt.setEnabled(false);
-                    addBtn.setIcon(clIcon); 
-                    clearText();
-                    func = 0;
-                }
-                
+                Cusdialog cusdl = new Cusdialog(CustomerList.this,null,"");
+                cusdl.setVisible(true);
+                cc.reload(model);
             }
         });
         
@@ -229,23 +222,27 @@ public class CustomerList extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if (row == -1)
                 {
-                    JOptionPane.showMessageDialog(rootPane, "Choose an customer first");
+                    JOptionPane.showMessageDialog(rootPane, "Không có đối tượng phù hợp");
                     return;
                 }
                 int modelRow = tbl.convertRowIndexToModel(row);
                 String oldID = tbl.getModel().getValueAt(modelRow, 0).toString();
                 Customer cd = new Customer(cccd.getText().trim(),name.getText().trim(),gender.isSelected() ? "Nam" : "Nu",phone.getText().trim(),region.getText().trim());
-                if (JOptionPane.showConfirmDialog(rootPane, "Update customer information", "Confirm", JOptionPane.YES_NO_OPTION) == 0 && cc.uptCus(cd, oldID) != 0)
-                {
-                    model.uptCus(cd, modelRow);
-                    clearText();
-                    JOptionPane.showMessageDialog(rootPane, "Update success");
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Update failed");
-                    return;
-                }
+                Cusdialog cusdl = new Cusdialog(CustomerList.this,cd,oldID);
+                cusdl.setVisible(true);
+                cc.reload(model);
+
+//                if (JOptionPane.showConfirmDialog(rootPane, "Update customer information", "Confirm", JOptionPane.YES_NO_OPTION) == 0 && cc.uptCus(cd, oldID) != 0)
+//                {
+//                    model.uptCus(cd, modelRow);
+//                    clearText();
+//                    JOptionPane.showMessageDialog(rootPane, "Update success");
+//                }
+//                else
+//                {
+//                    JOptionPane.showMessageDialog(rootPane, "Update failed");
+//                    return;
+//                }
             }
         });
         
@@ -276,21 +273,7 @@ public class CustomerList extends JFrame{
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(cccd.getText().isBlank() || name.getText().isBlank() || phone.getText().isBlank() || region.getText().isBlank())
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Information missing");
-                    return;
-                }
-                if (cc.isNumeric(cccd.getText().trim()) == false || cc.isNumeric(phone.getText().trim()) == false)
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Id and phone must be numeric");
-                    return;
-                }
-                if (!cc.checkID(cccd.getText().trim()))
-                {
-                    JOptionPane.showMessageDialog(rootPane, "Id already exit");
-                    return;
-                }
+                
                 int check = JOptionPane.showConfirmDialog(rootPane, "Adding confirm","Confirm",JOptionPane.YES_NO_OPTION);
                 if(check == 0)
                 {
@@ -323,6 +306,92 @@ public class CustomerList extends JFrame{
     public int getSlPay()
     {
         return slPay;
+    }
+    
+    private class Cusdialog extends JDialog
+    {
+        private JTextField nameField, phoneField, regionField, idField;
+        private JCheckBox maleCheck;
+        private JButton saveBtn, cancelBtn;
+        private Customer cus;
+
+        public Cusdialog(Frame owner, Customer cus,String oldID) {
+            super(owner, cus == null ? "Thêm khách hàng" : "Cập nhật thông tin khách hàng",true);
+            this.cus = cus;
+            this.setUndecorated(true);
+            this.getRootPane().setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
+            this.setSize(new Dimension(400,300));
+            this.setLocationRelativeTo(owner);
+            initUI();
+            cc.dialogAction(idField,nameField,phoneField,regionField,maleCheck,saveBtn,cancelBtn,this,oldID); //0 : Thêm mới, 1: Cập nhật
+            
+        }
+        
+        private void initUI() {
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel lblCCCD = new JLabel("ID:");
+        JLabel lblName = new JLabel("Họ tên:");
+        JLabel lblPhone = new JLabel("Sdt:");
+        JLabel lblRegion = new JLabel("Quốc tịch:");
+
+        idField = new JTextField(20);
+        nameField = new JTextField(15);
+        phoneField = new JTextField(20);
+        regionField = new JTextField(20);
+        maleCheck = new JCheckBox("Male");
+        
+        if(cus!= null)
+        {
+            idField.setText(cus.getId());
+            nameField.setText(cus.getName());
+            phoneField.setText(cus.getSdt());
+            regionField.setText(cus.getRegion());
+            maleCheck.setSelected(cus.getGender().equals("Nam"));
+        }
+
+        // CCCD
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(lblCCCD, gbc);
+        gbc.gridx = 1;
+        formPanel.add(idField, gbc);
+
+        // Name + Male
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(lblName, gbc);
+        JPanel nameGenderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        nameGenderPanel.add(nameField);
+        nameGenderPanel.add(maleCheck);
+        gbc.gridx = 1;
+        formPanel.add(nameGenderPanel, gbc);
+
+        // Phone
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(lblPhone, gbc);
+        gbc.gridx = 1;
+        formPanel.add(phoneField, gbc);
+
+        // Region
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(lblRegion, gbc);
+        gbc.gridx = 1;
+        formPanel.add(regionField, gbc);
+
+        // Buttons
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        saveBtn = new JButton("Lưu");
+        cancelBtn = new JButton("Hủy");
+        btnPanel.add(saveBtn);
+        btnPanel.add(cancelBtn);
+
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(formPanel, BorderLayout.CENTER);
+        getContentPane().add(btnPanel, BorderLayout.SOUTH);
+    }
+        
     }
     
     public static void main(String[] args) {

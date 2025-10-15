@@ -35,18 +35,19 @@ public class ServiceControl {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int res = JOptionPane.showConfirmDialog(parent,"Thêm dịch vụ","Xác nhận", JOptionPane.YES_NO_OPTION);
+                if(!validateServiceData(name.getText().trim(), price.getText().trim(), quant.getText().trim()))
+                {
+                    JOptionPane.showMessageDialog(parent, getValidationErrorMessage(name.getText().trim(), price.getText().trim(), quant.getText().trim()));
+                    return;
+                }
+                int res = JOptionPane.showConfirmDialog(parent,"lưu tác vụ","Xác nhận", JOptionPane.YES_NO_OPTION);
                 if(res == JOptionPane.NO_OPTION)
                 {
                    parent.dispose();
                 }
                 else
                 {
-                    if(!validateServiceData(name.getText().trim(), price.getText().trim(), quant.getText().trim()))
-                    {
-                        JOptionPane.showMessageDialog(parent, getValidationErrorMessage(name.getText().trim(), price.getText().trim(), quant.getText().trim()));
-                        return;
-                    }
+                    
                     
                     try {
                         Service ser = createService(name.getText().trim(), price.getText().trim(), quant.getText().trim());

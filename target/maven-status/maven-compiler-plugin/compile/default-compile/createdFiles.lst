@@ -12,11 +12,13 @@ Model\Bill.class
 DAO\FloorDAO.class
 View\RoomManagement$RoomDialog.class
 Control\H_MControl$1.class
+View\CustomerList$Cusdialog.class
 View\UserList$1.class
 Control\ServiceControl$2.class
 Control\CustomerListControl.class
 View\UserList$4.class
 View\CustomerList$6.class
+Control\CustomerListControl$2.class
 View\FloorManagement$3.class
 Control\PaymentControl$1.class
 View\ChangePass$2.class
@@ -35,6 +37,7 @@ Control\LoginControl.class
 Control\RoomManagementControl.class
 View\Payment.class
 View\UserList$3.class
+Control\CustomerListControl$1.class
 View\FloorManagement$5.class
 View\GroupBooking$3.class
 Control\H_MControl.class

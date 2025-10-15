@@ -208,6 +208,8 @@ public class ServiceManager extends JFrame {
 
     public ServiceDialog(Frame parent, Service sr) {
         super(parent, sr!=null ? "Sửa dịch vụ" : "Thêm dịch vụ", true);
+        this.setUndecorated(true);
+        this.getRootPane().setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         setSize(400, 280);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
