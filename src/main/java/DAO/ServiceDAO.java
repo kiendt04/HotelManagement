@@ -32,7 +32,7 @@ public class ServiceDAO {
             ResultSet rs = st.executeQuery("SELECT * FROM service");
             while(rs.next())
             {
-                Service r = new Service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"),rs.getInt("quantity"));
+                Service r = new Service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"),rs.getInt("quantity"),rs.getString("unit"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -45,10 +45,11 @@ public class ServiceDAO {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(name,price,quantity) VALUES(?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(name,price,quantity,unit) VALUES(?,?,?,?)");
             pt.setString(1, r.getName());
             pt.setDouble(2, r.getPrice());
             pt.setInt(3, r.getQuant());
+            pt.setString(4, r.getUnit());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -73,11 +74,12 @@ public class ServiceDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE service set name = ?,price = ?, quantity = ?  WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE service set name = ?,price = ?, quantity = ?, unit = ? WHERE id = ?");
             pt.setString(1, r.getName());
             pt.setDouble(2, r.getPrice());
             pt.setInt(3, r.getQuant());
-            pt.setInt(4, r.getId());
+            pt.setString(4, r.getUnit());
+            pt.setInt(5, r.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);

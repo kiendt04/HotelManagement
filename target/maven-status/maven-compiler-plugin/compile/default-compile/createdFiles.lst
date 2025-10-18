@@ -73,6 +73,7 @@ View\FloorManagement.class
 View\RoomTransfer.class
 View\FloorManagement$1.class
 View\Payment$4.class
+Control\GroupBookingControl.class
 View\HotelManagementSystem$changeRoom.class
 View\RoomManagement.class
 DAO\UserDAO.class

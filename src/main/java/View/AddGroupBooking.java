@@ -8,6 +8,7 @@ package View;
  *
  * @author ASUS
  */
+import Model.Room;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -17,8 +18,15 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
+import Control.GroupBookingControl;
+import com.toedter.calendar.JDateChooser;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class AddGroupBooking extends JFrame {
+public class AddGroupBooking extends JDialog {
     private JTree roomTree;
     private JTable roomListTable, serviceTable;
     private DefaultTableModel roomTableModel, serviceTableModel;
@@ -26,8 +34,20 @@ public class AddGroupBooking extends JFrame {
     private JTextField dateFromField, dateToField, guestCountField, noteField;
     private JTextField totalAmountField;
     private JLabel totalLabel;
+    private GroupBookingControl control = new GroupBookingControl();
+    private Timestamp time_in, time_out;
+    private JDateChooser check_in,check_out;
     
+    public AddGroupBooking(Frame parent) {
+        super(parent, "Quản lý đặt phòng theo đoàn", true);
+        initializeComponents();
+        setupLayout();
+        setupTables();
+        loadSampleData();
+        setVisible(true);
+    }
     public AddGroupBooking() {
+        setTitle("Quản lý đặt phòng theo đoàn");
         initializeComponents();
         setupLayout();
         setupTables();
@@ -36,20 +56,27 @@ public class AddGroupBooking extends JFrame {
     }
     
     private void initializeComponents() {
-        setTitle("Quản lý đặt phòng theo đoàn");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 700);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setLocationRelativeTo(null);
         
         // Initialize components
         customerCombo = new JComboBox<>(new String[]{"Nguyễn Minh Triết", "Lê Thị Thắm", "Hoàng Anh Tuấn"});
-        dateFromField = new JTextField("01/09/2021");
-        dateToField = new JTextField("02/09/2021");
-        guestCountField = new JTextField("1");
-        noteField = new JTextField("Chưa hoàn tất");
-        totalAmountField = new JTextField("0");
+        dateFromField = new JTextField();
+        dateToField = new JTextField();
+        guestCountField = new JTextField();
+        noteField = new JTextField();
+        totalAmountField = new JTextField();
         totalAmountField.setEditable(false);
         totalLabel = new JLabel("TỔNG TIỀN");
+        check_in = new JDateChooser();
+        check_in.setDateFormatString("dd/MM/yyyy HH:mm:ss");
+        check_out = new JDateChooser();
+        check_out.setDateFormatString("dd/MM/yyyy HH:MM:ss");
+        control.initDate(check_in,check_out);
+        time_in = new Timestamp(check_in.getDate().getTime());
+        time_out = new Timestamp(check_out.getDate().getTime());
     }
     
     private void setupLayout() {
@@ -94,8 +121,8 @@ public class AddGroupBooking extends JFrame {
         menuLabel1.setBackground(Color.WHITE);
         
         toolbar.add(Box.createHorizontalStrut(20));
-        toolbar.add(menuLabel1);
-        toolbar.add(menuLabel2);
+//        toolbar.add(menuLabel1);
+//        toolbar.add(menuLabel2);
         
         return toolbar;
     }
@@ -113,50 +140,36 @@ public class AddGroupBooking extends JFrame {
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("Danh sách phòng trống"));
         leftPanel.setBackground(new Color(230, 230, 250));
-        
+        List<Room> roomAvailable = control.getRoomavailable(time_in, time_out);
+        List<String> roomPrice = control.getRoomPrice();
         // Create room tree
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("TẦNG");
         
-        // Floor 1
-        DefaultMutableTreeNode floor1 = new DefaultMutableTreeNode("TẦNG: Tầng 1 (7 phòng trống)");
-        floor1.add(new DefaultMutableTreeNode("Phòng 101 - 35000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 102 - 30000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 103 - 25000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 104 - 35000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 105 - 15000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 106 - 15000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 107 - 15000000"));
-        
-        // Floor 2
-        DefaultMutableTreeNode floor2 = new DefaultMutableTreeNode("TẦNG: Tầng 2 (3 phòng trống)");
-        floor2.add(new DefaultMutableTreeNode("Phòng 201 - 25000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 203 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 204 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 205 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 206 - 30000000"));
-        
-        // Floor 3
-        DefaultMutableTreeNode floor3 = new DefaultMutableTreeNode("TẦNG: Tầng 3 (5 phòng trống)");
-        floor3.add(new DefaultMutableTreeNode("Phòng 301 - 30000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 302 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 303 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 304 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 305 - 25000000"));
-        
-        // Floor 4
-        DefaultMutableTreeNode floor4 = new DefaultMutableTreeNode("TẦNG: Tầng 4 (5 phòng trống)");
-        floor4.add(new DefaultMutableTreeNode("Phòng 401 - 25000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 402 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 403 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 404 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 405 - 15000000"));
-        
-        root.add(floor1);
-        root.add(floor2);
-        root.add(floor3);
-        root.add(floor4);
-        
-        roomTree = new JTree(new DefaultTreeModel(root));
+        Map<Integer,List<Room>> roombyFloor = new HashMap<>();
+        for (Room r : roomAvailable) {
+        int floor = r.getFloor(); // giả sử Room có getFloor()
+    
+        // Nếu tầng chưa có list, tạo mới
+        roombyFloor.computeIfAbsent(floor, k -> new ArrayList<>()).add(r);
+        }
+        for (Map.Entry<Integer, List<Room>> entry : roombyFloor.entrySet()) {
+        int floor = entry.getKey();
+        List<Room> rooms = entry.getValue();
+
+        String floorLabel = "TẦNG: Tầng " + floor + " (" + rooms.size() + " phòng trống)";
+        DefaultMutableTreeNode floorNode = new DefaultMutableTreeNode(floorLabel);
+
+        for (Room r : rooms) {
+            // Node phòng: hiển thị tên + giá (hoặc tùy chỉnh)
+            String roomLabel = "Phòng " + r.getNum() +  roomPrice.get(r.getType());
+            DefaultMutableTreeNode roomNode = new DefaultMutableTreeNode(roomLabel);
+            roomNode.setUserObject(r); // gắn Room thật vào node
+            floorNode.add(roomNode);
+        }
+
+        root.add(floorNode);
+    }
+        roomTree = new JTree(new DefaultTreeModel(root));       
         roomTree.setRootVisible(false);
         roomTree.setShowsRootHandles(true);
         
@@ -209,29 +222,30 @@ public class AddGroupBooking extends JFrame {
         dateRow.setOpaque(false);
         dateRow.add(new JLabel("Ngày đặt"));
         dateFromField.setPreferredSize(new Dimension(80, 25));
-        dateRow.add(dateFromField);
-        dateRow.add(new JButton("📅"));
+        //dateRow.add(dateFromField);
+        dateRow.add(check_in);
         
         dateRow.add(Box.createHorizontalStrut(10));
         dateRow.add(new JLabel("Ngày trả"));
         dateToField.setPreferredSize(new Dimension(80, 25));
-        dateRow.add(dateToField);
-        dateRow.add(new JButton("📅"));
+        //dateRow.add(dateToField);
+        dateRow.add(check_out);
         
         // Guest count and note row
         JPanel guestRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         guestRow.setOpaque(false);
-        guestRow.add(new JLabel("Số người"));
-        guestCountField.setPreferredSize(new Dimension(50, 25));
-        guestRow.add(guestCountField);
+//        guestRow.add(new JLabel("Số người"));
+//        guestCountField.setPreferredSize(new Dimension(50, 25));
+//        guestRow.add(guestCountField);
         
-        guestRow.add(Box.createHorizontalStrut(10));
-        guestRow.add(new JLabel("Trạng thái"));
-        noteField.setPreferredSize(new Dimension(120, 25));
-        guestRow.add(noteField);
+//        guestRow.add(Box.createHorizontalStrut(10));
+//        guestRow.add(new JLabel("Trạng thái"));
+//        
         
         guestRow.add(Box.createHorizontalStrut(10));
         guestRow.add(new JLabel("Ghi chú"));
+        noteField.setPreferredSize(new Dimension(120, 25));
+        guestRow.add(noteField);
         
         panel.add(customerRow);
         panel.add(dateRow);

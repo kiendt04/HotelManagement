@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 07, 2025 lúc 06:25 PM
+-- Thời gian đã tạo: Th10 18, 2025 lúc 07:34 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -36,6 +36,8 @@ CREATE TABLE `bill` (
   `total_time` double NOT NULL,
   `total_service` int(11) NOT NULL,
   `total` double NOT NULL,
+  `exchange` double NOT NULL,
+  `discount` double NOT NULL,
   `actual_pay` double NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -44,17 +46,18 @@ CREATE TABLE `bill` (
 -- Đang đổ dữ liệu cho bảng `bill`
 --
 
-INSERT INTO `bill` (`id`, `room`, `user`, `check_in`, `check_out`, `total_time`, `total_service`, `total`, `actual_pay`, `status`) VALUES
-(1, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 1),
-(2, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0),
-(3, '304', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 2000000, 45000, 2045000, 0, 0),
-(4, '403', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 50000, 1550000, 0, 0),
-(5, '101', '001304035000', '2025-07-12 00:00:00', '2025-07-17 00:00:00', 4500000, 80000, 4580000, 0, -1),
-(6, '202', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 1300000, 80000, 1380000, 0, 0),
-(7, '203', '001304035000', '2025-07-11 00:00:00', '2025-07-11 00:00:00', 900000, 65000, 965000, 0, 0),
-(8, '302', '001304035000', '2025-09-24 00:00:00', '2025-09-25 00:00:00', 1300000, 50000, 1350000, 0, -1),
-(9, '201', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 900000, 30000, 930000, 0, 0),
-(10, '101', '001304035000', '2025-10-06 00:00:00', '2025-10-08 00:00:00', 1800000, 0, 1800000, 0, 0);
+INSERT INTO `bill` (`id`, `room`, `user`, `check_in`, `check_out`, `total_time`, `total_service`, `total`, `exchange`, `discount`, `actual_pay`, `status`) VALUES
+(1, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0),
+(2, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0),
+(3, '304', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 2000000, 45000, 2045000, 0, 0, 0, 0),
+(4, '403', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 50000, 1550000, 0, 0, 0, 0),
+(5, '101', '001304035000', '2025-07-12 00:00:00', '2025-07-17 00:00:00', 4500000, 80000, 4580000, 0, 0, 0, 0),
+(6, '202', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 1300000, 80000, 1380000, 0, 0, 0, 0),
+(7, '203', '001304035000', '2025-07-11 00:00:00', '2025-07-11 00:00:00', 900000, 65000, 965000, 0, 0, 0, 0),
+(8, '302', '001304035000', '2025-09-24 00:00:00', '2025-09-25 00:00:00', 1300000, 50000, 1350000, 0, 0, 0, 0),
+(9, '201', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 900000, 30000, 930000, 0, 0, 0, 0),
+(10, '101', '001304035000', '2025-10-06 00:00:00', '2025-10-08 00:00:00', 1800000, 0, 1800000, 0, 0, 0, 0),
+(11, '101', '001304035000', '2025-10-08 00:00:00', '2025-10-09 00:00:00', 100000, 65000, 165000, 0, 0, 165000, 0);
 
 -- --------------------------------------------------------
 
@@ -93,7 +96,11 @@ INSERT INTO `bill_detail` (`id_bill`, `service`, `quantity`, `total_service`) VA
 (8, 3, 1, 20000),
 (8, 5, 1, 15000),
 (9, 4, 1, 15000),
-(9, 5, 1, 15000);
+(9, 5, 1, 15000),
+(11, 2, 1, 15000),
+(11, 3, 1, 20000),
+(11, 4, 1, 15000),
+(11, 5, 1, 15000);
 
 -- --------------------------------------------------------
 
@@ -140,7 +147,8 @@ INSERT INTO `floor` (`id`, `name`) VALUES
 (1, 'Tầng 1'),
 (2, 'Tầng 2'),
 (3, 'Tầng 3'),
-(4, 'Tầng 4');
+(4, 'Tầng 4'),
+(5, 'Tầng 5');
 
 -- --------------------------------------------------------
 
@@ -181,7 +189,8 @@ INSERT INTO `room` (`Id`, `Number`, `floor`, `Type`, `Status`, `Note`) VALUES
 (17, '402', 4, 2, 0, ''),
 (18, '403', 4, 3, 0, ''),
 (19, '404', 4, 4, 0, ''),
-(20, '405', 4, 5, 0, '');
+(20, '405', 4, 5, 0, ''),
+(21, '501', 5, 1, 0, '');
 
 -- --------------------------------------------------------
 
@@ -203,10 +212,10 @@ CREATE TABLE `room_type` (
 
 INSERT INTO `room_type` (`id`, `name`, `bed`, `price_per_hour`, `price_per_night`) VALUES
 (1, 'single_normal', 1, 100000, 500000),
-(2, 'single_vip', 1, 1300000, 0),
-(3, 'double_normal', 2, 1500000, 0),
-(4, 'double_vip', 2, 2000000, 0),
-(5, 'Vvip', 2, 3000000, 0);
+(2, 'single_vip', 1, 200000, 1000000),
+(3, 'double_normal', 2, 150000, 750000),
+(4, 'double_vip', 2, 300000, 1500000),
+(5, 'Vvip', 2, 500000, 2500000);
 
 -- --------------------------------------------------------
 
@@ -217,20 +226,22 @@ INSERT INTO `room_type` (`id`, `name`, `bed`, `price_per_hour`, `price_per_night
 CREATE TABLE `service` (
   `id` int(5) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `price` double NOT NULL
+  `quantity` int(11) NOT NULL,
+  `price` double NOT NULL,
+  `unit` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `service`
 --
 
-INSERT INTO `service` (`id`, `name`, `price`) VALUES
-(1, 'Coca', 15000),
-(2, 'Pepsi1', 15000),
-(3, 'RedBull', 20000),
-(4, '7Up', 15000),
-(5, 'Fanta', 15000),
-(6, 'Mỳ Ly', 15000);
+INSERT INTO `service` (`id`, `name`, `quantity`, `price`, `unit`) VALUES
+(1, 'Coca', 0, 15000, ''),
+(2, 'Pepsi1', 0, 15000, ''),
+(3, 'RedBull', 0, 20000, ''),
+(4, '7Up', 0, 15000, ''),
+(5, 'Fanta', 0, 15000, ''),
+(6, 'Mỳ Ly', 0, 15000, '');
 
 -- --------------------------------------------------------
 
@@ -261,7 +272,8 @@ INSERT INTO `user` (`id`, `name`, `pass`, `role`) VALUES
 -- Chỉ mục cho bảng `bill`
 --
 ALTER TABLE `bill`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_billroom` (`room`);
 
 --
 -- Chỉ mục cho bảng `bill_detail`
@@ -317,7 +329,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT cho bảng `bill`
 --
 ALTER TABLE `bill`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `floor`
@@ -329,7 +341,7 @@ ALTER TABLE `floor`
 -- AUTO_INCREMENT cho bảng `room`
 --
 ALTER TABLE `room`
-  MODIFY `Id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `Id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT cho bảng `room_type`
@@ -341,7 +353,7 @@ ALTER TABLE `room_type`
 -- AUTO_INCREMENT cho bảng `service`
 --
 ALTER TABLE `service`
-  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `user`
@@ -352,6 +364,12 @@ ALTER TABLE `user`
 --
 -- Các ràng buộc cho các bảng đã đổ
 --
+
+--
+-- Các ràng buộc cho bảng `bill`
+--
+ALTER TABLE `bill`
+  ADD CONSTRAINT `FK_billroom` FOREIGN KEY (`room`) REFERENCES `room` (`Number`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Các ràng buộc cho bảng `bill_detail`

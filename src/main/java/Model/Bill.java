@@ -16,13 +16,13 @@ public class Bill {
     private int id,total_service;
     private String room,user;
     private Timestamp check_in,check_out;
-    private double total,total_time,actual_pay;
+    private double total,total_time,actual_pay,exchange,disount;
     private int status;
 
     public Bill() {
     }
 
-    public Bill(int id, String room, String user, Timestamp check_in, Timestamp check_out,double total_time,int total_service, double total, double actual_pay, int status) {
+    public Bill(int id, String room, String user, Timestamp check_in, Timestamp check_out,double total_time,int total_service, double total,double exchange, double discount, double actual_pay, int status) {
         this.id = id;
         this.room = room;
         this.user = user;
@@ -33,6 +33,8 @@ public class Bill {
         this.total_time = total_time;
         this.total_service = total_service;
         this.actual_pay = actual_pay;
+        this.exchange = exchange;
+        this.disount = discount;
     }
 
     public int getId() {

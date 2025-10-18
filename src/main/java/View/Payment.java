@@ -100,7 +100,7 @@ public class Payment extends JFrame {
         totalRoom = new JTextField("0");
         // Khởi tạo ComboBox cho trạng thái
         totalService = new JTextField("0");
-        String[] statusOptions = { "Đang dùng","Hoàn tất","Đã đặt"};
+        String[] statusOptions = { "Đang dùng","Hoàn tất","Đặt trước"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
 
@@ -181,7 +181,7 @@ public class Payment extends JFrame {
         totalRoom.setText(pc.formatPrice(b.getTotal_time()));
         totalAmountLabel.setText(pc.formatPrice(b.getTotal()));
         pc.setTblData(tableModel, new BillDetailDAO().getByBill(b.getId()));
-        statusComboBox.setSelectedItem(b.getStatus() == 0 ? "Hoàn tất" : (b.getStatus() == 1) ? "Đang dùng" : "Đã đặt");
+        statusComboBox.setSelectedItem(b.getStatus() == 0 ? "Hoàn tất" : (b.getStatus() == 1) ? "Đang dùng" : "Đặt trước");
     }
     
     
@@ -260,7 +260,6 @@ public class Payment extends JFrame {
     DefaultListModel<Service> model = new DefaultListModel<>();
     for (Service s : new ServiceDAO().getAll()) {
         model.addElement(s);
-        
     }
 
     JList<Service> serviceList = new JList<>(model);

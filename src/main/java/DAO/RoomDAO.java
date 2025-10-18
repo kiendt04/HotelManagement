@@ -11,6 +11,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -32,10 +33,11 @@ public class RoomDAO {
         List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM room");
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
+                                         + "FROM room join room_type on room.Type = room_type.id");
             while(rs.next())
             {
-                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
+                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -100,10 +102,11 @@ public class RoomDAO {
         List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT  * FROM room where floor = "+ fl + "");
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night" 
+                                         + "FROM room join room_type on room.Type = room_type.id where floor = " + fl + "");
             while (rs.next())
             {
-                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
+                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -115,10 +118,11 @@ public class RoomDAO {
     {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM room where Id = "+id+"");
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
+                                         + " FROM room join room_type on room.Type = room_type.id where Id = "+id+"");
             while(rs.next())
             {
-                return new Room(id,rs.getString("Number"),rs.getInt("floor"),rs.getInt("Type"),rs.getInt("Status"),rs.getString("Note"));
+                return new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
             }
         } catch (Exception e) {
             System.err.println(e);
@@ -184,7 +188,8 @@ public class RoomDAO {
     public List<Room> filter(int floor, int type)
     {
          List<Room> list = new ArrayList<>();
-    StringBuilder sql = new StringBuilder("SELECT * FROM room WHERE 1=1");
+    StringBuilder sql = new StringBuilder("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
+                                        + " FROM room join room_type on room.Type = room_type.id WHERE 1=1");
 
     if (floor != 0) {
         sql.append(" AND floor = ?");
@@ -208,7 +213,7 @@ public class RoomDAO {
 
         ResultSet rs = pt.executeQuery();
         while (rs.next()) {
-            Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"));
+            Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
             list.add(r);
         }
 
@@ -266,5 +271,30 @@ public class RoomDAO {
             System.err.println(e);
         }
         return 0;
+    }
+    
+    public List<Room> getRoomAvailable( Timestamp in, Timestamp out)
+    {
+        List<Room> roomavailable = new ArrayList<>();
+        ResultSet rs; 
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
+                                                       + "FROM room join room_type on room.Type = room_type.id "
+                                                       + "where  room.Number not in ("
+                                                       + "select room from bill where check_in >= ? and check_out <= ? and status <> 0)");
+            pt.setTimestamp(1, in);
+            pt.setTimestamp(2, out);
+            rs = pt.executeQuery();
+            
+            while (rs.next())
+            {
+                Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
+                roomavailable.add(r);
+                System.out.println(r);
+            }
+            pt.close();
+        } catch (Exception e) {
+        }
+        return roomavailable;
     }
 }

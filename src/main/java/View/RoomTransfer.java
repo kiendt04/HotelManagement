@@ -6,10 +6,15 @@ import javax.swing.*;
 import java.awt.*;
 
 // Cửa sổ chuyển phòng
-public class RoomTransfer extends JFrame {
+public class RoomTransfer extends JDialog {
     
     // Method main để chạy trực tiếp từ RoomTransferWindow
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SwingUtilities.invokeLater(() -> {
             new RoomTransfer("Phòng 107", "1,500,000").setVisible(true);
         });
@@ -27,7 +32,7 @@ public class RoomTransfer extends JFrame {
     private void initComponents() {
         setTitle("Chuyển phòng");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(350, 150);
+        setSize(350, 250);
         setLocationRelativeTo(null);
         setResizable(false);
         
