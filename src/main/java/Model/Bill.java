@@ -116,6 +116,23 @@ public class Bill {
     public void setActual_pay(double actual_pay) {
         this.actual_pay = actual_pay;
     }
+
+    public double getExchange() {
+        return exchange;
+    }
+
+    public void setExchange(double exchange) {
+        this.exchange = exchange;
+    }
+
+    public double getDisount() {
+        return disount;
+    }
+
+    public void setDisount(double disount) {
+        this.disount = disount;
+    }
+    
     
     
 }

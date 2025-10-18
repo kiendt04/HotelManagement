@@ -40,7 +40,7 @@ public class PaymentControl {
     public void openCusList(Payment pay , DefaultComboBoxModel<Customer> model)
     {
         SwingUtilities.invokeLater(() -> {
-            CustomerList cus =  new CustomerList(pay);
+            CustomerList cus =  new CustomerList(pay,null);
             cus.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {

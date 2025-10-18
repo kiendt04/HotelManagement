@@ -128,9 +128,9 @@ public class HotelManagementSystem extends JFrame {
         "Quản lý tầng",
         "Loại phòng",
         "Quản lý phòng",
-        "Sản phẩm - Dịch vụ"
-        //"Đặt phòng theo đoàn",
-        //"Lịch sử đặt"
+        "Sản phẩm - Dịch vụ",
+        "Đặt phòng theo đoàn",
+        "Lịch sử đặt"
     };
 
     JList<String> menuList = new JList<>(menuItems);
@@ -148,14 +148,7 @@ public class HotelManagementSystem extends JFrame {
             int selected = menuList.getSelectedIndex();
             switch (selected) {
                 case 0:
-                    if (role == 1)
-                    {
-                        new CustomerList(null);
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
-                    }
+                    new CustomerList(null,null);
                     break;
                 case 1:
                     if (role == 1)
@@ -200,6 +193,7 @@ public class HotelManagementSystem extends JFrame {
                     }
                     break;
                 case 5:
+                    new AddGroupBooking(this);
                     break;
                     // TODO: xử lý đặt phòng theo đoàn
             }
@@ -227,7 +221,7 @@ public class HotelManagementSystem extends JFrame {
         
         int floorCount = control.countFloor();
         
-        // Tạo 4 tầng
+        // Tạo tầng
         for (int i = 0; i < floorCount; i++) {
             JPanel floorPanel = createFloorPanel(i+1);
             roomPanel.add(floorPanel);

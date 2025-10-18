@@ -94,7 +94,7 @@ public class Room {
 
     @Override
     public String toString() {
-        return "Phòng" + num + " - " + formatDouble(ppn) + " VND/đêm";
+        return "Phòng " + num + " - " + formatDouble(ppn) + " VND/đêm";
     }
     
     private String formatDouble(double d)

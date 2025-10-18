@@ -132,9 +132,9 @@ public class RoomManagementControl {
             case 1:
                 return "Đơn thường";
             case 2:
-                return "Đôi thường";
-            case 3:
                 return "Đơn VIP";
+            case 3:
+                return "Đôi thường";
             case 4:
                 return "Đôi VIP";
             case 5:

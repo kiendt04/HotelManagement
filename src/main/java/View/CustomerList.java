@@ -49,10 +49,12 @@ public class CustomerList extends JFrame{
     private int func = -1,row = -1,slPay = -1;
     private ImageIcon addIcon,rmIcon,uptIcon,saveIcon,filterIcon,clearIcon,clIcon;
     private JFrame parent;
+    private JDialog parent1;
     
-    public CustomerList(JFrame parent) throws HeadlessException {
+    public CustomerList(JFrame parent,JDialog parent1) throws HeadlessException {
         super("Danh nục khách hàng");
         this.parent = parent;
+        this.parent1 = parent1;
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setResizable(false);
         this.setSize(new Dimension(1000,500));
@@ -202,7 +204,7 @@ public class CustomerList extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e) {
                 
-                if (e.getClickCount() == 2 && parent != null) {
+                if (e.getClickCount() == 2 && (parent != null || parent1 != null)) {
                 slPay = tbl.getSelectedRow();
                 CustomerList.this.dispose();
                 }
@@ -303,10 +305,10 @@ public class CustomerList extends JFrame{
         return cc.selectCus(model, slPay);
     }
     
-    public int getSlPay()
-    {
-        return slPay;
-    }
+//    public int getSlPay()
+//    {
+//        return slPay;
+//    }
     
     private class Cusdialog extends JDialog
     {
@@ -395,7 +397,7 @@ public class CustomerList extends JFrame{
     }
     
     public static void main(String[] args) {
-        new CustomerList(null);
+        new CustomerList(null,null);
     }
     
     

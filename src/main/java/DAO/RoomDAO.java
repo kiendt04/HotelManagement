@@ -33,7 +33,7 @@ public class RoomDAO {
         List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
                                          + "FROM room join room_type on room.Type = room_type.id");
             while(rs.next())
             {
@@ -102,7 +102,7 @@ public class RoomDAO {
         List<Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night" 
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
                                          + "FROM room join room_type on room.Type = room_type.id where floor = " + fl + "");
             while (rs.next())
             {
@@ -110,6 +110,7 @@ public class RoomDAO {
                 list.add(r);
             }
         } catch (Exception e) {
+            System.out.println(e);
         }
         return list;
     }
@@ -118,8 +119,8 @@ public class RoomDAO {
     {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
-                                         + " FROM room join room_type on room.Type = room_type.id where Id = "+id+"");
+            ResultSet rs = st.executeQuery("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
+                                         + " FROM room join room_type on room.Type = room_type.id where room.Id = "+id+"");
             while(rs.next())
             {
                 return new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
@@ -188,7 +189,7 @@ public class RoomDAO {
     public List<Room> filter(int floor, int type)
     {
          List<Room> list = new ArrayList<>();
-    StringBuilder sql = new StringBuilder("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
+    StringBuilder sql = new StringBuilder("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night"
                                         + " FROM room join room_type on room.Type = room_type.id WHERE 1=1");
 
     if (floor != 0) {
@@ -278,7 +279,7 @@ public class RoomDAO {
         List<Room> roomavailable = new ArrayList<>();
         ResultSet rs; 
         try {
-            PreparedStatement pt = conn.prepareStatement("SELECT room.Id, Number, Floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
+            PreparedStatement pt = conn.prepareStatement("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
                                                        + "FROM room join room_type on room.Type = room_type.id "
                                                        + "where  room.Number not in ("
                                                        + "select room from bill where check_in >= ? and check_out <= ? and status <> 0)");
