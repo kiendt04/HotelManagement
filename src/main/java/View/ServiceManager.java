@@ -63,6 +63,7 @@ public class ServiceManager extends JFrame {
         priceService = new JTextField(10);
         quantService = new JTextField();
         idService = new JTextField();
+        donviService = new JTextField();
     }
 
     public void initUI() {
@@ -103,7 +104,7 @@ public class ServiceManager extends JFrame {
         model.setRowCount(0);
         for (int i = 0; i < list.size(); i++) {
             Service s = list.get(i);
-            model.addRow(new Object[]{i + 1, s.getName(), s.getPrice(), s.getQuant()});
+            model.addRow(new Object[]{i + 1, s.getName(), s.getPrice(), s.getQuant(),s.getUnit()});
         }
     }
 
@@ -122,6 +123,7 @@ public class ServiceManager extends JFrame {
                     priceService.setText(String.valueOf(s.getPrice()));
                     quantService.setText(String.valueOf(s.getQuant()));
                     idService.setText(String.valueOf(s.getId()));
+                    donviService.setText(s.getUnit());
                 }
             }
         });
@@ -240,7 +242,7 @@ public class ServiceManager extends JFrame {
             txtId.setText(sr.getId() + "");
             txtPrice.setText(sr.getPrice() + "");
             txtQuantity.setText(sr.getQuant() + "");
-            txtDonvi.setText(sr.getUnit() +"");
+            txtDonvi.setText(sr.getUnit());
         }
 
         formPanel.add(lblId); formPanel.add(txtId);

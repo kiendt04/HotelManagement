@@ -127,7 +127,7 @@ public class ServiceControl {
                 return null;
             }
             
-            return new Service(0, name.trim(), price,Integer.parseInt(quant),"");
+            return new Service(0, name.trim(), price,Integer.parseInt(quant),donvi);
         } catch (NumberFormatException e) {
             return null;
         }
