@@ -131,8 +131,5 @@ public class Bill {
 
     public void setDisount(double disount) {
         this.disount = disount;
-    }
-    
-    
-    
+    }    
 }

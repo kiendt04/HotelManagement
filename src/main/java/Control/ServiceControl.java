@@ -30,14 +30,14 @@ public class ServiceControl {
         return serviceDAO.getAll();
     }
     
-    public void action(JButton save,JButton canl,JTextField id, JTextField name,JTextField price, JTextField quant, JDialog parent)
+    public void action(JButton save,JButton canl,JTextField id, JTextField name,JTextField price, JTextField quant, JTextField donvi, JDialog parent)
     {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!validateServiceData(name.getText().trim(), price.getText().trim(), quant.getText().trim()))
+                if(!validateServiceData(name.getText().trim(), price.getText().trim(), quant.getText().trim(), donvi.getText().trim()))
                 {
-                    JOptionPane.showMessageDialog(parent, getValidationErrorMessage(name.getText().trim(), price.getText().trim(), quant.getText().trim()));
+                    JOptionPane.showMessageDialog(parent, getValidationErrorMessage(name.getText().trim(), price.getText().trim(), quant.getText().trim(), donvi.getText().trim()));
                     return;
                 }
                 int res = JOptionPane.showConfirmDialog(parent,"lưu tác vụ","Xác nhận", JOptionPane.YES_NO_OPTION);
@@ -48,7 +48,7 @@ public class ServiceControl {
                 else
                 {
                     try {
-                        Service ser = createService(name.getText().trim(), price.getText().trim(), quant.getText().trim());
+                        Service ser = createService(name.getText().trim(), price.getText().trim(), quant.getText().trim(), donvi.getText().trim());
                         ser.setId( id.getText().isBlank() ? 0 : Integer.parseInt(id.getText().trim()));
                         if(ser.getId() == 0 ? addService(ser) : updateService(ser))
                         {
@@ -80,7 +80,7 @@ public class ServiceControl {
             return false;
         }
         
-        if (service.getName() == null || service.getName().trim().isEmpty()) {
+        if (service.getName() == null || service.getName().trim().isEmpty() || service.getUnit().trim().isEmpty()) {
             return false;
         }
         
@@ -97,7 +97,7 @@ public class ServiceControl {
         }
         
         // Kiểm tra dữ liệu đầu vào
-        if (service.getName() == null || service.getName().trim().isEmpty()) {
+        if (service.getName() == null || service.getName().trim().isEmpty() || service.getUnit().trim().isEmpty()) {
             return false;
         }
         
@@ -116,9 +116,9 @@ public class ServiceControl {
         return serviceDAO.delService(serviceId) > 0;
     }
     
-    public Service createService(String name, String priceStr,String quant) {
+    public Service createService(String name, String priceStr,String quant, String donvi) {
         try {
-            if (name == null || name.trim().isEmpty()) {
+            if (name == null || name.trim().isEmpty() || donvi.trim().isEmpty()) {
                 return null;
             }
             
@@ -133,8 +133,8 @@ public class ServiceControl {
         }
     }
     
-    public boolean validateServiceData (String name, String priceStr,String quant) {
-        if (name == null || name.trim().isEmpty()) {
+    public boolean validateServiceData (String name, String priceStr,String quant, String donvi) {
+        if (name == null || name.trim().isEmpty() || donvi.trim().isEmpty()) {
             return false;
         }
         
@@ -147,8 +147,8 @@ public class ServiceControl {
         }
     }
     
-    public String getValidationErrorMessage(String name, String priceStr, String quant) {
-        if (name == null || name.trim().isEmpty()) {
+    public String getValidationErrorMessage(String name, String priceStr, String quant, String donvi) {
+        if (name == null || name.trim().isEmpty() || donvi.trim().isEmpty()) {
             return "Tên dịch vụ không được để trống";
         }
         

@@ -20,7 +20,7 @@ public class ServiceManager extends JFrame {
     private JPanel header, main, footer;
     private JButton save, addBtn, remove, upt;
     private JTable tbl;
-    private JTextField nameService, priceService,quantService,idService;
+    private JTextField nameService, priceService,quantService,idService, donviService;
     private int func = -1, row = -1;
     private ImageIcon addIcon, rmIcon, uptIcon, saveIcon, clIcon;
 
@@ -77,24 +77,25 @@ public class ServiceManager extends JFrame {
         model.addColumn("Tên dịch vụ");
         model.addColumn("Giá dịch vụ");
         model.addColumn("Số lượng");
+        model.addColumn("Đơn vị");
         tbl.setModel(model);
         JScrollPane src = new JScrollPane(tbl);
         src.setBorder(new TitledBorder("Dịch vụ"));
         main.add(src, BorderLayout.CENTER);
         this.add(main, BorderLayout.CENTER);
 
-        JPanel p1 = new JPanel();
-        JPanel p2 = new JPanel();
-        p2.setPreferredSize(new Dimension(0, 50));
-        p1.add(new JLabel("Tên dịch vụ: "));
-        p1.add(nameService);
-        p1.add(new JLabel("Giá dịch vụ: "));
-        p1.add(priceService);
-        //p2.add(upt);
-        footer.add(p1);
-        footer.add(p2);
-        footer.setBorder(new TitledBorder("Thông tin"));
-        this.add(footer, BorderLayout.SOUTH);
+//        JPanel p1 = new JPanel();
+//        JPanel p2 = new JPanel();
+//        p2.setPreferredSize(new Dimension(0, 50));
+//        p1.add(new JLabel("Tên dịch vụ: "));
+//        p1.add(nameService);
+//        p1.add(new JLabel("Giá dịch vụ: "));
+//        p1.add(priceService);
+//        //p2.add(upt);
+//        footer.add(p1);
+//        footer.add(p2);
+//        footer.setBorder(new TitledBorder("Thông tin"));
+//        this.add(footer, BorderLayout.SOUTH);
     }
 
     public void loadData() {
@@ -140,13 +141,15 @@ public class ServiceManager extends JFrame {
             String name = nameService.getText().trim();
             String priceStr = priceService.getText().trim();
             String quantStr = quantService.getText().trim();
+            // doan nay phai co data no ms ko bi loi nhe
+            String unitStr = donviService.getText().trim();
             // Kiểm tra tính hợp lệ của dữ liệu thông qua controller
-            String errorMessage = serviceControl.getValidationErrorMessage(name, priceStr, quantStr);
+            String errorMessage = serviceControl.getValidationErrorMessage(name, priceStr, quantStr, unitStr);
             if (errorMessage != null) {
                 JOptionPane.showMessageDialog(rootPane, errorMessage);
                 return;
             }
-            Service crt = serviceControl.createService(name, priceStr, quantStr);
+            Service crt = serviceControl.createService(name, priceStr, quantStr, unitStr);
             crt.setId(Integer.parseInt(idService.getText().trim()));
             ServiceDialog uptDia = new ServiceDialog(this,crt);
             uptDia.showDialog();
@@ -203,7 +206,7 @@ public class ServiceManager extends JFrame {
     }
 
     private class ServiceDialog extends JDialog {
-    private JTextField txtId, txtName, txtPrice, txtQuantity;
+    private JTextField txtId, txtName, txtPrice, txtQuantity, txtDonvi;
     private JButton btnSave, btnCancel;
 
     public ServiceDialog(Frame parent, Service sr) {
@@ -215,19 +218,21 @@ public class ServiceManager extends JFrame {
         setLayout(new BorderLayout(10, 10));
 
         // ======= Form nhập liệu =======
-        JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
         JLabel lblId = new JLabel("Mã dịch vụ:");
         JLabel lblName = new JLabel("Tên dịch vụ:");
         JLabel lblPrice = new JLabel("Giá:");
         JLabel lblQuantity = new JLabel("Số lượng:");
+        JLabel lblUnit = new JLabel("Đơn vị:");
 
         txtId = new JTextField();
         txtId.setEnabled(false);
         txtName = new JTextField();
         txtPrice = new JTextField();
         txtQuantity = new JTextField();
+        txtDonvi = new JTextField();
         
         if(sr != null)
         {
@@ -235,12 +240,14 @@ public class ServiceManager extends JFrame {
             txtId.setText(sr.getId() + "");
             txtPrice.setText(sr.getPrice() + "");
             txtQuantity.setText(sr.getQuant() + "");
+            txtDonvi.setText(sr.getUnit() +"");
         }
 
         formPanel.add(lblId); formPanel.add(txtId);
         formPanel.add(lblName); formPanel.add(txtName);
         formPanel.add(lblPrice); formPanel.add(txtPrice);
         formPanel.add(lblQuantity); formPanel.add(txtQuantity);
+        formPanel.add(lblUnit); formPanel.add(txtDonvi);
 
         add(formPanel, BorderLayout.CENTER);
 
@@ -253,7 +260,7 @@ public class ServiceManager extends JFrame {
         buttonPanel.add(btnCancel);
 
         add(buttonPanel, BorderLayout.SOUTH);
-        serviceControl.action(btnSave,btnCancel,txtId,txtName,txtPrice,txtQuantity,this);
+        serviceControl.action(btnSave,btnCancel,txtId,txtName,txtPrice,txtQuantity,txtDonvi, this);
     }
     
     public void showDialog()
