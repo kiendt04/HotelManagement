@@ -8,12 +8,18 @@ import Model.*;
 import View.*;
 import com.toedter.calendar.JDateChooser;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -125,7 +131,7 @@ public class GroupBookingControl {
         idroom.setPreferredWidth(0);
     }
     
-    public void roomSelectAction(JTree roomTree,JTable roomTbl,DefaultTableModel model)
+    public void roomSelectAction(JTree roomTree,JTable roomTbl,JTextField totalRoom,DefaultTableModel model)
     {
         roomTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
@@ -147,7 +153,7 @@ public class GroupBookingControl {
         });
     }
     
-    public void chooseServicesAction(JTable serviceDetail,JTable service,JTable room, DefaultTableModel model, JDialog parent)
+    public void chooseServicesAction(JTable serviceDetail,JTable service, JTable room, DefaultTableModel model,JTextField totalserText, JDialog parent)
     {
         room.addMouseListener(new MouseAdapter() {
             @Override
@@ -188,10 +194,75 @@ public class GroupBookingControl {
         });
     }
     
-    public void caculateTotal(JTextField totalRoom, JTextField totalService, JTextField total)
+    public void tableAction(JTable room,JTextField totalRoom)
     {
-        
+        room.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                totalRoom.setText(formatDouble(caculateTotalRoom(room)));
+            }
+        });
     }
+    
+    public void setTextTotal(JTextField room,JTextField ser,JTextField total,JLabel dis)
+    {
+        room.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                total.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)));
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {}
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
+        ser.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                total.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)));
+            }
+            @Override
+            public void removeUpdate(DocumentEvent e) {}
+            @Override
+            public void changedUpdate(DocumentEvent e) {}
+        });
+    }
+    
+    public double caculateTotalRoom(JTable room)
+    {
+        double total = 0;
+        DefaultTableModel model = (DefaultTableModel) room.getModel();
+        for (int i=0;i<model.getRowCount();i++)
+        {
+            total += praseFromString(model.getValueAt(i, 2).toString());
+        }
+        return total;
+    }
+    
+    public double caculateTotalser(JTable service)
+    {
+        double total = 0;
+        DefaultTableModel model = (DefaultTableModel) service.getModel();
+        for (int i=0;i<model.getRowCount();i++)
+        {
+            total += praseFromString(model.getValueAt(i, 6).toString());
+        }
+        return total;
+    }
+    
+    public double caculateTotal(double room,double service,JLabel dis)
+    {
+        double total = room + service;
+        double discount = 0;
+        if (total < 10000000) discount = 0;
+        else if(total >= 10000000 && total < 49999999) discount = 0.02;
+        else if(total >=50000000 && total < 99999999) discount = 0.05;
+        else if(total >=100000000 && total < 199999999) discount = 0.1;
+        else discount = 0.2;
+        dis.setText(discount * 100 + "%");
+        return total - (total*discount);
+    }
+    
     public int checkRoomServiceAvailable(DefaultTableModel model, int ser,int room)
     {
         for (int i = 0;i<model.getRowCount();i++)

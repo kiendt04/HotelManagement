@@ -34,7 +34,7 @@ public class AddGroupBooking extends JDialog {
     private JComboBox<Customer> customerCombo;
     private JTextField dateFromField, dateToField, guestCountField, noteField;
     private JTextField totalAmountField,totalRoom,totalService;
-    private JLabel totalLabel;
+    private JLabel totalLabel,discountLable;
     private GroupBookingControl control = new GroupBookingControl();
     private Timestamp time_in, time_out;
     private JDateChooser check_in,check_out;
@@ -92,6 +92,7 @@ public class AddGroupBooking extends JDialog {
         saveBtn = createToolbarButton("Lưu", "💾");
         helpBtn = createToolbarButton("Bộ quả", "❓");
         searchCusBtn = new JButton("🔍");
+        discountLable = new JLabel("0%");
     }
     
     private void setupLayout() {
@@ -245,9 +246,11 @@ public class AddGroupBooking extends JDialog {
         // Guest count and note row
         JPanel guestRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         guestRow.setOpaque(false);        
-        guestRow.add(Box.createHorizontalStrut(10));
+        guestRow.add(new JLabel("Giảm giá : "));
+        guestRow.add(discountLable);
+        guestRow.add(Box.createHorizontalStrut(30));
         guestRow.add(new JLabel("Ghi chú"));
-        noteField.setPreferredSize(new Dimension(120, 25));
+        noteField.setPreferredSize(new Dimension(300, 25));
         guestRow.add(noteField);
         
         panel.add(customerRow);
@@ -273,8 +276,8 @@ public class AddGroupBooking extends JDialog {
         roomListTable = new JTable(roomTableModel);
         roomListTable.setRowHeight(20);
         roomListTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        control.fillRoomtbl(roomListTable, roomTableModel);
-        control.roomSelectAction(roomTree, roomListTable, roomTableModel);
+        control.fillRoomtbl(roomListTable,roomTableModel);
+        control.roomSelectAction(roomTree,roomListTable,totalRoom,roomTableModel);
         JScrollPane roomScrollPane = new JScrollPane(roomListTable);
         roomScrollPane.setPreferredSize(new Dimension(400, 150));
         roomListPanel.add(roomScrollPane, BorderLayout.CENTER);
@@ -312,7 +315,7 @@ public class AddGroupBooking extends JDialog {
         serviceDetailModel = new DefaultTableModel(serviceDetailColumns, 0);
         serviceDetailTable = new JTable(serviceDetailModel);
         control.fillServiceDetailtbl(serviceDetailTable, serviceDetailModel);
-        control.chooseServicesAction(serviceDetailTable,serviceTable,roomListTable,serviceDetailModel,this);
+        control.chooseServicesAction(serviceDetailTable,serviceTable,roomListTable,serviceDetailModel,totalService,this);
         serviceDetailTable.setRowHeight(20);
         serviceDetailTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
         
@@ -368,11 +371,14 @@ public class AddGroupBooking extends JDialog {
         dongLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
         dongLabel.setForeground(Color.RED);
         JLabel dongLabel1 = new JLabel("VDN");
-        dongLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-        dongLabel.setForeground(Color.RED);
+        dongLabel1.setFont(new Font("Tahoma", Font.BOLD, 12));
+        dongLabel1.setForeground(Color.RED);
         JLabel dongLabel2 = new JLabel("VDN");
-        dongLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
-        dongLabel.setForeground(Color.RED);
+        dongLabel2.setFont(new Font("Tahoma", Font.BOLD, 12));
+        dongLabel2.setForeground(Color.RED);
+        
+//        control.tableAction(roomListTable, totalRoom);
+        control.setTextTotal(totalRoom, totalService, totalAmountField, discountLable);
         
         totalPanel.add(totalTitleLabel,LEFT_ALIGNMENT);
         totalPanel.add(Box.createHorizontalStrut(50));

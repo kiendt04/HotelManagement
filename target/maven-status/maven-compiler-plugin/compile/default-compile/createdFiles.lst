@@ -3,6 +3,7 @@ DAO\CustomerDAO.class
 DAO\BillDetailDAO.class
 Model\CustomerTableModel.class
 View\Payment$2.class
+Control\GroupBookingControl$6.class
 View\Login.class
 View\GroupBooking$1.class
 Control\PaymentControl.class
@@ -63,11 +64,13 @@ View\FloorManagement$2.class
 View\CustomerList$8.class
 View\ServiceManager.class
 Control\ServiceControl$1.class
+Control\GroupBookingControl$5.class
 View\CustomerList$5.class
 DAO\Room_typeDAO.class
 View\CustomerList$2.class
 DAO\myconnect.class
 View\Payment$1.class
+Control\GroupBookingControl$7.class
 View\GroupBooking$2.class
 View\UserList.class
 View\GroupBooking.class
