@@ -35,7 +35,7 @@ public class AddGroupBooking extends JDialog {
     private JTextField dateFromField, dateToField, guestCountField, noteField;
     private JTextField totalAmountField,totalRoom,totalService;
     private JLabel totalLabel,discountLable;
-    private GroupBookingControl control = new GroupBookingControl();
+    private GroupBookingControl control = new GroupBookingControl(this);
     private Timestamp time_in, time_out;
     private JDateChooser check_in,check_out;
     private JButton saveBtn, helpBtn,searchCusBtn;
@@ -49,7 +49,6 @@ public class AddGroupBooking extends JDialog {
         initializeComponents();
         setupLayout();
         setupTables();
-        loadSampleData();
         setVisible(true);
     }
     public AddGroupBooking() {
@@ -61,7 +60,6 @@ public class AddGroupBooking extends JDialog {
         initializeComponents();
         setupLayout();
         setupTables();
-        loadSampleData();
         setVisible(true);
     }
     
@@ -92,7 +90,7 @@ public class AddGroupBooking extends JDialog {
         saveBtn = createToolbarButton("Lưu", "💾");
         helpBtn = createToolbarButton("Bộ quả", "❓");
         searchCusBtn = new JButton("🔍");
-        discountLable = new JLabel("0%");
+        discountLable = new JLabel("00,000 VND (0.0%)");
     }
     
     private void setupLayout() {
@@ -228,7 +226,7 @@ public class AddGroupBooking extends JDialog {
         customerCombo.setPreferredSize(new Dimension(200, 25));
         customerRow.add(customerCombo);
         customerRow.add(searchCusBtn);
-        control.fillCustomerCbx(customerModel,searchCusBtn,this);
+        control.fillCustomerCbx(customerModel,searchCusBtn);
         // Date and guest info row
         JPanel dateRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         dateRow.setOpaque(false);
@@ -315,7 +313,7 @@ public class AddGroupBooking extends JDialog {
         serviceDetailModel = new DefaultTableModel(serviceDetailColumns, 0);
         serviceDetailTable = new JTable(serviceDetailModel);
         control.fillServiceDetailtbl(serviceDetailTable, serviceDetailModel);
-        control.chooseServicesAction(serviceDetailTable,serviceTable,roomListTable,serviceDetailModel,totalService,this);
+        control.chooseServicesAction(serviceDetailTable,serviceTable,roomListTable,serviceDetailModel,totalService);
         serviceDetailTable.setRowHeight(20);
         serviceDetailTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
         
@@ -354,18 +352,21 @@ public class AddGroupBooking extends JDialog {
         totalService.setForeground(Color.RED);
         totalService.setHorizontalAlignment(JTextField.CENTER);
         totalService.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalService.setText("00,000");
         
         totalRoom.setPreferredSize(new Dimension(130, 20));
         totalRoom.setFont(new Font("Tahoma", Font.BOLD, 14));
         totalRoom.setForeground(Color.RED);
         totalRoom.setHorizontalAlignment(JTextField.CENTER);
         totalRoom.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalRoom.setText("00,000");
         
         totalAmountField.setPreferredSize(new Dimension(130, 20));
         totalAmountField.setFont(new Font("Tahoma", Font.BOLD, 14));
         totalAmountField.setForeground(Color.RED);
         totalAmountField.setHorizontalAlignment(JTextField.CENTER);
         totalAmountField.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalAmountField.setText("00,000");
         
         JLabel dongLabel = new JLabel("VDN");
         dongLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
@@ -377,7 +378,7 @@ public class AddGroupBooking extends JDialog {
         dongLabel2.setFont(new Font("Tahoma", Font.BOLD, 12));
         dongLabel2.setForeground(Color.RED);
         
-//        control.tableAction(roomListTable, totalRoom);
+        
         control.setTextTotal(totalRoom, totalService, totalAmountField, discountLable);
         
         totalPanel.add(totalTitleLabel,LEFT_ALIGNMENT);
@@ -406,11 +407,6 @@ public class AddGroupBooking extends JDialog {
         JTableHeader serviceHeader = serviceTable.getTableHeader();
         serviceHeader.setBackground(new Color(240, 240, 240));
         serviceHeader.setFont(new Font("Tahoma", Font.BOLD, 11));
-    }
-    
-    private void loadSampleData() {
-        // No initial room bookings
-        totalAmountField.setText("0");
     }
     
     public static void main(String[] args) {

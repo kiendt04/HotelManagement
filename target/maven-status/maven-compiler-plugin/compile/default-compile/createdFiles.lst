@@ -38,6 +38,7 @@ View\ChangePass.class
 Control\FloorControl.class
 Control\LoginControl.class
 Control\RoomManagementControl.class
+Control\GroupBookingControl$8.class
 View\Payment.class
 View\UserList$3.class
 Control\CustomerListControl$1.class

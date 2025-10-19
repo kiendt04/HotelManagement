@@ -329,9 +329,7 @@ public class HotelManagementSystem extends JFrame {
             this.id_bill = id_bill;
             this.setSize(new Dimension(300,400));
         }
-        
-        
-        
+                
     }
     
     public static void main(String[] args) {

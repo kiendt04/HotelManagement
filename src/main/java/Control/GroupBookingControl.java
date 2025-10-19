@@ -10,9 +10,11 @@ import com.toedter.calendar.JDateChooser;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import javax.swing.*;
@@ -40,7 +42,10 @@ public class GroupBookingControl {
     private Room_typeDAO room_type = new Room_typeDAO();
     private ServiceDAO serviceDAO = new ServiceDAO();
     private int indexServ, indexRoom = -1;
-    public GroupBookingControl() {
+    private JDialog parent;
+    private JTable selectedRoom,Services,ServicesDetails;
+    public GroupBookingControl(JDialog Parent) {
+        this.parent = parent;
     }
     
     public List<Room> getRoomavailable(Timestamp in, Timestamp out)
@@ -75,7 +80,7 @@ public class GroupBookingControl {
         out.getJCalendar().setMaxSelectableDate(cal.getTime());
     }
     
-    public void fillCustomerCbx(DefaultComboBoxModel<Customer> model, JButton btn,JDialog parent)
+    public void fillCustomerCbx(DefaultComboBoxModel<Customer> model, JButton btn)
     {
          List<Customer> listCus = cus.getAll();
          model.addAll(listCus);
@@ -108,6 +113,7 @@ public class GroupBookingControl {
         {
             model.addRow(new Object[]{sr.getId(),sr.getName(),formatDouble(sr.getPrice())});
         }
+        this.Services = tbl;
     }
     
     public void fillRoomtbl(JTable tbl, DefaultTableModel model)
@@ -117,6 +123,7 @@ public class GroupBookingControl {
         idCol.setMinWidth(0);
         idCol.setPreferredWidth(0);
         List<Room> ListRoom = room.getAll();
+        this.selectedRoom = tbl;
     }
     
     public void fillServiceDetailtbl(JTable tbl, DefaultTableModel model)
@@ -129,6 +136,7 @@ public class GroupBookingControl {
         idroom.setMaxWidth(0);
         idroom.setMinWidth(0);
         idroom.setPreferredWidth(0);
+        this.ServicesDetails = tbl;
     }
     
     public void roomSelectAction(JTree roomTree,JTable roomTbl,JTextField totalRoom,DefaultTableModel model)
@@ -151,9 +159,45 @@ public class GroupBookingControl {
                 }
             }
         });
+        
+        roomTbl.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getButton() == MouseEvent.BUTTON3)
+                {
+                    JMenuItem delSer = new JMenuItem("Xóa");
+                    JPopupMenu menu = new JPopupMenu();
+                    delSer.addActionListener((l) -> {
+                       if(JOptionPane.showConfirmDialog(parent, "Xóa các phòng và dịch vụ đi kèm đã chọn ?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0)
+                       {
+                           int[] selectedrows = roomTbl.getSelectedRows();
+                           int[] idRoomSelected = new int[selectedrows.length];
+                           for (int i=0;i<selectedrows.length;i++)
+                           {
+                               idRoomSelected[i] = (int) model.getValueAt(selectedrows[i], 0);
+                           }
+                           delTableItems(selectedrows, roomTbl);
+                           DefaultTableModel srdModel = (DefaultTableModel) ServicesDetails.getModel();
+                           for (int i =srdModel.getRowCount() -1  ;i>=0;i-- )
+                           {
+                               int id = (int) srdModel.getValueAt(i, 0);
+                               if(Arrays.stream(idRoomSelected).anyMatch(x -> x == id))
+                               {
+                                   srdModel.removeRow(i);
+                               }
+                           }                           
+                       }
+                    });
+                    menu.add(delSer);
+                    menu.show(roomTbl, e.getX(), e.getY());
+                }
+            }
+        });
+        
+        roomTbl.getModel().addTableModelListener((e) -> { totalRoom.setText(formatDouble(caculateTotalRoom(roomTbl))); });
     }
     
-    public void chooseServicesAction(JTable serviceDetail,JTable service, JTable room, DefaultTableModel model,JTextField totalserText, JDialog parent)
+    public void chooseServicesAction(JTable serviceDetail,JTable service, JTable room, DefaultTableModel model,JTextField totalserText)
     {
         room.addMouseListener(new MouseAdapter() {
             @Override
@@ -192,16 +236,44 @@ public class GroupBookingControl {
             }
             
         });
-    }
-    
-    public void tableAction(JTable room,JTextField totalRoom)
-    {
-        room.getModel().addTableModelListener(new TableModelListener() {
+        
+        serviceDetail.addMouseListener(new MouseAdapter() {
             @Override
-            public void tableChanged(TableModelEvent e) {
-                totalRoom.setText(formatDouble(caculateTotalRoom(room)));
+            public void mouseClicked(MouseEvent e) {
+                int point = serviceDetail.getSelectedRow();
+                if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2)
+                {
+                    String title = "Phòng " + model.getValueAt(point, 1) + " - " + model.getValueAt(point, 3);
+                    int sl = Integer.parseInt(JOptionPane.showInputDialog(parent,"Số lượng: ",title,JOptionPane.QUESTION_MESSAGE,null,null,model.getValueAt(point, 4)).toString());    
+                    double totalSer = praseFromString(service.getValueAt(indexServ, 2).toString()) * sl;
+                    model.setValueAt(sl, point, 4);
+                    model.setValueAt(formatDouble(totalSer), point, 6);
+                }
+                else if(e.getButton() == MouseEvent.BUTTON3)
+                {
+                    JMenuItem delSer = new JMenuItem("Xóa");
+                    JPopupMenu menu = new JPopupMenu();
+                    delSer.addActionListener((l) -> {
+                       if(JOptionPane.showConfirmDialog(parent, "Xóa các dịch vụ đã chọn ?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0)
+                       {
+                           int[] selectedrows = serviceDetail.getSelectedRows();
+                           delTableItems(selectedrows, serviceDetail);
+                       }
+                    });
+                    menu.add(delSer);
+                    menu.show(serviceDetail, e.getX(), e.getY());
+                }
             }
         });
+        serviceDetail.getModel().addTableModelListener((e) -> { totalserText.setText(formatDouble(caculateTotalser(serviceDetail))); });    
+    }
+        
+    public void delTableItems(int[] row,JTable tbl)
+    {
+        DefaultTableModel model = (DefaultTableModel) tbl.getModel();
+        for (int i = row.length - 1 ; i >= 0; i--) {
+            model.removeRow(row[i]);
+        }
     }
     
     public void setTextTotal(JTextField room,JTextField ser,JTextField total,JLabel dis)
@@ -227,6 +299,7 @@ public class GroupBookingControl {
             public void changedUpdate(DocumentEvent e) {}
         });
     }
+    
     
     public double caculateTotalRoom(JTable room)
     {
@@ -259,7 +332,7 @@ public class GroupBookingControl {
         else if(total >=50000000 && total < 99999999) discount = 0.05;
         else if(total >=100000000 && total < 199999999) discount = 0.1;
         else discount = 0.2;
-        dis.setText(discount * 100 + "%");
+        dis.setText( formatDouble(total * discount) + " VND" + " ("+ discount * 100 + "%)");
         return total - (total*discount);
     }
     
