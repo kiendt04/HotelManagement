@@ -13,44 +13,98 @@ import java.beans.PropertyChangeListener;
 import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
-
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
  * @author ADMIN
  */
 public class GroupBookingControl {
-    private BillDAO bill = new BillDAO();
-    private BillDetailDAO billdetail = new BillDetailDAO();
-    private CustomerDAO cus = new CustomerDAO();
-    private FloorDAO floor = new FloorDAO();
-    private RoomDAO room = new RoomDAO();
+    private BillDAO billDAO = new BillDAO();
+    private BillDetailDAO billdetailDAO = new BillDetailDAO();
+    private CustomerDAO cusDAO = new CustomerDAO();
+    private FloorDAO floorDAO = new FloorDAO();
+    private RoomDAO roomDAO = new RoomDAO();
     private Room_typeDAO room_type = new Room_typeDAO();
     private ServiceDAO serviceDAO = new ServiceDAO();
-    private int indexServ, indexRoom = -1;
+    private BillGroupBookingDAO billgroupDAO = new BillGroupBookingDAO();
+    private BillGroupBookingDetail_RoomDAO roomGroupDetail = new BillGroupBookingDetail_RoomDAO();
+    private BillGroupBookingDetail_ServiceDAO serviceGroupDetail = new BillGroupBookingDetail_ServiceDAO();
+    private int indexServ, indexRoom = -1,time = 1,LoadTimes = -1;
+    private boolean isSavedBill = false,upt = false;
     private JDialog parent;
     private JTable selectedRoom,Services,ServicesDetails;
+    private Timestamp in,out;
+    private DefaultTreeModel modelTree;
+    
     public GroupBookingControl(JDialog Parent) {
         this.parent = parent;
     }
     
     public List<Room> getRoomavailable(Timestamp in, Timestamp out)
     {
-        return room.getRoomAvailable(in, out);
+        return roomDAO.getRoomAvailable(in, out);
+    }
+    
+    public void getTreeModel(DefaultTreeModel model,JTree roomTree)
+    {
+        this.modelTree = model;
+        roomTree.getModel().addTreeModelListener(new TreeModelListener() {
+            @Override
+            public void treeNodesChanged(TreeModelEvent e) {
+                for(int i = 0 ;i<roomTree.getRowCount();i++)
+                {
+                    roomTree.expandRow(i);
+                }
+            }
+
+            @Override
+            public void treeNodesInserted(TreeModelEvent e) {
+                for(int i = 0 ;i<roomTree.getRowCount();i++)
+                {
+                    roomTree.expandRow(i);
+                }
+            }
+
+            @Override
+            public void treeNodesRemoved(TreeModelEvent e) {
+                for(int i = 0 ;i<roomTree.getRowCount();i++)
+                {
+                    roomTree.expandRow(i);
+                }
+            }
+
+            @Override
+            public void treeStructureChanged(TreeModelEvent e) {
+                for(int i = 0 ;i<roomTree.getRowCount();i++)
+                {
+                    roomTree.expandRow(i);
+                }
+            }
+        });
     }
     
     public List<String> getRoomPrice()
@@ -65,8 +119,89 @@ public class GroupBookingControl {
         return list;
     }
     
+    public void reloadRoomModelByTime()
+    {
+        try {
+            DefaultTableModel roomModel = (DefaultTableModel) selectedRoom.getModel();
+            for (int i = 0 ;i<roomModel.getRowCount();i++)
+            {
+                double newTotal =  praseFromString(roomModel.getValueAt(i, 2).toString()) * time;
+                roomModel.setValueAt(formatDouble(newTotal), i, 3);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public void loadExitBill(int id_bill, DefaultTableModel roomModel, DefaultTableModel service_detailModel, JTextField deposit, JDateChooser time_in,JDateChooser time_out,ComboBoxModel<Customer> cbx )
+    {
+        this.isSavedBill = true;
+        List<Room> roomLst = roomDAO.getAll();
+        List<Service> serLst = serviceDAO.getAll();
+        BillGroupBooking bgb = billgroupDAO.getBillById(id_bill);
+        List<BillGroupBookingDetail_Room> bookedRoom = roomGroupDetail.getByID(id_bill);
+        List<BillGroupBookingDetail_Service> serviceDetail = serviceGroupDetail.getById(id_bill);
+        deposit.setText(formatDouble(bgb.getDeposit()));
+        time_in.setDate(bgb.getIn());
+        time_out.setDate(bgb.getOut());
+        cbx.setSelectedItem(cusDAO.getById(bgb.getCus()));
+
+        for (int i=0;i<bookedRoom.size();i++)
+        {
+            String Number = bookedRoom.get(i).getRoom();
+            Room roomID = roomLst.stream().filter(r-> r.getNum().equals(Number)).findFirst().orElse(null);
+            roomModel.addRow(new Object[]{roomID.getId(),roomID.getNum(),formatDouble(roomID.getPpn()),formatDouble(bookedRoom.get(i).getTotal())});
+        }
+        
+        
+        for(int i=0;i<serviceDetail.size();i++)
+        {
+            String Number = serviceDetail.get(i).getRoom();
+            Room roomID = roomLst.stream().filter(r-> r.getNum().equals(Number)).findFirst().orElse(null);
+            int id = serviceDetail.get(i).getSer();
+            Service serviceID = serLst.stream().filter(s -> s.getId() == id).findFirst().orElse(null);
+            service_detailModel.addRow(new Object[]{roomID.getId(),Number,serviceID.getId(),serviceID.getName(),serviceDetail.get(i).getQuantity(),formatDouble(serviceID.getPrice()),formatDouble(serviceDetail.get(i).getTotal())});
+        }
+    }
+    
     public void initDate(JDateChooser in, JDateChooser out)
     {
+        
+        in.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(out.getDate() != null)
+                {
+                    GroupBookingControl.this.in = new Timestamp(in.getDate().getTime());
+                    GroupBookingControl.this.out = new Timestamp(out.getDate().getTime());
+                    time = (int) ChronoUnit.DAYS.between(in.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),out.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    reloadRoomModelByTime();
+                    if(LoadTimes < 0 ) {
+                        modelTree.reload();
+                    } else {
+                        LoadTimes += 1;
+                    }
+                }
+            }
+        });
+        
+        out.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(in.getDate() != null)
+                {
+                    GroupBookingControl.this.in = new Timestamp(in.getDate().getTime());
+                    GroupBookingControl.this.out = new Timestamp(out.getDate().getTime());
+                    time = (int) ChronoUnit.DAYS.between(in.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),out.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    reloadRoomModelByTime();
+                    if(LoadTimes < -1) {
+                        modelTree.reload();
+                    } else {
+                        LoadTimes += 1;
+                    }
+                }
+            }
+        });
         Calendar cal= Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 7);
         in.setDate(cal.getTime());
@@ -80,9 +215,24 @@ public class GroupBookingControl {
         out.getJCalendar().setMaxSelectableDate(cal.getTime());
     }
     
+    public void setEnableBtn(JButton finish,JButton cancel,JDateChooser time_in)
+    {
+        Date now = new Date();
+        if(time_in.getDate().before(now))
+        {
+            cancel.setEnabled(true);
+            finish.setEnabled(false);
+        }
+        else
+        {
+            cancel.setEnabled(false);
+            finish.setEnabled(true);
+        }
+    }
+    
     public void fillCustomerCbx(DefaultComboBoxModel<Customer> model, JButton btn)
     {
-         List<Customer> listCus = cus.getAll();
+         List<Customer> listCus = cusDAO.getAll();
          model.addAll(listCus);
          
          btn.addActionListener(new ActionListener() {
@@ -93,7 +243,7 @@ public class GroupBookingControl {
                 @Override
                 public void windowClosed(WindowEvent e) {
                     model.removeAllElements();
-                    model.addAll(cus.getAll());
+                    model.addAll(cusDAO.getAll());
                     model.setSelectedItem(cusFrame.getSlCus());
                 }
             });
@@ -122,7 +272,7 @@ public class GroupBookingControl {
         idCol.setMaxWidth(0);
         idCol.setMinWidth(0);
         idCol.setPreferredWidth(0);
-        List<Room> ListRoom = room.getAll();
+        List<Room> ListRoom = roomDAO.getAll();
         this.selectedRoom = tbl;
     }
     
@@ -151,7 +301,7 @@ public class GroupBookingControl {
                         Room selectedRoom = (Room) selectednode.getUserObject();
                         if (!checkObjectAvailabled(model, selectedRoom.getId(),0))
                         {
-                            model.addRow(new Object[]{selectedRoom.getId(),selectedRoom.getNum(),formatDouble(selectedRoom.getPpn())}); 
+                            model.addRow(new Object[]{selectedRoom.getId(),selectedRoom.getNum(),formatDouble(selectedRoom.getPpn()),formatDouble(selectedRoom.getPpn() * time)}); 
                         }
                     } catch (Exception l) {
                         System.err.println(l);
@@ -178,7 +328,7 @@ public class GroupBookingControl {
                            }
                            delTableItems(selectedrows, roomTbl);
                            DefaultTableModel srdModel = (DefaultTableModel) ServicesDetails.getModel();
-                           for (int i =srdModel.getRowCount() -1  ;i>=0;i-- )
+                           for (int i = srdModel.getRowCount() - 1; i>=0; i--)
                            {
                                int id = (int) srdModel.getValueAt(i, 0);
                                if(Arrays.stream(idRoomSelected).anyMatch(x -> x == id))
@@ -194,7 +344,9 @@ public class GroupBookingControl {
             }
         });
         
-        roomTbl.getModel().addTableModelListener((e) -> { totalRoom.setText(formatDouble(caculateTotalRoom(roomTbl))); });
+        roomTbl.getModel().addTableModelListener((e) -> {
+            totalRoom.setText(formatDouble(caculateTotalRoom(roomTbl,time))); 
+        });
     }
     
     public void chooseServicesAction(JTable serviceDetail,JTable service, JTable room, DefaultTableModel model,JTextField totalserText)
@@ -268,6 +420,156 @@ public class GroupBookingControl {
         serviceDetail.getModel().addTableModelListener((e) -> { totalserText.setText(formatDouble(caculateTotalser(serviceDetail))); });    
     }
         
+    
+    public void btnSaveAction(int id_bill, Customer cus , Timestamp in,Timestamp out, JTextField total_r, JTextField total_sr, JLabel dis ,JTextField dps, JTextField act)
+    {
+        if(checkVailidateInfor(act, cus))
+            {
+                int id = id_bill ;
+                List<BillGroupBookingDetail_Room> listRoom = new ArrayList<>();
+                List<BillGroupBookingDetail_Service> listservices = new ArrayList<>();
+                DefaultTableModel roomModel = (DefaultTableModel) selectedRoom.getModel();
+                DefaultTableModel serviceDetailModel = (DefaultTableModel) ServicesDetails.getModel();
+                double total_room = praseFromString(total_r.getText().trim());
+                double total_ser = praseFromString(total_sr.getText().trim());
+                double total = total_room + total_ser;
+                double deposit = praseFromString(dps.getText().trim());
+                double discount = praseFromString(dis.getText().split("VND")[0].trim());
+                double actual_pay = praseFromString(act.getText().trim());
+                if(JOptionPane.showConfirmDialog(parent, id == -1 ? " Tạo hóa đơn " : "Cập nhật hóa đơn", "Xác nhận", 0) == JOptionPane.YES_OPTION)
+                    {
+                        if(id == -1)
+                        {
+                            BillGroupBooking bgb = new BillGroupBooking(id, cus.getId(), in, out, total_room, total_ser, total, 0, discount, deposit, actual_pay, -1);
+                            if(billgroupDAO.insertBill(bgb) == 1)
+                            {
+                                id = billgroupDAO.getNewestBill();
+                            }
+                            else
+                            {
+                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            BillGroupBooking bgb = new BillGroupBooking(id, cus.getId(), in, out, total_room, total_ser, total, 0, discount, deposit, actual_pay, -1);
+                            if (billgroupDAO.uptBill(bgb) !=  0)
+                            {
+                                roomGroupDetail.delAll(id);
+                                serviceGroupDetail.delAll(id);
+                            }
+                            else
+                            {
+                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+                        
+                        for(int i = 0;i<roomModel.getRowCount();i++)
+                        {
+                            String num = roomModel.getValueAt(i, 1).toString();
+                            int time = (int) ChronoUnit.DAYS.between(in.toLocalDateTime().toLocalDate(), out.toLocalDateTime().toLocalDate());
+                            double total_eeach_room = praseFromString(roomModel.getValueAt(i, 2).toString()) * time;
+                            BillGroupBookingDetail_Room bookedRoom = new BillGroupBookingDetail_Room(id, num, time, total_eeach_room);
+                            if(roomGroupDetail.insertDetail(bookedRoom) == 0)
+                            {
+                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+            
+                        for(int i = 0;i<serviceDetailModel.getRowCount();i++)
+                        {
+                            String num = serviceDetailModel.getValueAt(i, 1).toString();
+                            int serviceID = (int) serviceDetailModel.getValueAt(i, 2);
+                            int quantitySer = (int) serviceDetailModel.getValueAt(i, 4);
+                            double total_each_service = praseFromString(serviceDetailModel.getValueAt(i, 6).toString());
+                            BillGroupBookingDetail_Service Roomservice = new BillGroupBookingDetail_Service(id, num, serviceID, quantitySer,total_each_service);
+                            if(serviceGroupDetail.insertDetail(Roomservice) == 0)
+                            {
+                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+                        }
+                        JOptionPane.showMessageDialog(parent, "Thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        upt = true;
+                    }
+            }
+                else 
+                {
+                    JOptionPane.showMessageDialog(parent, cus == null ? "Thiếu thông tin khách hàng!!!" : "Không thể lưu hóa đơn trống" , "Thông báo", JOptionPane.ERROR_MESSAGE);
+                    return;
+                } 
+    }
+    
+    public void btnFinishAction(JDateChooser time_out, int id)
+    {
+        int status = -1;
+        double extra_charge = roomGroupDetail.getTotalRoomPrice_OneNight(id);
+        if(!upt)
+        {
+            JOptionPane.showMessageDialog(parent, "Lưu các thay đổi trước","Cảnh báo",JOptionPane.WARNING_MESSAGE);
+        }
+        else
+        {
+            Date now = new Date();
+            if(now.before(now))
+            {
+                if(JOptionPane.showConfirmDialog(parent, "Chưa đến hạn trả phòng!!\nXác nhận thanh toán?", "Thông báo", JOptionPane.QUESTION_MESSAGE) ==  0)
+                {
+                    status = -2;
+                }
+            }
+            else
+            {
+                
+            }
+        }
+    }
+    
+    public void btnCancelAction(int id)
+    {
+        
+        if(upt)
+        {
+            if(JOptionPane.showConfirmDialog(parent, "Hủy đặt phòng?","Thông báo",JOptionPane.OK_CANCEL_OPTION) == JOptionPane.YES_OPTION)
+            {
+                if(billgroupDAO.cancelBill(id) != 0)
+                {
+                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+        else
+        {
+            if(JOptionPane.showConfirmDialog(parent, "Dữ liệu mới chưa được cập nhật!\nVẫn hủy đặt phòng?","Thông báo",JOptionPane.OK_CANCEL_OPTION) == JOptionPane.YES_OPTION)
+            {
+                if(billgroupDAO.cancelBill(id) != 0)
+                {
+                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+    }
+    
+    public boolean checkVailidateInfor(JTextField act,Customer cus)
+    {
+        if(cus != null && praseFromString(act.getText().toString().trim()) > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    
     public void delTableItems(int[] row,JTable tbl)
     {
         DefaultTableModel model = (DefaultTableModel) tbl.getModel();
@@ -276,12 +578,17 @@ public class GroupBookingControl {
         }
     }
     
-    public void setTextTotal(JTextField room,JTextField ser,JTextField total,JLabel dis)
+    public void setTextTotal(JTextField room,JTextField ser,JTextField total,JTextField deposit,JLabel dis)
     {
         room.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 total.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)));
+                upt = false;
+                if(!isSavedBill)
+                {
+                    deposit.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)/2));
+                }
             }
             @Override
             public void removeUpdate(DocumentEvent e) {}
@@ -292,6 +599,11 @@ public class GroupBookingControl {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 total.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)));
+                upt = false;
+                if(!isSavedBill)
+                {
+                    deposit.setText(formatDouble(caculateTotal(praseFromString(room.getText()), praseFromString(ser.getText()), dis)/2));
+                }
             }
             @Override
             public void removeUpdate(DocumentEvent e) {}
@@ -301,13 +613,13 @@ public class GroupBookingControl {
     }
     
     
-    public double caculateTotalRoom(JTable room)
+    public double caculateTotalRoom(JTable room,int time)
     {
         double total = 0;
         DefaultTableModel model = (DefaultTableModel) room.getModel();
         for (int i=0;i<model.getRowCount();i++)
         {
-            total += praseFromString(model.getValueAt(i, 2).toString());
+            total += praseFromString(model.getValueAt(i, 2).toString()) * time;
         }
         return total;
     }

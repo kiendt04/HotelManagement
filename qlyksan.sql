@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 18, 2025 lúc 07:34 AM
+-- Thời gian đã tạo: Th10 21, 2025 lúc 05:36 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -38,6 +38,7 @@ CREATE TABLE `bill` (
   `total` double NOT NULL,
   `exchange` double NOT NULL,
   `discount` double NOT NULL,
+  `deposit` double NOT NULL,
   `actual_pay` double NOT NULL,
   `status` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -46,18 +47,106 @@ CREATE TABLE `bill` (
 -- Đang đổ dữ liệu cho bảng `bill`
 --
 
-INSERT INTO `bill` (`id`, `room`, `user`, `check_in`, `check_out`, `total_time`, `total_service`, `total`, `exchange`, `discount`, `actual_pay`, `status`) VALUES
-(1, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0),
-(2, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0),
-(3, '304', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 2000000, 45000, 2045000, 0, 0, 0, 0),
-(4, '403', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 50000, 1550000, 0, 0, 0, 0),
-(5, '101', '001304035000', '2025-07-12 00:00:00', '2025-07-17 00:00:00', 4500000, 80000, 4580000, 0, 0, 0, 0),
-(6, '202', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 1300000, 80000, 1380000, 0, 0, 0, 0),
-(7, '203', '001304035000', '2025-07-11 00:00:00', '2025-07-11 00:00:00', 900000, 65000, 965000, 0, 0, 0, 0),
-(8, '302', '001304035000', '2025-09-24 00:00:00', '2025-09-25 00:00:00', 1300000, 50000, 1350000, 0, 0, 0, 0),
-(9, '201', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 900000, 30000, 930000, 0, 0, 0, 0),
-(10, '101', '001304035000', '2025-10-06 00:00:00', '2025-10-08 00:00:00', 1800000, 0, 1800000, 0, 0, 0, 0),
-(11, '101', '001304035000', '2025-10-08 00:00:00', '2025-10-09 00:00:00', 100000, 65000, 165000, 0, 0, 165000, 0);
+INSERT INTO `bill` (`id`, `room`, `user`, `check_in`, `check_out`, `total_time`, `total_service`, `total`, `exchange`, `discount`, `deposit`, `actual_pay`, `status`) VALUES
+(1, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0, 0),
+(2, '303', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 15000, 1515000, 0, 0, 0, 0, 0),
+(3, '304', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 2000000, 45000, 2045000, 0, 0, 0, 0, 0),
+(4, '403', '001304035000', '2025-07-11 00:00:00', '2025-07-12 00:00:00', 1500000, 50000, 1550000, 0, 0, 0, 0, 0),
+(5, '101', '001304035000', '2025-07-12 00:00:00', '2025-07-17 00:00:00', 4500000, 80000, 4580000, 0, 0, 0, 0, 0),
+(6, '202', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 1300000, 80000, 1380000, 0, 0, 0, 0, 0),
+(7, '203', '001304035000', '2025-07-11 00:00:00', '2025-07-11 00:00:00', 900000, 65000, 965000, 0, 0, 0, 0, 0),
+(8, '302', '001304035000', '2025-09-24 00:00:00', '2025-09-25 00:00:00', 1300000, 50000, 1350000, 0, 0, 0, 0, 0),
+(9, '201', '001304035000', '2025-10-06 00:00:00', '2025-10-07 00:00:00', 900000, 30000, 930000, 0, 0, 0, 0, 0),
+(10, '101', '001304035000', '2025-10-06 00:00:00', '2025-10-08 00:00:00', 1800000, 0, 1800000, 0, 0, 0, 0, 0),
+(11, '101', '001304035000', '2025-10-08 00:00:00', '2025-10-09 00:00:00', 100000, 65000, 165000, 0, 0, 0, 165000, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `billgroupbooking`
+--
+
+CREATE TABLE `billgroupbooking` (
+  `id` int(11) NOT NULL,
+  `customer` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `check_in` datetime NOT NULL,
+  `check_out` datetime NOT NULL,
+  `total_room` double NOT NULL,
+  `total_service` double NOT NULL,
+  `total` double NOT NULL,
+  `extra_charge` double NOT NULL,
+  `discount` double NOT NULL,
+  `deposit` double NOT NULL,
+  `actual_pay` double NOT NULL,
+  `status` int(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `billgroupbooking`
+--
+
+INSERT INTO `billgroupbooking` (`id`, `customer`, `check_in`, `check_out`, `total_room`, `total_service`, `total`, `extra_charge`, `discount`, `deposit`, `actual_pay`, `status`) VALUES
+(1, '001304035643', '2025-10-27 11:07:12', '2025-11-03 11:07:12', 17500000, 150000, 17650000, 0, 353000, 8648500, 17297000, -1),
+(2, '026204004100', '2025-10-27 11:18:57', '2025-11-03 11:18:57', 26250000, 180000, 26430000, 0, 528600, 12950700, 25901400, -1),
+(3, '026204004957', '2025-10-27 11:20:10', '2025-11-03 11:20:10', 15750000, 0, 15750000, 0, 315000, 7717500, 15435000, -1),
+(4, '001304035964', '2025-10-27 11:23:04', '2025-11-03 11:23:04', 24500000, 0, 24500000, 0, 490000, 12005000, 24010000, -1),
+(5, '026204004635', '2025-10-27 11:24:31', '2025-11-03 11:24:31', 28000000, 150000, 28150000, 0, 563000, 13793500, 27587000, -1),
+(6, '026204004957', '2025-10-27 11:38:57', '2025-11-03 11:38:57', 26250000, 290000, 26540000, 0, 530800, 13004600, 26009200, -1),
+(7, '001304035964', '2025-10-27 11:43:02', '2025-11-03 11:43:02', 29750000, 665000, 30415000, 0, 608300, 14903350, 29806700, -1);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `billgroupbookingdetail`
+--
+
+CREATE TABLE `billgroupbookingdetail` (
+  `id` int(11) NOT NULL,
+  `room` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `service` int(5) NOT NULL,
+  `quantity` int(3) NOT NULL,
+  `total` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `billgroupbookingdetail`
+--
+
+INSERT INTO `billgroupbookingdetail` (`id`, `room`, `service`, `quantity`, `total`) VALUES
+(7, '104', 1, 1, 15000),
+(7, '104', 2, 2, 30000),
+(7, '104', 3, 31, 620000);
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `billgroupbookingdetail_room`
+--
+
+CREATE TABLE `billgroupbookingdetail_room` (
+  `id` int(11) NOT NULL,
+  `room` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `time` int(1) NOT NULL,
+  `total` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `billgroupbookingdetail_room`
+--
+
+INSERT INTO `billgroupbookingdetail_room` (`id`, `room`, `time`, `total`) VALUES
+(5, '201', 7, 3500000),
+(5, '203', 7, 5250000),
+(5, '301', 7, 3500000),
+(5, '303', 7, 5250000),
+(6, '201', 7, 3500000),
+(6, '202', 7, 7000000),
+(6, '203', 7, 5250000),
+(6, '204', 7, 10500000),
+(7, '102', 7, 7000000),
+(7, '104', 7, 10500000),
+(7, '202', 7, 7000000),
+(7, '303', 7, 5250000);
 
 -- --------------------------------------------------------
 
@@ -177,7 +266,7 @@ INSERT INTO `room` (`Id`, `Number`, `floor`, `Type`, `Status`, `Note`) VALUES
 (5, '105', 1, 5, 0, ''),
 (6, '201', 2, 1, 0, ''),
 (7, '202', 2, 2, 0, ''),
-(8, '203', 2, 1, 0, ''),
+(8, '203', 2, 3, 0, ''),
 (9, '204', 2, 4, 0, ''),
 (10, '205', 2, 5, 0, ''),
 (11, '301', 3, 1, 0, ''),
@@ -236,12 +325,12 @@ CREATE TABLE `service` (
 --
 
 INSERT INTO `service` (`id`, `name`, `quantity`, `price`, `unit`) VALUES
-(1, 'Coca', 0, 15000, ''),
-(2, 'Pepsi1', 0, 15000, ''),
-(3, 'RedBull', 0, 20000, ''),
-(4, '7Up', 0, 15000, ''),
-(5, 'Fanta', 0, 15000, ''),
-(6, 'Mỳ Ly', 0, 15000, '');
+(1, 'Coca', 0, 15000, 'Lon'),
+(2, 'Pepsi1', 0, 15000, 'Lon'),
+(3, 'RedBull', 0, 20000, 'Lon'),
+(4, '7Up', 0, 15000, 'Lon'),
+(5, 'Fanta', 0, 15000, 'Lon'),
+(6, 'Mỳ Ly', 0, 15000, 'Hop');
 
 -- --------------------------------------------------------
 
@@ -274,6 +363,28 @@ INSERT INTO `user` (`id`, `name`, `pass`, `role`) VALUES
 ALTER TABLE `bill`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_billroom` (`room`);
+
+--
+-- Chỉ mục cho bảng `billgroupbooking`
+--
+ALTER TABLE `billgroupbooking`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_CustomerGroup` (`customer`);
+
+--
+-- Chỉ mục cho bảng `billgroupbookingdetail`
+--
+ALTER TABLE `billgroupbookingdetail`
+  ADD PRIMARY KEY (`id`,`room`,`service`),
+  ADD KEY `FK_groupService` (`service`),
+  ADD KEY `FK_groupRoom` (`room`);
+
+--
+-- Chỉ mục cho bảng `billgroupbookingdetail_room`
+--
+ALTER TABLE `billgroupbookingdetail_room`
+  ADD PRIMARY KEY (`id`,`room`),
+  ADD KEY `FK_detailRoomgroup` (`room`);
 
 --
 -- Chỉ mục cho bảng `bill_detail`
@@ -332,6 +443,12 @@ ALTER TABLE `bill`
   MODIFY `id` int(5) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
+-- AUTO_INCREMENT cho bảng `billgroupbooking`
+--
+ALTER TABLE `billgroupbooking`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT cho bảng `floor`
 --
 ALTER TABLE `floor`
@@ -370,6 +487,27 @@ ALTER TABLE `user`
 --
 ALTER TABLE `bill`
   ADD CONSTRAINT `FK_billroom` FOREIGN KEY (`room`) REFERENCES `room` (`Number`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Các ràng buộc cho bảng `billgroupbooking`
+--
+ALTER TABLE `billgroupbooking`
+  ADD CONSTRAINT `FK_CustomerGroup` FOREIGN KEY (`customer`) REFERENCES `customer` (`cccd`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Các ràng buộc cho bảng `billgroupbookingdetail`
+--
+ALTER TABLE `billgroupbookingdetail`
+  ADD CONSTRAINT `FK_groupRoom` FOREIGN KEY (`room`) REFERENCES `room` (`Number`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_groupService` FOREIGN KEY (`service`) REFERENCES `service` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_idserGroup` FOREIGN KEY (`id`) REFERENCES `billgroupbooking` (`id`);
+
+--
+-- Các ràng buộc cho bảng `billgroupbookingdetail_room`
+--
+ALTER TABLE `billgroupbookingdetail_room`
+  ADD CONSTRAINT `FK_detailRoomgroup` FOREIGN KEY (`room`) REFERENCES `room` (`Number`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_idroomGroup` FOREIGN KEY (`id`) REFERENCES `billgroupbooking` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Các ràng buộc cho bảng `bill_detail`
