@@ -190,10 +190,29 @@ public class BillDAO {
     {
         try {
             PreparedStatement pt = conn.prepareStatement("SELECT id FROM bill where room = ? and status = 1 ORDER BY check_in DESC LIMIT 1 ");
+            pt.setString(1, room);
+            ResultSet rs = pt.executeQuery();
+            if(rs.next())
+            {
+                return rs.getInt("id");
+            }
         } catch (Exception e) {
         }
         return -1;
     }
     
-    
+    public double getEtra_chagre(int id)
+    {
+        try {
+            PreparedStatement pt = conn.prepareStatement("SELECT exchange FROM bill where id = ? ");
+            pt.setInt(1, id);
+            ResultSet rs = pt.executeQuery();
+            if(rs.next())
+            {
+                return rs.getInt("exchange");
+            }
+        } catch (Exception e) {
+        }
+        return 0;
+    }
 }

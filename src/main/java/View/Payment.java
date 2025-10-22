@@ -135,6 +135,7 @@ public class Payment extends JFrame {
         deposit = new JTextField();
         
         discountLst = pc.getDiscountLst();
+        discountPercentLable = new JLabel();
         
     }
 
@@ -481,7 +482,6 @@ public class Payment extends JFrame {
                     cancelBtn.setVisible(false);
                     finishBtn.setEnabled(true);
                 }
-                
             }
         }
         else
@@ -495,7 +495,6 @@ public class Payment extends JFrame {
         serviceTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                // Nếu click 2 lần
                 if (e.getClickCount() == 1) {
                     int row = serviceTable.getSelectedRow();
                     double price = Double.parseDouble(serviceTable.getValueAt(row, 3).toString().replaceAll(",", "").trim());
@@ -566,13 +565,17 @@ public class Payment extends JFrame {
         double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
         int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
         double total = totalroom + totalservice;
-        Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, 0, 0, 0, 0, stats);
+        double extra_charge = idBill != 0 ? pc.billExtra_chagre(idBill) : 0;
+        double discount = Integer.parseInt(discountPercentLable.getText().replaceAll("%", "").trim()) * total;
+        double actual_pay = total - discount + extra_charge;
+        double deposit = status == -1 ? actual_pay/2 : 0;
+        Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, extra_charge, discount, deposit, actual_pay, stats);
         if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
         {
             slRoom.setStatus(stats);
             int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
             List<BillDetail> lst = new ArrayList<>();
-            List<Service> svl = new ServiceDAO().getAll();
+            List<Service> svl =  new ServiceDAO().getAll();
             for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
             {
                 int j = 0;
@@ -586,9 +589,9 @@ public class Payment extends JFrame {
                 lst.add(new BillDetail(bdID,srId,quan,ttl));
             }
             for (int i=0;i<lst.size();i++)
-                {
-                    int rs = idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i));
-                }
+            {
+                int rs = (idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i)));
+            }
             JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
             if(stats == 0)
             {
@@ -604,6 +607,7 @@ public class Payment extends JFrame {
             }
             else
             {
+                saveBtn.setText("💾 Lưu");
                 slRoom.setStatus(stats);
                 pc.uptRoom(slRoom);
                 idBill = bdID;
@@ -662,18 +666,6 @@ public class Payment extends JFrame {
 
 //        // Parse lại giá trị từ totalRoom đang hiển thị có thể đã được format
             long tienPhong = Long.parseLong(totalRoom.getText().replaceAll(",", "").trim());
-//        long tienPhong = 0;
-//        try {
-//            String rawText = totalRoom.getText().replaceAll("\\.", "").replaceAll("[^0-9]", "");
-//            if (!rawText.isEmpty()) {
-//                tienPhong = Long.parseLong(rawText);
-//            }
-//        } catch (NumberFormatException e) {
-//            tienPhong = 0;
-//        }
-//
-//        // Format lại totalRoom luôn
-//        totalRoom.setText(currencyFormat.format(tienPhong));
 
         // Tính và hiển thị tổng thanh toán
         long tongThanhToan = tienPhong + tongDichVu;

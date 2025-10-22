@@ -157,6 +157,11 @@ public class PaymentControl {
         return new BillDetailDAO().uptBD(bd);
     }
     
+    public double billExtra_chagre(int id)
+    {
+        return new BillDAO().getEtra_chagre(id);
+    }
+    
     public void printed(List<Object> dataSRC, Map<String, Object> mainParam) {
     try {
         // Tạo datasource cho bảng

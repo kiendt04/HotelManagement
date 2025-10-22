@@ -3,6 +3,7 @@ DAO\CustomerDAO.class
 DAO\BillDetailDAO.class
 Model\CustomerTableModel.class
 View\Payment$2.class
+View\Payment$5.class
 Control\GroupBookingControl$6.class
 View\Login.class
 View\GroupBooking$1.class
@@ -83,6 +84,7 @@ DAO\BillGroupBookingDetail_RoomDAO.class
 View\GroupBooking$2.class
 View\UserList.class
 View\GroupBooking.class
+DAO\DiscountDAO.class
 Control\GroupBookingControl$4$1.class
 View\CustomerList$3.class
 Control\UserControl.class
@@ -97,6 +99,7 @@ View\RoomManagement.class
 DAO\UserDAO.class
 View\CustomerList$4.class
 View\HotelManagementSystem$1.class
+Model\Discount.class
 DAO\BillDAO.class
 Model\Room_type.class
 View\RoomListTransfer$1.class
