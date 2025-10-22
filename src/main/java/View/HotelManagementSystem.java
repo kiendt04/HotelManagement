@@ -128,9 +128,9 @@ public class HotelManagementSystem extends JFrame {
         "Quản lý tầng",
         "Loại phòng",
         "Quản lý phòng",
-        "Sản phẩm - Dịch vụ",
-        "Đặt phòng theo đoàn",
-        "Lịch sử đặt"
+        "Sản phẩm - Dịch vụ"
+        //"Đặt phòng theo đoàn",
+        //"Lịch sử đặt"
     };
 
     JList<String> menuList = new JList<>(menuItems);
@@ -148,7 +148,14 @@ public class HotelManagementSystem extends JFrame {
             int selected = menuList.getSelectedIndex();
             switch (selected) {
                 case 0:
-                    new CustomerList(null,null);
+                    if (role == 1)
+                    {
+                        new CustomerList(null);
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(rootPane, "Quyền truy cập bị giới hạn");
+                    }
                     break;
                 case 1:
                     if (role == 1)
@@ -193,11 +200,10 @@ public class HotelManagementSystem extends JFrame {
                     }
                     break;
                 case 5:
-                    new AddGroupBooking(this,8);
+                    
                     break;
                     // TODO: xử lý đặt phòng theo đoàn
             }
-            menuList.clearSelection();
         }
     });
 
@@ -221,7 +227,7 @@ public class HotelManagementSystem extends JFrame {
         
         int floorCount = control.countFloor();
         
-        // Tạo tầng
+        // Tạo 4 tầng
         for (int i = 0; i < floorCount; i++) {
             JPanel floorPanel = createFloorPanel(i+1);
             roomPanel.add(floorPanel);
@@ -278,23 +284,7 @@ public class HotelManagementSystem extends JFrame {
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e))
-                {
-                control.PayMentFunc(HotelManagementSystem.this, r,false);
-                }
-                if (SwingUtilities.isRightMouseButton(e))
-                {
-                    JPopupMenu room_act = new JPopupMenu();
-                    JMenuItem change_room = new JMenuItem("Chuyển Phòng");
-                    JMenuItem prebooking = new JMenuItem("Đặt trước");
-                    
-                    prebooking.addActionListener((l) -> {
-                        control.PayMentFunc(HotelManagementSystem.this, r,true);
-                    });
-                    room_act.add(change_room);
-                    room_act.add(prebooking);
-                    room_act.show(panel, e.getX(), e.getY());
-                }
+                control.PayMentFunc(HotelManagementSystem.this, r);
             }
             
             @Override
@@ -326,15 +316,6 @@ public class HotelManagementSystem extends JFrame {
     });
 }
 
-    private class changeRoom extends JDialog {
-        private int id_bill;
-
-        public changeRoom(int id_bill) {
-            this.id_bill = id_bill;
-            this.setSize(new Dimension(300,400));
-        }
-                
-    }
     
     public static void main(String[] args) {
         new HotelManagementSystem();

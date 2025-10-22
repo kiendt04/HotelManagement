@@ -92,8 +92,6 @@ public class Login extends JFrame {
         // Sự kiện nút
         btnLogin.addActionListener(e -> lc.handleLogin(txtUsername,txtPassword,this));
         btnExit.addActionListener(e -> System.exit(0));
-        getRootPane().setDefaultButton(btnLogin);
-        
     }
 
     

@@ -32,7 +32,7 @@ public class ServiceDAO {
             ResultSet rs = st.executeQuery("SELECT * FROM service");
             while(rs.next())
             {
-                Service r = new Service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"),rs.getInt("quantity"),rs.getString("unit"));
+                Service r = new Service(rs.getInt("id"), rs.getString("name"),rs.getDouble("price"));
                 list.add(r);
             }
         } catch (Exception e) {
@@ -45,11 +45,9 @@ public class ServiceDAO {
     {
         int rs=0;
         try {
-            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(name,price,quantity,unit) VALUES(?,?,?,?)");
+            PreparedStatement pt = conn.prepareStatement("INSERT INTO service(name,price) VALUES(?,?)");
             pt.setString(1, r.getName());
             pt.setDouble(2, r.getPrice());
-            pt.setInt(3, r.getQuant());
-            pt.setString(4, r.getUnit());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -74,12 +72,10 @@ public class ServiceDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE service set name = ?,price = ?, quantity = ?, unit = ? WHERE id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE service set name = ?,price = ?  WHERE id = ?");
             pt.setString(1, r.getName());
             pt.setDouble(2, r.getPrice());
-            pt.setInt(3, r.getQuant());
-            pt.setString(4, r.getUnit());
-            pt.setInt(5, r.getId());
+            pt.setInt(3, r.getId());
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);
@@ -110,21 +106,6 @@ public class ServiceDAO {
             while(rs.next())
             {
                return rs.getDouble("price");
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return 0;
-    }
-    
-    public int getQuant(int id)
-    {
-        try {
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT quantity FROM service where id = " + id);
-            while(rs.next())
-            {
-               return rs.getInt("quantity");
             }
         } catch (Exception e) {
             System.out.println(e);

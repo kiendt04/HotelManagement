@@ -12,18 +12,17 @@ public class Room_type {
     
     private int id,bed;
     private String name;
-    private double price_per_hour,price_per_night;
+    private double price;
 
     public Room_type() {
     }
 
 
-    public Room_type(int id, String name,int bed,double price, double pricepn) {
+    public Room_type(int id, String name,int bed,double price) {
         this.id = id;
         this.name = name;
-        this.price_per_hour = price;
+        this.price = price;
         this.bed = bed;
-        this.price_per_night = pricepn;
     }
 
     public int getId() {
@@ -42,6 +41,14 @@ public class Room_type {
         this.name = name;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public int getBed() {
         return bed;
     }
@@ -54,22 +61,4 @@ public class Room_type {
     public String toString() {
         return name; 
     }
-
-    public double getPrice_per_hour() {
-        return price_per_hour;
-    }
-
-    public void setPrice_per_hour(double price_per_hour) {
-        this.price_per_hour = price_per_hour;
-    }
-
-    public double getPrice_per_night() {
-        return price_per_night;
-    }
-
-    public void setPrice_per_night(double price_per_night) {
-        this.price_per_night = price_per_night;
-    }
-    
-    
 }

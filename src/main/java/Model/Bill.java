@@ -5,24 +5,22 @@
 package Model;
 
 import java.sql.Date;
-import java.sql.Timestamp;
-
 
 /**
  *
  * @author ADMIN
  */
 public class Bill {
-    private int id, total_service;
+    private int id,total_service;
     private String room,user;
-    private Timestamp check_in,check_out;
-    private double total,total_time,actual_pay,exchange,disount,deposit;
+    private Date check_in,check_out;
+    private double total,total_time;
     private int status;
 
     public Bill() {
     }
 
-    public Bill(int id, String room, String user, Timestamp check_in, Timestamp check_out,double total_time,int total_service, double total,double exchange, double discount,double deposit, double actual_pay, int status) {
+    public Bill(int id, String room, String user, Date check_in, Date check_out,double total_time,int total_service, double total, int status) {
         this.id = id;
         this.room = room;
         this.user = user;
@@ -32,10 +30,6 @@ public class Bill {
         this.status = status;
         this.total_time = total_time;
         this.total_service = total_service;
-        this.actual_pay = actual_pay;
-        this.exchange = exchange;
-        this.disount = discount;
-        this.deposit = deposit;
     }
 
     public int getId() {
@@ -62,19 +56,19 @@ public class Bill {
         this.user = user;
     }
 
-    public Timestamp getCheck_in() {
+    public Date getCheck_in() {
         return check_in;
     }
 
-    public void setCheck_in(Timestamp check_in) {
+    public void setCheck_in(Date check_in) {
         this.check_in = check_in;
     }
 
-    public Timestamp getCheck_out() {
+    public Date getCheck_out() {
         return check_out;
     }
 
-    public void setCheck_out(Timestamp check_out) {
+    public void setCheck_out(Date check_out) {
         this.check_out = check_out;
     }
 
@@ -108,38 +102,6 @@ public class Bill {
 
     public void setTotal_time(double total_time) {
         this.total_time = total_time;
-    }
-
-    public double getActual_pay() {
-        return actual_pay;
-    }
-
-    public void setActual_pay(double actual_pay) {
-        this.actual_pay = actual_pay;
-    }
-
-    public double getExchange() {
-        return exchange;
-    }
-
-    public void setExchange(double exchange) {
-        this.exchange = exchange;
-    }
-
-    public double getDisount() {
-        return disount;
-    }
-
-    public void setDisount(double disount) {
-        this.disount = disount;
-    }    
-
-    public double getDeposit() {
-        return deposit;
-    }
-
-    public void setDeposit(double deposit) {
-        this.deposit = deposit;
     }
     
     

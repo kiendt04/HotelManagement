@@ -8,7 +8,6 @@ import View.*;
 import DAO.*;
 import Model.*;
 import com.mysql.cj.conf.PropertyKey;
-import com.toedter.calendar.JDateChooser;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.DecimalFormat;
@@ -28,56 +27,20 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author ADMIN
  */
 public class PaymentControl {
-    private DiscountDAO discountDAO = new DiscountDAO();
+
     public PaymentControl() {
-    }
-    
-    public List<Discount> getDiscountLst()
-    {
-        return discountDAO.getAll();
-    }
-    
-    public int autoGetDisValue(String code,List<Discount> lst)
-    {
-        int value = lst.stream().filter(ds -> ds.getCode().equals(code)).map(Discount::getValue).findFirst().orElse(0);
-        return value;
-    }
-    public String getUsedTime(JDateChooser in, JDateChooser out) {
-        Date checkIn = in.getDate();
-        Date checkOut = out.getDate();
-
-        if (checkIn == null || checkOut == null) {
-            return "0 ngày";
-        }
-
-        // Tính chênh lệch mili giây
-        long diffMillis = checkOut.getTime() - checkIn.getTime();
-
-        // Lấy phần ngày
-        long diffDays = TimeUnit.MILLISECONDS.toDays(diffMillis);
-
-        if (diffDays == 0) {
-            // Nếu cùng ngày, tính theo giờ
-            long diffHours = TimeUnit.MILLISECONDS.toHours(diffMillis);
-            if (diffHours == 0) diffHours = 1; // Tối thiểu 1h nếu chưa đủ
-            return diffHours + " giờ";
-        } else {
-            // Nếu khác ngày, tính theo ngày
-            return diffDays + " ngày";
-        }
     }
     
     public void openCusList(Payment pay , DefaultComboBoxModel<Customer> model)
     {
         SwingUtilities.invokeLater(() -> {
-            CustomerList cus =  new CustomerList(pay,null);
+            CustomerList cus =  new CustomerList(pay);
             cus.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
@@ -155,11 +118,6 @@ public class PaymentControl {
     public int uptBD(BillDetail bd)
     {
         return new BillDetailDAO().uptBD(bd);
-    }
-    
-    public double billExtra_chagre(int id)
-    {
-        return new BillDAO().getEtra_chagre(id);
     }
     
     public void printed(List<Object> dataSRC, Map<String, Object> mainParam) {

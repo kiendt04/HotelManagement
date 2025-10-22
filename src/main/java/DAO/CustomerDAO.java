@@ -31,7 +31,7 @@ public class CustomerDAO {
             ResultSet rs = st.executeQuery( "SELECT * FROM customer");
             while (rs.next())
             {
-                String gender = rs.getInt("gt") == 1 ? "Nam" : "Nữ";
+                String gender = rs.getInt("gt") == 1 ? "Nam" : "Nu";
                 Customer cs = new Customer(rs.getString("cccd"), rs.getString("name"),gender, rs.getString("sdt"), rs.getString("region"));
                 list.add(cs);
             }

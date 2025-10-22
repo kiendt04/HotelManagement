@@ -4,7 +4,6 @@
  */
 package Control;
 
-import DAO.BillDAO;
 import DAO.FloorDAO;
 import DAO.RoomDAO;
 import Model.Room;
@@ -26,7 +25,6 @@ public class H_MControl {
     
     private FloorDAO flc = new FloorDAO();
     private RoomDAO rc = new RoomDAO();
-    private BillDAO bc = new BillDAO();
     
     public H_MControl() {
     }
@@ -63,10 +61,10 @@ public class H_MControl {
         }
     }
     
-    public void PayMentFunc(HotelManagementSystem frame,Room r,boolean booking)
+    public void PayMentFunc(HotelManagementSystem frame,Room r)
     {
         SwingUtilities.invokeLater(() -> {
-            Payment pay =  new Payment(r.getId(),booking);
+            Payment pay =  new Payment(r.getId());
             pay.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
@@ -76,11 +74,5 @@ public class H_MControl {
             pay.setVisible(true);
             
         });
-    }
-    
-    public void getRoom_bill(String room)
-    {
-        int bill;
-        
     }
 }
