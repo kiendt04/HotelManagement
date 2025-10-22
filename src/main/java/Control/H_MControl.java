@@ -63,10 +63,10 @@ public class H_MControl {
         }
     }
     
-    public void PayMentFunc(HotelManagementSystem frame,Room r)
+    public void PayMentFunc(HotelManagementSystem frame,Room r,boolean booking)
     {
         SwingUtilities.invokeLater(() -> {
-            Payment pay =  new Payment(r.getId());
+            Payment pay =  new Payment(r.getId(),booking);
             pay.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {

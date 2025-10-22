@@ -48,11 +48,10 @@ public class BillGroupBookingDetail_ServiceDAO {
         List<BillGroupBookingDetail_Service> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM billgroupbookingdetail id = " + id + "");
+            ResultSet rs = st.executeQuery("SELECT * FROM billgroupbookingdetail where id = " + id + "");
             while (rs.next())
             {
-                BillGroupBookingDetail_Service bd = new BillGroupBookingDetail_Service(rs.getInt("id"), rs.getString("room"), rs.getInt("service"), rs.getInt("quantity"),rs.getDouble("total")
-                );
+                BillGroupBookingDetail_Service bd = new BillGroupBookingDetail_Service(rs.getInt("id"), rs.getString("room"), rs.getInt("service"), rs.getInt("quantity"),rs.getDouble("total"));
                 list.add(bd);
             }
         } catch (Exception e) {
@@ -120,7 +119,7 @@ public class BillGroupBookingDetail_ServiceDAO {
         int rs = 0;
         try {
             PreparedStatement pt = conn.prepareStatement("DELETE FROM billgroupbookingdetail where id=?");
-            pt.setInt(0, id);
+            pt.setInt(1, id);
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);

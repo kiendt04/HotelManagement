@@ -77,8 +77,8 @@ public class RoomManagementControl {
         return roomTypeDAO.createNewId();
     }
     
-    public double getRoomTypePrice(int id) {
-        return roomTypeDAO.getPricePH(id);
+    public double getRoomTypePrice(int id,boolean days) {
+        return roomTypeDAO.getPricePH(id,days);
     }
     
     // Room operations

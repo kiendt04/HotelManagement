@@ -47,7 +47,7 @@ public class BillGroupBookingDetail_RoomDAO {
         List<BillGroupBookingDetail_Room> list = new ArrayList<>();
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM billgroupbookingdetail_room where id = " + id +"" );
+            ResultSet rs = st.executeQuery("SELECT * FROM billgroupbookingdetail_room where id = " + id + "" );
             while (rs.next())
             {
                 BillGroupBookingDetail_Room bd = new BillGroupBookingDetail_Room(rs.getInt("id"), rs.getString("room"), rs.getInt("time"),rs.getDouble("total"));
@@ -69,6 +69,7 @@ public class BillGroupBookingDetail_RoomDAO {
             pt.setInt(3, bd.getTime());
             pt.setDouble(4, bd.getTotal());
             rs = pt.executeUpdate();
+            System.out.println(rs);
         } catch (Exception e) {
             System.err.println(e);
         }
@@ -109,8 +110,8 @@ public class BillGroupBookingDetail_RoomDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("DELETE FROM billgroupbookingdetail_room where id=?");
-            pt.setInt(0, id);
+            PreparedStatement pt = conn.prepareStatement("DELETE FROM billgroupbookingdetail_room WHERE id = ?");
+            pt.setInt(1, id);
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);

@@ -162,6 +162,8 @@ public class GroupBookingControl {
             Service serviceID = serLst.stream().filter(s -> s.getId() == id).findFirst().orElse(null);
             service_detailModel.addRow(new Object[]{roomID.getId(),Number,serviceID.getId(),serviceID.getName(),serviceDetail.get(i).getQuantity(),formatDouble(serviceID.getPrice()),formatDouble(serviceDetail.get(i).getTotal())});
         }
+        
+        this.upt = true;
     }
     
     public void initDate(JDateChooser in, JDateChooser out)
@@ -215,9 +217,18 @@ public class GroupBookingControl {
         out.getJCalendar().setMaxSelectableDate(cal.getTime());
     }
     
-    public void setEnableBtn(JButton finish,JButton cancel,JDateChooser time_in)
+    public void setEnableBtn(JButton finish,JButton cancel,JButton save,JDateChooser time_in,int id)
     {
         Date now = new Date();
+        BillGroupBooking bgb =  billgroupDAO.getBillById(id);
+        if(bgb.getStatus() == 0 || bgb.getStatus() == -2 || bgb.getStatus() == 2)
+        {
+            finish.setEnabled(false);
+            cancel.setEnabled(false);
+            save.setEnabled(false);
+        }
+        else
+        {
         if(time_in.getDate().before(now))
         {
             cancel.setEnabled(true);
@@ -227,6 +238,7 @@ public class GroupBookingControl {
         {
             cancel.setEnabled(false);
             finish.setEnabled(true);
+        }
         }
     }
     
@@ -453,15 +465,24 @@ public class GroupBookingControl {
                         }
                         else
                         {
+                            
                             BillGroupBooking bgb = new BillGroupBooking(id, cus.getId(), in, out, total_room, total_ser, total, 0, discount, deposit, actual_pay, -1);
                             if (billgroupDAO.uptBill(bgb) !=  0)
                             {
-                                roomGroupDetail.delAll(id);
-                                serviceGroupDetail.delAll(id);
+                                
+                                if(roomGroupDetail.delAll(id) == 0)
+                                {
+                                    JOptionPane.showMessageDialog(parent, "Thay đổi phòng thất bại");
+                                }
+                                
+                                if(serviceGroupDetail.delAll(id) == 0)
+                                {
+                                    JOptionPane.showMessageDialog(parent, "Thay đổi dịch vụ thất bại");
+                                }
                             }
                             else
                             {
-                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(parent, "lưu hóa đơn Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         }
@@ -474,7 +495,7 @@ public class GroupBookingControl {
                             BillGroupBookingDetail_Room bookedRoom = new BillGroupBookingDetail_Room(id, num, time, total_eeach_room);
                             if(roomGroupDetail.insertDetail(bookedRoom) == 0)
                             {
-                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(parent, "room Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         }
@@ -488,7 +509,7 @@ public class GroupBookingControl {
                             BillGroupBookingDetail_Service Roomservice = new BillGroupBookingDetail_Service(id, num, serviceID, quantitySer,total_each_service);
                             if(serviceGroupDetail.insertDetail(Roomservice) == 0)
                             {
-                                JOptionPane.showMessageDialog(parent, "Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(parent, " service Thất bại","Lỗi", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                         }
@@ -541,7 +562,7 @@ public class GroupBookingControl {
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(parent, "Thất bại","Thông báo",JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }
@@ -555,7 +576,7 @@ public class GroupBookingControl {
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(parent, "Thất bại","Thông báo",JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         }

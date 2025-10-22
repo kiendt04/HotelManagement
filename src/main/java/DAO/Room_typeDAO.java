@@ -120,14 +120,16 @@ public class Room_typeDAO {
         return id;
     }
     
-    public double getPricePH(int id)
+    public double getPricePH(int id, boolean days)
     {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT price_per_hour FROM room_type where id = " + id  +"");
+            String sql1 = "SELECT price_per_hour FROM room_type where id = " + id  +"";
+            String sql2 = "SELECT price_per_night FROM room_type where id = " + id  +"";
+            ResultSet rs = st.executeQuery(days ? sql2 : sql1);
             while (rs.next())
             {
-                return rs.getDouble("price_per_hour");
+                return rs.getDouble( days ?"price_per_night" : "price_per_hour");
             }
         } catch (Exception e) {
             System.err.println(e);

@@ -40,10 +40,11 @@ public class AddGroupBooking extends JDialog {
     private Timestamp time_in, time_out;
     private JDateChooser check_in,check_out;
     private JButton saveBtn, finishBtn, searchCusBtn,cancelBtn;
-    private int id_bill = -1;
+    private int id_bill = -1 ;
     
-    public AddGroupBooking(Frame parent) {
+    public AddGroupBooking(Frame parent,int id) {
         super(parent, "Quản lý đặt phòng theo đoàn", true);
+        id_bill = id;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setResizable(false);
         setSize(parent.getSize());
@@ -51,6 +52,7 @@ public class AddGroupBooking extends JDialog {
         initializeComponents();
         setupLayout();
         setupTables();
+        btnAction();
         setVisible(true);
     }
     public AddGroupBooking() {
@@ -106,11 +108,11 @@ public class AddGroupBooking extends JDialog {
         });
         
         finishBtn.addActionListener((e) -> {
-            
+            control.btnFinishAction(check_out, id_bill);
         });
         
         cancelBtn.addActionListener((e) -> {
-            
+            control.btnCancelAction(id_bill);
         });
     }
     
@@ -135,7 +137,11 @@ public class AddGroupBooking extends JDialog {
         
         add(mainSplitPane, BorderLayout.CENTER);
         
-        
+        if(id_bill != -1)
+        {
+            control.loadExitBill(id_bill, roomTableModel, serviceDetailModel, deposit, check_in, check_out, customerModel);
+            control.setEnableBtn(finishBtn, cancelBtn, saveBtn, check_in, id_bill);
+        }
     }
     
     private JPanel createToolbar() {

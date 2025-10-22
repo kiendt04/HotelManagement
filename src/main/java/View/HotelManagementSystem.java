@@ -193,7 +193,7 @@ public class HotelManagementSystem extends JFrame {
                     }
                     break;
                 case 5:
-                    new AddGroupBooking(this);
+                    new AddGroupBooking(this,8);
                     break;
                     // TODO: xử lý đặt phòng theo đoàn
             }
@@ -280,13 +280,17 @@ public class HotelManagementSystem extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 if(SwingUtilities.isLeftMouseButton(e))
                 {
-                control.PayMentFunc(HotelManagementSystem.this, r);
+                control.PayMentFunc(HotelManagementSystem.this, r,false);
                 }
                 if (SwingUtilities.isRightMouseButton(e))
                 {
                     JPopupMenu room_act = new JPopupMenu();
                     JMenuItem change_room = new JMenuItem("Chuyển Phòng");
                     JMenuItem prebooking = new JMenuItem("Đặt trước");
+                    
+                    prebooking.addActionListener((l) -> {
+                        control.PayMentFunc(HotelManagementSystem.this, r,true);
+                    });
                     room_act.add(change_room);
                     room_act.add(prebooking);
                     room_act.show(panel, e.getX(), e.getY());

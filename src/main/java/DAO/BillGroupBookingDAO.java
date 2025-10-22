@@ -129,7 +129,7 @@ public class BillGroupBookingDAO {
 //                    list.add(b);
 //                } 
 //        } catch (Exception e) {
-//            System.err.println(e);
+            
 //        }
 //        
 //        return list;
@@ -153,7 +153,7 @@ public class BillGroupBookingDAO {
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE billgroupbooking set status = -2 actual_pay = deposit where id = ?");
+            PreparedStatement pt = conn.prepareStatement("UPDATE billgroupbooking set status = -2, actual_pay = deposit where id = ?");
             pt.setInt(1, id);
             rs = pt.executeUpdate();
         } catch (Exception e) {

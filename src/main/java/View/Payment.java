@@ -25,11 +25,15 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -48,23 +52,25 @@ public class Payment extends JFrame {
 
     private JDateChooser checkInField;
     private JDateChooser checkOutField;
-    private JTextField totalService;
-    private JTextField totalRoom;
+    private JTextField totalService,deposit,totalAmountField,discountCodeField,totalRoom,noteArea;
+    private JLabel discountPercentLable ;
     private JComboBox<String> statusComboBox;
     private JTable serviceTable;
     private DefaultTableModel tableModel;
     private JLabel totalAmountLabel;
     private NumberFormat currencyFormat;
-    private JButton saveBtn, printBtn, exitBtn;
-    private int idRoom,idBill = 0;
-    private boolean isClick = false;
+    private JButton saveBtn, printBtn, exitBtn,finishBtn,cancelBtn;
+    private int idRoom,idBill = 0,days = 0,hour = 0;
+    private boolean isClick = false,booked = false;
+    private List<Discount> discountLst;
     private Room slRoom;
     private PaymentControl pc = new PaymentControl();
     private CustomerListControl clc = new CustomerListControl();
     private JPanel mainPanel;
 
-    public Payment(int id) {
+    public Payment(int id,boolean booked) {
         this.idRoom = id;
+        this.booked = booked;
         this.slRoom = new RoomDAO().getbyID(id);
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         currencyFormat = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
@@ -78,6 +84,7 @@ public class Payment extends JFrame {
         {
             billData(pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()));
         }
+        setUpBtn();
     }
 
     private void initializeComponents() {
@@ -95,23 +102,18 @@ public class Payment extends JFrame {
         checkOutField = new JDateChooser();
         checkInField = new JDateChooser();
 
-        checkInField.setDateFormatString("dd/MM/yyyy");
-        checkOutField.setDateFormatString("dd/MM/yyyy");
-        totalRoom = new JTextField("0");
+        checkInField.setDateFormatString("dd/MM/yyyy HH:mm:ss");
+        checkOutField.setDateFormatString("dd/MM/yyyy HH:mm:ss");
+        totalRoom = new JTextField();
         // Khởi tạo ComboBox cho trạng thái
-        totalService = new JTextField("0");
+        totalService = new JTextField();
         String[] statusOptions = { "Đang dùng","Hoàn tất","Đặt trước"};
         statusComboBox = new JComboBox<>(statusOptions);
         statusComboBox.setSelectedItem("Chưa hoàn tất");
 
         // Khởi tạo bảng
         String[] columnNames = {"TÊN SP - DV", "SL", "ĐƠN GIÁ", "THÀNH TIỀN"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 1; // Chỉ cho phép chỉnh sửa cột SL
-            }
-        };
+        tableModel = new DefaultTableModel(columnNames, 0) ;
 
         serviceTable = new JTable(tableModel);
         serviceTable.setRowHeight(25);
@@ -128,6 +130,12 @@ public class Payment extends JFrame {
         totalAmountLabel = new JLabel();
         totalAmountLabel.setFont(new Font("Arial", Font.BOLD, 14));
         totalAmountLabel.setForeground(Color.RED);
+        
+        totalAmountField = new JTextField();
+        deposit = new JTextField();
+        
+        discountLst = pc.getDiscountLst();
+        
     }
 
     private void setupLayout() {
@@ -143,12 +151,17 @@ public class Payment extends JFrame {
 
         saveBtn = new JButton("💾 Lưu");
         printBtn = new JButton("🖨️ In");
-        exitBtn = new JButton("❌ Thoát");
-        printBtn.setEnabled(false);
+        exitBtn = new JButton("➔ Thoát");
+        finishBtn = new JButton("💰 Thanh toán");
+        cancelBtn = new JButton("❌ Hủy đặt phòng");
         toolbarPanel.add(saveBtn);
+        toolbarPanel.add(cancelBtn);
+        toolbarPanel.add(finishBtn);
         toolbarPanel.add(printBtn);
         toolbarPanel.add(exitBtn);
 
+        cancelBtn.setVisible(false);
+        printBtn.setVisible(false);
         // Top panel container
         JPanel topContainer = new JPanel(new BorderLayout());
         topContainer.add(toolbarPanel, BorderLayout.SOUTH);
@@ -168,6 +181,10 @@ public class Payment extends JFrame {
 
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         add(mainPanel, BorderLayout.CENTER);
+        
+        createTotalPanel();
+        add(createTotalPanel(),BorderLayout.SOUTH);
+        initAndsetupDate();
     }
     
     private void billData(Bill b)
@@ -190,72 +207,55 @@ public class Payment extends JFrame {
     // Panel chứa toàn bộ (trái + phải)
     JPanel mainPanel = new JPanel(new BorderLayout());
 
-    // ==================== PANEL TRÁI ====================
+     // ==================== PANEL TRÁI ====================
     JPanel leftPanel = new JPanel();
-    leftPanel.setLayout(new GridBagLayout());
+    leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
     leftPanel.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(5, 5, 5, 5);
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1;
 
-    // Row 0 - Khách hàng
-    gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1;
-    leftPanel.add(new JLabel("Khách hàng:"), gbc);
+    // ---- Hàng 1: Loại phòng + Khách hàng ----
+    JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
 
-    JPanel customerInputPanel = new JPanel(new BorderLayout());
-    customerInputPanel.add(customerCBX, BorderLayout.CENTER);
-    JButton btnOpenCustomer = new JButton("...");
+    topRow.add(new JLabel("Khách hàng:"));
+    customerCBX.setPreferredSize(new Dimension(150, 25));
+    topRow.add(customerCBX);
+
+    JButton btnOpenCustomer = new JButton("🔍");
     btnOpenCustomer.setPreferredSize(new Dimension(40, 25));
     btnOpenCustomer.addActionListener(e -> {
-        pc.openCusList(Payment.this,customerModel);
+        pc.openCusList(Payment.this, customerModel);
     });
-    customerInputPanel.add(btnOpenCustomer, BorderLayout.EAST);
+    topRow.add(btnOpenCustomer);
+    
+    // ---- Hàng 4: Mã giảm giá + % giảm ----
+    topRow.add(new JLabel("Mã giảm giá:"));
+    discountCodeField = new JTextField(10);
+    JLabel discountPercentLabel = new JLabel("0%");
+    discountPercentLabel.setPreferredSize(new Dimension(35, 25));
+    discountPercentLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    topRow.add(discountCodeField);
+    topRow.add(discountPercentLabel);
+    leftPanel.add(topRow);
 
-    gbc.gridx = 1; gbc.gridwidth = 2;
-    leftPanel.add(customerInputPanel, gbc);
+    // ---- Hàng 2: Ngày đặt + Ngày trả ----
+    JPanel dateRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+    dateRow.add(new JLabel("Ngày đặt:"));
+    dateRow.add(checkInField);
 
-    // Row 0 - Trạng thái
-    gbc.gridx = 3; gbc.gridwidth = 1;
-    leftPanel.add(new JLabel("Trạng thái:"), gbc);
+    dateRow.add(new JLabel("Ngày trả:"));
+    dateRow.add(checkOutField);
+    leftPanel.add(dateRow);
 
-    gbc.gridx = 4;
-    leftPanel.add(statusComboBox, gbc);
-
-    // Row 1 - Ngày đặt
-    gbc.gridx = 0; gbc.gridy = 1;
-    leftPanel.add(new JLabel("Ngày đặt:"), gbc);
-    gbc.gridx = 1; gbc.gridwidth = 2;
-    leftPanel.add(checkInField, gbc);
-
-    // Row 1 - Tiền dịch vụ
-    gbc.gridx = 3; gbc.gridwidth = 1;
-    leftPanel.add(new JLabel("Tiền dịch vụ:"), gbc);
-    gbc.gridx = 4;
-    leftPanel.add(totalService, gbc);
-
-    // Row 2 - Ngày trả
-    gbc.gridx = 0; gbc.gridy = 2;
-    leftPanel.add(new JLabel("Ngày trả:"), gbc);
-    gbc.gridx = 1; gbc.gridwidth = 2;
-    leftPanel.add(checkOutField, gbc);
-
-    // Row 2 - Tiền phòng
-    gbc.gridx = 3; gbc.gridwidth = 1;
-    leftPanel.add(new JLabel("Tiền phòng:"), gbc);
-    gbc.gridx = 4;
-    leftPanel.add(totalRoom, gbc);
-
-    // Row 3 - Tổng thanh toán
-    gbc.gridx = 0; gbc.gridy = 3;
-    leftPanel.add(new JLabel("Tổng thanh toán:"), gbc);
-    gbc.gridx = 1; gbc.gridwidth = 2;
-    leftPanel.add(totalAmountLabel, gbc);
+    // ---- Hàng 3: Ghi chú ----
+    JPanel noteRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+    noteRow.add(new JLabel("Ghi chú:"));
+    noteArea = new JTextField(40);
+    noteRow.add(noteArea);
+    leftPanel.add(noteRow);
 
     // ==================== PANEL PHẢI ====================
     JPanel rightPanel = new JPanel(new BorderLayout());
     rightPanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
-    rightPanel.setPreferredSize(new Dimension(250, 200)); // đảm bảo không co
+    rightPanel.setPreferredSize(new Dimension(200, 200)); // đảm bảo không co
 
     DefaultListModel<Service> model = new DefaultListModel<>();
     for (Service s : new ServiceDAO().getAll()) {
@@ -277,21 +277,18 @@ public class Payment extends JFrame {
 
             String name = selected.getName();
             double price = selected.getPrice();
-
-            boolean found = false;
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 if (name.equalsIgnoreCase(tableModel.getValueAt(i, 0).toString())) {
-                    int sl = Integer.parseInt(tableModel.getValueAt(i, 1).toString()) + 1;
+                    int sl = Integer.parseInt(JOptionPane.showInputDialog(rootPane, "Số lượng: ", Integer.parseInt(tableModel.getValueAt(i, 1).toString())));
                     tableModel.setValueAt(sl, i, 1);
                     tableModel.setValueAt(pc.formatPrice(sl * price), i, 3);
-                    found = true;
-                    break;
+                    calculateTotal();
+                    return;
                 }
             }
-            if (!found) {
-                tableModel.addRow(new Object[]{name, 1, pc.formatPrice(price), pc.formatPrice(price)});
-            }
-
+            
+            int sl = Integer.parseInt(JOptionPane.showInputDialog(rootPane, "Số lượng: ", null));
+            tableModel.addRow(new Object[]{name, sl, pc.formatPrice(price), pc.formatPrice(price * sl)});
             calculateTotal();
         }
     });
@@ -321,153 +318,219 @@ public class Payment extends JFrame {
 
         return panel;
     }
+    
+    private JPanel createTotalPanel() {
+        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        totalPanel.setBackground(new Color(220, 220, 220));
+        totalPanel.setBorder(BorderFactory.createEtchedBorder());
+        
+        JLabel totalLabel = new JLabel();
+        totalLabel.setText("Tổng tiền");
+        totalLabel.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalLabel.setForeground(Color.RED);
+        JLabel totalroom = new JLabel("Tổng tiền phòng");
+        totalroom.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalroom.setForeground(Color.RED);
+        JLabel totalser = new JLabel("Tổng tiền dịch vụ");
+        totalser.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalser.setForeground(Color.RED);
+        totalroom.setForeground(Color.RED);
+        JLabel depo = new JLabel("Đặt cọc");
+        depo.setFont(new Font("Tahoma", Font.BOLD, 10));
+        depo.setForeground(Color.RED);
+        
+        totalService.setPreferredSize(new Dimension(80, 16));
+        totalService.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalService.setForeground(Color.RED);
+        totalService.setHorizontalAlignment(JTextField.CENTER);
+        totalService.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalService.setText("00,000");
+        
+        totalRoom.setPreferredSize(new Dimension(80, 16));
+        totalRoom.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalRoom.setForeground(Color.RED);
+        totalRoom.setHorizontalAlignment(JTextField.CENTER);
+        totalRoom.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalRoom.setText("00,000");
+        
+        totalAmountField.setPreferredSize(new Dimension(80, 16));
+        totalAmountField.setFont(new Font("Tahoma", Font.BOLD, 10));
+        totalAmountField.setForeground(Color.RED);
+        totalAmountField.setHorizontalAlignment(JTextField.CENTER);
+        totalAmountField.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalAmountField.setText("00,000");
+        
+        deposit.setPreferredSize(new Dimension(80, 16));
+        deposit.setFont(new Font("Tahoma", Font.BOLD, 10));
+        deposit.setForeground(Color.RED);
+        deposit.setHorizontalAlignment(JTextField.CENTER);
+        deposit.setBorder(BorderFactory.createLoweredBevelBorder());
+        deposit.setText("00,000");
+        
+        JLabel dongLabel = new JLabel("VDN");
+        dongLabel.setFont(new Font("Tahoma", Font.BOLD, 10));
+        dongLabel.setForeground(Color.RED);
+        JLabel dongLabel1 = new JLabel("VDN");
+        dongLabel1.setFont(new Font("Tahoma", Font.BOLD, 10));
+        dongLabel1.setForeground(Color.RED);
+        JLabel dongLabel2 = new JLabel("VDN");
+        dongLabel2.setFont(new Font("Tahoma", Font.BOLD, 10));
+        dongLabel2.setForeground(Color.RED);
+        JLabel dongLabel3 = new JLabel("VDN");
+        dongLabel3.setFont(new Font("Tahoma", Font.BOLD, 10));
+        dongLabel3.setForeground(Color.RED);
+        
+        totalPanel.add(totalroom);
+        totalPanel.add(totalRoom);
+        totalPanel.add(dongLabel1);
+        totalPanel.add(Box.createHorizontalStrut(20));
+        totalPanel.add(totalser);
+        totalPanel.add(totalService);
+        totalPanel.add(dongLabel2);
+        totalPanel.add(Box.createHorizontalStrut(20));
+        totalPanel.add(totalLabel);
+        totalPanel.add(totalAmountField);
+        totalPanel.add(dongLabel3);
+        totalPanel.add(Box.createHorizontalStrut(20));
+        totalPanel.add(depo);
+        totalPanel.add(deposit);
+        totalPanel.add(dongLabel3);
+        
+        return totalPanel;
+    }
 
+    private void initAndsetupDate()
+    {
+        if(booked)
+        {
+            Calendar cal= Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_MONTH, 7);
+            checkInField.setDate(cal.getTime());
+            checkInField.getJCalendar().setMinSelectableDate(cal.getTime());
+            checkOutField.getJCalendar().setMinSelectableDate(cal.getTime());
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            //cal.add(in.getDate().getDay(), 1);
+            checkOutField.getJCalendar().setMinSelectableDate(cal.getTime());
+            cal.add(Calendar.DAY_OF_MONTH, 6);
+            //cal.add(in.getDate().getDay(), 6);
+            checkOutField.setDate(cal.getTime());
+            checkOutField.getJCalendar().setMaxSelectableDate(cal.getTime());
+            checkInField.getJCalendar().setMaxSelectableDate(cal.getTime());
+        }
+        else
+        {
+            Calendar cal= Calendar.getInstance();
+            checkInField.getJCalendar().setMinSelectableDate(cal.getTime());
+            checkOutField.getJCalendar().setMinSelectableDate(cal.getTime());
+            checkInField.setDate(cal.getTime());
+            checkInField.setEnabled(false);
+            cal.add(Calendar.DAY_OF_MONTH, 7);
+            checkOutField.setMaxSelectableDate(cal.getTime());
+        }
+        
+        checkInField.addPropertyChangeListener("date", e -> {
+            String time = pc.getUsedTime(checkInField, checkOutField);
+            if(time.contains(" giờ"))
+            {
+                hour = Integer.parseInt(time.replace(" giờ", ""));
+            }
+            else
+            {
+                days = Integer.parseInt(time.replace(" ngày", ""));
+            }
+            
+            sumTotalRoom();
+        });
+
+        checkOutField.addPropertyChangeListener("date", e -> {
+            String time = pc.getUsedTime(checkInField, checkOutField);
+            if(time.contains(" giờ"))
+            {
+                hour = Integer.parseInt(time.replace(" giờ", ""));
+            }
+            else
+            {
+                days = Integer.parseInt(time.replace(" ngày", ""));
+            }
+            sumTotalRoom();
+        });
+    }
+    
+    private void setUpBtn()
+    {
+        if(slRoom != null)
+        {
+            if(slRoom.getStatus() == 0)
+            {
+                saveBtn.setEnabled(false);
+                finishBtn.setEnabled(false);
+                printBtn.setVisible(true);
+            }
+            else if(slRoom.getStatus() == -1)
+            {
+                java.util.Date in = checkInField.getDate();
+                LocalDateTime now = LocalDateTime.now();
+                if(now.compareTo(in.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) < 0)
+                {
+                    cancelBtn.setVisible(true);
+                    finishBtn.setEnabled(false);
+                }
+                else
+                {
+                    saveBtn.setText("Nhận phòng");
+                    cancelBtn.setVisible(false);
+                    finishBtn.setEnabled(true);
+                }
+                
+            }
+        }
+        else
+        {
+            finishBtn.setEnabled(false);
+        }
+    }
+    
     private void setupEventHandlers() {
         // Thêm event handler cho việc thay đổi số lượng trong bảng
-        serviceTable.getModel().addTableModelListener(e -> {
-            if (e.getColumn() == 2) { // Cột số lượng
-                calculateTotal();
-            }
-        });
         serviceTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 // Nếu click 2 lần
                 if (e.getClickCount() == 1) {
                     int row = serviceTable.getSelectedRow();
+                    double price = Double.parseDouble(serviceTable.getValueAt(row, 3).toString().replaceAll(",", "").trim());
                     if (row != -1) {
-                        try {
-                            int quantity = Integer.parseInt(tableModel.getValueAt(row, 1).toString());
-                            double unitPrice = Double.parseDouble(tableModel.getValueAt(row, 2).toString().replace(",", ""));
-
-                            if (quantity > 1) {
-                                quantity--;
-                                tableModel.setValueAt(quantity, row, 1);
-                                tableModel.setValueAt(pc.formatPrice(quantity * unitPrice), row, 3);
-                            } else {
-                                tableModel.removeRow(row);
-                            }
-
-                            calculateTotal();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        int sl = Integer.parseInt(JOptionPane.showInputDialog(rootPane, "Số lượng: ", Integer.parseInt(tableModel.getValueAt(row, 1).toString())));
+                        tableModel.setValueAt(sl, row, 1);
+                        tableModel.setValueAt(pc.formatPrice(sl * price), row, 3);
+                        calculateTotal();
                     }
                 }
-                else if (e.getClickCount() == 2)
+                else if (e.getButton() == MouseEvent.BUTTON3)
                 {
-                    tableModel.removeRow(serviceTable.getSelectedRow());
-                    calculateTotal();
+                    JMenuItem delSer = new JMenuItem("Xóa");
+                    JPopupMenu menu = new JPopupMenu();
+                    delSer.addActionListener((l) -> {
+                       if(JOptionPane.showConfirmDialog(rootPane, "Xóa các dịch vụ đã chọn ?", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0)
+                       {
+                           int[] selectedrows = serviceTable.getSelectedRows();
+                           delTableItems(selectedrows, serviceTable);
+                           calculateTotal();
+                       }
+                    });
+                    menu.add(delSer);
+                    menu.show(serviceTable, e.getX(), e.getY());
+                    
                 }
             }
         });
-        
-        
-
-        // Thêm event handler cho ComboBox trạng thái
-        statusComboBox.addActionListener(e -> {
-            String selectedStatus = (String) statusComboBox.getSelectedItem();
-            // Có thể thêm logic xử lý khác ở đây
-        });
-        checkInField.addPropertyChangeListener("date", e -> {
-    if (e.getOldValue() != e.getNewValue()) {
-        validateAndCalculateDays();
-
-        Object newValue = e.getNewValue();
-        if (newValue instanceof java.util.Date) {
-            java.util.Date selectedDate = (java.util.Date) newValue;
-
-            Calendar selected = Calendar.getInstance();
-            selected.setTime(selectedDate);
-
-            Calendar today = Calendar.getInstance();
-            // So sánh ngày, không tính giờ
-            if (selected.get(Calendar.YEAR) > today.get(Calendar.YEAR) ||
-                (selected.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
-                 selected.get(Calendar.DAY_OF_YEAR) > today.get(Calendar.DAY_OF_YEAR))) {
-                statusComboBox.setSelectedItem("Đã đặt");
-                statusComboBox.setEnabled(false);
-            } else {
-                statusComboBox.setSelectedItem("Đang dùng");
-                statusComboBox.setEnabled(true);
-            }
-        } else {
-            System.err.println("Giá trị không phải kiểu java.util.Date: " + newValue);
-        }
-    }
-});
-
-        checkOutField.addPropertyChangeListener("date", e -> {
-            if (e.getOldValue() != e.getNewValue()) {
-                System.out.println("Check-out date changed: " + e.getNewValue());
-                validateAndCalculateDays();
+                
+        saveBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnAction(1);
             }
         });
-        
-//        saveBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                Customer cs = (Customer) customerCBX.getSelectedItem();
-//                if(checkInField.getDate() == null || checkOutField == null)
-//                {
-//                    JOptionPane.showMessageDialog(rootPane, "Chọn ngày đặt phòng !!!!");
-//                    return;
-//                }
-//                java.sql.Date dt_in = new java.sql.Date(checkInField.getDate().getTime());
-//                java.sql.Date dt_out = new java.sql.Date(checkOutField.getDate().getTime());
-//                int stats = statusComboBox.getSelectedItem().equals("Hoàn tất") ? 0 : (statusComboBox.getSelectedItem().equals("Đang dùng") ? 1 : -1);
-//                double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
-//                int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
-//                double total = totalroom + totalservice;
-//                Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, total, stats);
-//                if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
-//                {
-//                    slRoom.setStatus(stats);
-//                    int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
-//                    List<BillDetail> lst = new ArrayList<>();
-//                    List<Service> svl = new ServiceDAO().getAll();
-//                    for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
-//                    {
-//                        int j = 0;
-//                        while(!serviceTable.getModel().getValueAt(i, 0).equals(svl.get(j).getName()))
-//                        {
-//                            j++;
-//                        }
-//                        int srId = svl.get(j).getId();
-//                        int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
-//                        int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
-//                        lst.add(new BillDetail(bdID,srId,quan,ttl));
-//                    }
-//                    for (int i=0;i<lst.size();i++)
-//                    {
-//                        int rs = idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i));
-//                    }
-//                    JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
-//                    if(stats == 0)
-//                    {
-//                        saveBtn.setEnabled(false);
-//                        printBtn.setEnabled(true);
-//                    }
-//                    if(stats == -1)
-//                    {
-//                        slRoom.setStatus(0);
-//                        pc.uptRoom(slRoom);
-//                        idBill = bdID;
-//                        dispose();
-//                    }
-//                    else
-//                    {
-//                        slRoom.setStatus(stats);
-//                        pc.uptRoom(slRoom);
-//                        idBill = bdID;
-//                    }
-//                }
-//                else
-//                {
-//                    JOptionPane.showMessageDialog(rootPane, "Lỗi! Lưu thất bại");
-//                }
-//            }
-//        });
 
 
         printBtn.addActionListener(new ActionListener() { 
@@ -480,9 +543,87 @@ public class Payment extends JFrame {
         });
         
         exitBtn.addActionListener(e -> {dispose();});
+        
+        discountCodeField.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                discountPercentLable.setText(pc.autoGetDisValue(discountCodeField.getText().trim(), discountLst) + "%");
+            }
+        });
     }
     
-    private void validateAndCalculateDays() {
+    private void btnAction(int status)
+    {
+        Customer cs = (Customer) customerCBX.getSelectedItem();
+        if(checkInField.getDate() == null || checkOutField == null)
+         {
+            JOptionPane.showMessageDialog(rootPane, "Chọn ngày đặt phòng !!!!");
+            return;
+        }
+        Timestamp dt_in = new Timestamp(checkInField.getDate().getTime());
+        Timestamp dt_out = new Timestamp(checkOutField.getDate().getTime());
+        int stats = status;
+        double totalroom = Double.parseDouble(totalRoom.getText().replaceAll("[^0-9]", ""));
+        int totalservice = Integer.parseInt(totalService.getText().replaceAll("[^0-9]", ""));
+        double total = totalroom + totalservice;
+        Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, 0, 0, 0, 0, stats);
+        if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
+        {
+            slRoom.setStatus(stats);
+            int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
+            List<BillDetail> lst = new ArrayList<>();
+            List<Service> svl = new ServiceDAO().getAll();
+            for (int i = 0 ;i<serviceTable.getModel().getRowCount();i++)
+            {
+                int j = 0;
+                while(!serviceTable.getModel().getValueAt(i, 0).equals(svl.get(j).getName()))
+                {
+                    j++;
+                }
+                int srId = svl.get(j).getId();
+                int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
+                int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
+                lst.add(new BillDetail(bdID,srId,quan,ttl));
+            }
+            for (int i=0;i<lst.size();i++)
+                {
+                    int rs = idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i));
+                }
+            JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
+            if(stats == 0)
+            {
+                saveBtn.setEnabled(false);
+                printBtn.setVisible(true);
+            }
+            if(stats == -1)
+            {
+                slRoom.setStatus(0);
+                pc.uptRoom(slRoom);
+                idBill = bdID;
+                dispose();
+            }
+            else
+            {
+                slRoom.setStatus(stats);
+                pc.uptRoom(slRoom);
+                idBill = bdID;
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(rootPane, "Lỗi! Lưu thất bại");
+        }        
+    }
+    
+    public void delTableItems(int[] row,JTable tbl)
+    {
+        DefaultTableModel model = (DefaultTableModel) tbl.getModel();
+        for (int i = row.length - 1 ; i >= 0; i--) {
+            model.removeRow(row[i]);
+        }
+    }
+    
+    private void sumTotalRoom() {
         java.util.Date checkIn = checkInField.getDate();
         java.util.Date checkOut = checkOutField.getDate();
 
@@ -490,41 +631,11 @@ public class Payment extends JFrame {
             return;
         }
         
-        // Kiểm tra check-in phải từ hôm nay trở đi
-        // Ngày được chọn từ giao diện (JDateChooser)
-        java.util.Date checkInUtil = checkInField.getDate();
-
-        // Lấy ngày hôm nay
-        java.util.Date todayUtil = new java.util.Date();
-
-        // Chuyển cả hai về java.sql.Date (loại bỏ giờ/phút/giây)
-        java.sql.Date checkInD = new java.sql.Date(checkInUtil.getTime());
-       
-        LocalDate yesterday = LocalDate.now();
-        java.sql.Date today = java.sql.Date.valueOf(yesterday);
-
-        // So sánh
-        if (checkInD.before(today)) {
-            JOptionPane.showMessageDialog(this, "Ngày đặt phòng phải từ hôm nay trở đi!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        long diffMillis = checkOut.getTime() - checkIn.getTime();
-        if (diffMillis <= 0) {
-            JOptionPane.showMessageDialog(this, "Ngày trả phải sau ngày đặt!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        long days = diffMillis / (1000 * 60 * 60 * 24);
-        if (days == 0) {
-            days = 1;
-        }
         Room_typeDAO rt = new Room_typeDAO();
-        
-        double roomRate = rt.getPricePH(slRoom.getType());
-        double totalRoomPrice = roomRate * days;
-
-        totalRoom.setText(NumberFormat.getNumberInstance(new Locale("vi", "VN")).format(totalRoomPrice));
+        double roomRate = rt.getPricePH(slRoom.getType(),days > 0 ? true : false);
+        double totalRoomPrice = roomRate * (days > 0 ? days : hour);
+        System.out.println( roomRate + "/" + totalRoomPrice + "/" + days + "/" + hour);
+        totalRoom.setText(pc.formatPrice(totalRoomPrice));
         calculateTotal();
     }
 
@@ -547,31 +658,32 @@ public class Payment extends JFrame {
         }
 
         // Cập nhật totalService theo định dạng tiền tệ
-        totalService.setText(currencyFormat.format(tongDichVu));
+        totalService.setText(pc.formatPrice(tongDichVu));
 
-        // Parse lại giá trị từ totalRoom đang hiển thị có thể đã được format
-        long tienPhong = 0;
-        try {
-            String rawText = totalRoom.getText().replaceAll("\\.", "").replaceAll("[^0-9]", "");
-            if (!rawText.isEmpty()) {
-                tienPhong = Long.parseLong(rawText);
-            }
-        } catch (NumberFormatException e) {
-            tienPhong = 0;
-        }
-
-        // Format lại totalRoom luôn
-        totalRoom.setText(currencyFormat.format(tienPhong));
+//        // Parse lại giá trị từ totalRoom đang hiển thị có thể đã được format
+            long tienPhong = Long.parseLong(totalRoom.getText().replaceAll(",", "").trim());
+//        long tienPhong = 0;
+//        try {
+//            String rawText = totalRoom.getText().replaceAll("\\.", "").replaceAll("[^0-9]", "");
+//            if (!rawText.isEmpty()) {
+//                tienPhong = Long.parseLong(rawText);
+//            }
+//        } catch (NumberFormatException e) {
+//            tienPhong = 0;
+//        }
+//
+//        // Format lại totalRoom luôn
+//        totalRoom.setText(currencyFormat.format(tienPhong));
 
         // Tính và hiển thị tổng thanh toán
         long tongThanhToan = tienPhong + tongDichVu;
-        totalAmountLabel.setText(currencyFormat.format(tongThanhToan) + " đồng");
+        totalAmountField.setText(pc.formatPrice(tongThanhToan));
     }
 
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
-            new Payment(1).setVisible(true);
+            new Payment(1,false).setVisible(true);
         });
     }
 }
