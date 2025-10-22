@@ -162,6 +162,11 @@ public class PaymentControl {
         return new BillDAO().getEtra_chagre(id);
     }
     
+    public int delAllByid(int id)
+    {
+        return new BillDetailDAO().delAllById(id);
+    }
+    
     public void printed(List<Object> dataSRC, Map<String, Object> mainParam) {
     try {
         // Tạo datasource cho bảng

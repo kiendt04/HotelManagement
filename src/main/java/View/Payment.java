@@ -52,7 +52,7 @@ public class Payment extends JFrame {
 
     private JDateChooser checkInField;
     private JDateChooser checkOutField;
-    private JTextField totalService,deposit,totalAmountField,discountCodeField,totalRoom,noteArea;
+    private JTextField totalService,deposit,totalAmountField,discountCodeField,totalRoom,noteArea,acutal_pay;
     private JLabel discountPercentLable ;
     private JComboBox<String> statusComboBox;
     private JTable serviceTable;
@@ -60,7 +60,7 @@ public class Payment extends JFrame {
     private JLabel totalAmountLabel;
     private NumberFormat currencyFormat;
     private JButton saveBtn, printBtn, exitBtn,finishBtn,cancelBtn;
-    private int idRoom,idBill = 0,days = 0,hour = 0;
+    private int idRoom,idBill = -1,days = 0,hour = 0;
     private boolean isClick = false,booked = false;
     private List<Discount> discountLst;
     private Room slRoom;
@@ -77,7 +77,7 @@ public class Payment extends JFrame {
         initializeComponents();
         setupLayout();
         setupEventHandlers();
-        setSize(800, 600);
+        setSize(950, 600);
         setLocationRelativeTo(null);
         setTitle("Đặt phòng");
         if((slRoom.getStatus() == 1 || slRoom.getStatus() == -1) && pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()) != null)
@@ -133,6 +133,7 @@ public class Payment extends JFrame {
         
         totalAmountField = new JTextField();
         deposit = new JTextField();
+        acutal_pay = new JTextField();
         
         discountLst = pc.getDiscountLst();
         discountPercentLable = new JLabel();
@@ -199,7 +200,6 @@ public class Payment extends JFrame {
         totalRoom.setText(pc.formatPrice(b.getTotal_time()));
         totalAmountLabel.setText(pc.formatPrice(b.getTotal()));
         pc.setTblData(tableModel, new BillDetailDAO().getByBill(b.getId()));
-        statusComboBox.setSelectedItem(b.getStatus() == 0 ? "Hoàn tất" : (b.getStatus() == 1) ? "Đang dùng" : "Đặt trước");
     }
     
     
@@ -339,6 +339,9 @@ public class Payment extends JFrame {
         JLabel depo = new JLabel("Đặt cọc");
         depo.setFont(new Font("Tahoma", Font.BOLD, 10));
         depo.setForeground(Color.RED);
+        JLabel actualpay = new JLabel("Đã thu");
+        actualpay.setFont(new Font("Tahoma", Font.BOLD, 10));
+        actualpay.setForeground(Color.RED);
         
         totalService.setPreferredSize(new Dimension(80, 16));
         totalService.setFont(new Font("Tahoma", Font.BOLD, 10));
@@ -368,6 +371,13 @@ public class Payment extends JFrame {
         deposit.setBorder(BorderFactory.createLoweredBevelBorder());
         deposit.setText("00,000");
         
+        acutal_pay.setPreferredSize(new Dimension(80, 16));
+        acutal_pay.setFont(new Font("Tahoma", Font.BOLD, 10));
+        acutal_pay.setForeground(Color.RED);
+        acutal_pay.setHorizontalAlignment(JTextField.CENTER);
+        acutal_pay.setBorder(BorderFactory.createLoweredBevelBorder());
+        acutal_pay.setText("00,000");
+        
         JLabel dongLabel = new JLabel("VDN");
         dongLabel.setFont(new Font("Tahoma", Font.BOLD, 10));
         dongLabel.setForeground(Color.RED);
@@ -383,20 +393,21 @@ public class Payment extends JFrame {
         
         totalPanel.add(totalroom);
         totalPanel.add(totalRoom);
-        totalPanel.add(dongLabel1);
         totalPanel.add(Box.createHorizontalStrut(20));
         totalPanel.add(totalser);
         totalPanel.add(totalService);
-        totalPanel.add(dongLabel2);
         totalPanel.add(Box.createHorizontalStrut(20));
         totalPanel.add(totalLabel);
         totalPanel.add(totalAmountField);
-        totalPanel.add(dongLabel3);
+        totalPanel.add(Box.createHorizontalStrut(20));
+        totalPanel.add(actualpay);
+        totalPanel.add(acutal_pay);
         totalPanel.add(Box.createHorizontalStrut(20));
         totalPanel.add(depo);
         totalPanel.add(deposit);
-        totalPanel.add(dongLabel3);
         
+        depo.setVisible(booked);
+        deposit.setVisible(booked);
         return totalPanel;
     }
 
@@ -459,29 +470,36 @@ public class Payment extends JFrame {
     
     private void setUpBtn()
     {
-        if(slRoom != null)
+        if(!booked)
         {
-            if(slRoom.getStatus() == 0)
+            if(idBill != -1)
             {
-                saveBtn.setEnabled(false);
-                finishBtn.setEnabled(false);
-                printBtn.setVisible(true);
-            }
-            else if(slRoom.getStatus() == -1)
-            {
-                java.util.Date in = checkInField.getDate();
-                LocalDateTime now = LocalDateTime.now();
-                if(now.compareTo(in.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) < 0)
+                if(slRoom.getStatus() == 0)
                 {
-                    cancelBtn.setVisible(true);
+                    saveBtn.setEnabled(false);
                     finishBtn.setEnabled(false);
+                    printBtn.setVisible(true);
                 }
-                else
+                else if(slRoom.getStatus() == -1)
                 {
-                    saveBtn.setText("Nhận phòng");
-                    cancelBtn.setVisible(false);
-                    finishBtn.setEnabled(true);
+                    java.util.Date in = checkInField.getDate();
+                    LocalDateTime now = LocalDateTime.now();
+                    if(now.compareTo(in.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()) < 0)
+                    {
+                        cancelBtn.setVisible(true);
+                        finishBtn.setEnabled(false);
+                    }
+                    else
+                    {
+                        saveBtn.setText("Nhận phòng");
+                        cancelBtn.setVisible(false);
+                        finishBtn.setEnabled(true);
+                    }
                 }
+            }
+            else
+            {
+                finishBtn.setEnabled(false);
             }
         }
         else
@@ -530,9 +548,16 @@ public class Payment extends JFrame {
                 btnAction(1);
             }
         });
+        
+        cancelBtn.addActionListener((e) -> {
+            
+        });
+        
+        finishBtn.addActionListener((e) -> {
+            btnAction(0);
+        });
 
-
-        printBtn.addActionListener(new ActionListener() { 
+        printBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<Object> datasrc = pc.setDataPrint(pc.getBDList(idBill),slRoom,pc.getBill(idBill));
@@ -567,10 +592,18 @@ public class Payment extends JFrame {
         double total = totalroom + totalservice;
         double extra_charge = idBill != 0 ? pc.billExtra_chagre(idBill) : 0;
         double discount = Integer.parseInt(discountPercentLable.getText().replaceAll("%", "").trim()) * total;
-        double actual_pay = total - discount + extra_charge;
+        double actual_pay = 0;
+        if(idBill == -1)
+        {
+           actual_pay = total - discount + extra_charge;
+        }
+        else
+        {
+            
+        }
         double deposit = status == -1 ? actual_pay/2 : 0;
         Bill b = new Bill(idBill, slRoom.getNum(), cs.getId(), dt_in, dt_out, totalroom, totalservice, total, extra_charge, discount, deposit, actual_pay, stats);
-        if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == 0 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
+        if(JOptionPane.showConfirmDialog(rootPane, "Luu hoa don", "Xác nhận", JOptionPane.YES_NO_OPTION) == 0 && (idBill == -1 ? pc.insertBill(b) : pc.uptBill(b)) != 0)
         {
             slRoom.setStatus(stats);
             int bdID = pc.getRoomBill(slRoom.getNum(),slRoom.getStatus()).getId();
@@ -587,10 +620,12 @@ public class Payment extends JFrame {
                 int quan = Integer.parseInt(serviceTable.getModel().getValueAt(i, 1).toString().trim());
                 int ttl = Integer.parseInt(serviceTable.getModel().getValueAt(i, 3).toString().replace(",", "").trim());
                 lst.add(new BillDetail(bdID,srId,quan,ttl));
+                
             }
+            if(idBill != -1) pc.delAllByid(idBill);
             for (int i=0;i<lst.size();i++)
             {
-                int rs = (idBill == 0 ? pc.insertDetail(lst.get(i)) : pc.uptBD(lst.get(i)));
+                pc.insertDetail(lst.get(i));
             }
             JOptionPane.showMessageDialog(rootPane, "Lưu thành công");
             if(stats == 0)
@@ -638,7 +673,6 @@ public class Payment extends JFrame {
         Room_typeDAO rt = new Room_typeDAO();
         double roomRate = rt.getPricePH(slRoom.getType(),days > 0 ? true : false);
         double totalRoomPrice = roomRate * (days > 0 ? days : hour);
-        System.out.println( roomRate + "/" + totalRoomPrice + "/" + days + "/" + hour);
         totalRoom.setText(pc.formatPrice(totalRoomPrice));
         calculateTotal();
     }
@@ -670,6 +704,18 @@ public class Payment extends JFrame {
         // Tính và hiển thị tổng thanh toán
         long tongThanhToan = tienPhong + tongDichVu;
         totalAmountField.setText(pc.formatPrice(tongThanhToan));
+        
+        double deposit = 0, actual_pay = 0,discountMoney = 0;
+        if(idBill == -1)
+        {
+            actual_pay = tongThanhToan - Double.parseDouble(discountPercentLable.getText().replace("%", "").trim()) * tongThanhToan;
+            acutal_pay.setText(pc.formatPrice(actual_pay));
+            if(booked)
+            {
+                deposit = actual_pay/2;
+                this.deposit.setText(pc.formatPrice(deposit));
+            }
+        }
     }
 
     public static void main(String[] args) {

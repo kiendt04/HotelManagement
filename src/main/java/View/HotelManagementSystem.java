@@ -195,6 +195,9 @@ public class HotelManagementSystem extends JFrame {
                 case 5:
                     new AddGroupBooking(this,8);
                     break;
+                case 6:
+                    new DashBoardAndBookedHistory(this, true).setVisible(true);
+                    break;
                     // TODO: xử lý đặt phòng theo đoàn
             }
             menuList.clearSelection();

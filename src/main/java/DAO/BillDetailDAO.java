@@ -128,4 +128,17 @@ public class BillDetailDAO {
         }
         return list;
     } 
+   
+   public int delAllById(int id)
+   {
+       int rs = 0;
+        try {
+            PreparedStatement pt = conn.prepareStatement("DELETE FROM bill_detail where id_bill = ?");
+            pt.setInt(1, id);
+            rs = pt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+        return rs;
+   }
 }
