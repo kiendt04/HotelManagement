@@ -53,7 +53,7 @@ public class DashBoardAndBookedHistory extends JDialog {
                         {"2", "102", "Tầng 1", "Đơn VIP", "Trống"},
                         {"3", "201", "Tầng 2", "Đơn thường", "Trống"}
                 },
-                new String[]{"Số", "Phòng", "Tầng", "Loại", "Trạng thái"}
+                new String[]{"ID", "Phòng", "Khách hàng", "", "Trạng thái"}
         );
         scrollPane = new JScrollPane(table);
 
