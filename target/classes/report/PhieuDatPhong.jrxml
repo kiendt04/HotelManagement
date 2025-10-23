@@ -110,14 +110,14 @@
 	<title>
 		<band height="89" splitType="Stretch">
 			<textField>
-				<reportElement x="440" y="60" width="20" height="20" uuid="0101d21f-487b-47b7-b90d-ad9ad343b1c1"/>
+				<reportElement x="390" y="60" width="20" height="20" uuid="0101d21f-487b-47b7-b90d-ad9ad343b1c1"/>
 				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA["No."]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="460" y="60" width="100" height="20" uuid="37a7dcc8-849f-45f8-b998-9ee0ecc5d407"/>
+				<reportElement x="410" y="60" width="70" height="20" uuid="37a7dcc8-849f-45f8-b998-9ee0ecc5d407"/>
 				<textElement>
 					<font fontName="Times New Roman" isBold="true"/>
 				</textElement>
@@ -167,7 +167,7 @@
 				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA["SDT : " + (String) $P{phone}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Phone : " + (String) $P{phone}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="20" y="70" width="540" height="20" uuid="31247734-3102-4d50-a385-7ef8b41f89a0"/>
@@ -175,13 +175,6 @@
 					<font fontName="Arial" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Note :        "  + (String) $P{note}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="0" y="110" width="100" height="20" uuid="39589649-289f-4e8b-a1be-47765c7667b5"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{createDate})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="100" y="10" width="140" height="20" uuid="4122e567-ba76-4d7b-8cd7-3fd990fba186"/>
@@ -336,18 +329,39 @@
 			</textField>
 			<staticText>
 				<reportElement x="340" y="110" width="90" height="20" uuid="a1834f7a-91c5-43ca-88f5-ade2ce17e73c"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Arial" isBold="true"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial" size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Summary:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="430" y="110" width="130" height="20" uuid="0603c2e8-d7be-4080-83f4-7b62774b9ae2"/>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Arial" size="12"/>
+				<reportElement x="430" y="110" width="100" height="20" uuid="0603c2e8-d7be-4080-83f4-7b62774b9ae2"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="Arial" size="10" isBold="true" isItalic="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{summary}]]></textFieldExpression>
 			</textField>
+			<textField>
+				<reportElement x="80" y="110" width="100" height="20" uuid="39589649-289f-4e8b-a1be-47765c7667b5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{createDate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="110" width="80" height="20" uuid="1076f6c3-9b61-4c80-89ea-f96e07d6613e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Created date:  " ]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="530" y="110" width="30" height="20" uuid="1464648c-72e7-4a52-bca3-8e6147f65810"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Arial" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ VND]]></text>
+			</staticText>
 		</band>
 	</detail>
 	<pageFooter>

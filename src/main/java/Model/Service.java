@@ -12,17 +12,19 @@ import java.text.DecimalFormat;
  */
 public class Service {
 
-    private int id;
-    private String name;
+    private int id,quant;
+    private String name,unit;
     private double price;
 
     public Service() {
     }
 
-    public Service(int id, String name, double price) {
+    public Service(int id, String name, double price, int quant,String unit) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.quant = quant;
+        this.unit = unit;
     }
 
     public int getId() {
@@ -49,6 +51,22 @@ public class Service {
         this.price = price;
     }
 
+    public int getQuant() {
+        return quant;
+    }
+
+    public void setQuant(int quant) {
+        this.quant = quant;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+    
     @Override
     public String toString() {
         return name +" - " +  formatPrice(price);

@@ -77,8 +77,8 @@ public class RoomManagementControl {
         return roomTypeDAO.createNewId();
     }
     
-    public double getRoomTypePrice(int id) {
-        return roomTypeDAO.getPrice(id);
+    public double getRoomTypePrice(int id,boolean days) {
+        return roomTypeDAO.getPricePH(id,days);
     }
     
     // Room operations
@@ -132,9 +132,9 @@ public class RoomManagementControl {
             case 1:
                 return "Đơn thường";
             case 2:
-                return "Đôi thường";
-            case 3:
                 return "Đơn VIP";
+            case 3:
+                return "Đôi thường";
             case 4:
                 return "Đôi VIP";
             case 5:
@@ -215,7 +215,7 @@ public class RoomManagementControl {
     }
     
     public Room_type createAllRoomTypesOption() {
-        return new Room_type(0, "All", 0, 0);
+        return new Room_type(0, "All", 0, 0,0);
     }
     
     public String[] getStatusOptions() {

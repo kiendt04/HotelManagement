@@ -8,6 +8,7 @@ package View;
  *
  * @author ASUS
  */
+import Model.*;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -17,39 +18,100 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map;
+import Control.GroupBookingControl;
+import com.toedter.calendar.JDateChooser;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class AddGroupBooking extends JFrame {
+public class AddGroupBooking extends JDialog {
     private JTree roomTree;
-    private JTable roomListTable, serviceTable;
-    private DefaultTableModel roomTableModel, serviceTableModel;
-    private JComboBox<String> customerCombo;
+    private JTable roomListTable, serviceTable,serviceDetailTable;
+    private DefaultTableModel roomTableModel, serviceTableModel,serviceDetailModel;
+    private DefaultTreeModel treeModel;
+    private DefaultComboBoxModel<Customer> customerModel;
+    private JComboBox<Customer> customerCombo;
     private JTextField dateFromField, dateToField, guestCountField, noteField;
-    private JTextField totalAmountField;
-    private JLabel totalLabel;
+    private JTextField totalAmountField,totalRoom,totalService,deposit;
+    private JLabel totalLabel,discountLable;
+    private GroupBookingControl control = new GroupBookingControl(this);
+    private Timestamp time_in, time_out;
+    private JDateChooser check_in,check_out;
+    private JButton saveBtn, finishBtn, searchCusBtn,cancelBtn;
+    private int id_bill = -1 ;
     
-    public AddGroupBooking() {
+    public AddGroupBooking(Frame parent, JDialog parent1, int id) {
+        super(parent, "Quản lý đặt phòng theo đoàn", true);
+        id_bill = id;
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setSize(parent != null ? parent.getSize() : parent1.getSize());
+        setLocationRelativeTo(null);
         initializeComponents();
         setupLayout();
         setupTables();
-        loadSampleData();
+        btnAction();
+        setVisible(true);
+    }
+    public AddGroupBooking() {
+        setTitle("Quản lý đặt phòng theo đoàn");
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setLocationRelativeTo(null);
+        initializeComponents();
+        setupLayout();
+        setupTables();
+        btnAction();
         setVisible(true);
     }
     
-    private void initializeComponents() {
-        setTitle("Quản lý đặt phòng theo đoàn");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 700);
-        setLocationRelativeTo(null);
-        
+    private void initializeComponents() {        
         // Initialize components
-        customerCombo = new JComboBox<>(new String[]{"Nguyễn Minh Triết", "Lê Thị Thắm", "Hoàng Anh Tuấn"});
-        dateFromField = new JTextField("01/09/2021");
-        dateToField = new JTextField("02/09/2021");
-        guestCountField = new JTextField("1");
-        noteField = new JTextField("Chưa hoàn tất");
-        totalAmountField = new JTextField("0");
+        customerModel = new DefaultComboBoxModel<>();
+        customerCombo = new JComboBox<>(customerModel);
+        dateFromField = new JTextField();
+        dateToField = new JTextField();
+        guestCountField = new JTextField();
+        noteField = new JTextField();
+        totalAmountField = new JTextField();
         totalAmountField.setEditable(false);
-        totalLabel = new JLabel("TỔNG TIỀN");
+        totalRoom = new JTextField();
+        totalRoom.setEditable(false);
+        totalService = new JTextField();
+        totalService.setEditable(false);
+        totalLabel = new JLabel();
+        check_in = new JDateChooser();
+        check_in.setDateFormatString("dd/MM/yyyy HH:mm:ss");
+        check_out = new JDateChooser();
+        check_out.setDateFormatString("dd/MM/yyyy HH:MM:ss");
+        control.initDate(check_in,check_out,id_bill);
+        time_in = new Timestamp(check_in.getDate().getTime());
+        time_out = new Timestamp(check_out.getDate().getTime());
+        saveBtn = createToolbarButton("Lưu", "💾");
+        finishBtn = createToolbarButton("Thanh toán", "💰");
+        finishBtn.setEnabled(false);
+        cancelBtn = createToolbarButton("Hủy đặt phòng", "❌");
+        searchCusBtn = new JButton("🔍");
+        discountLable = new JLabel("00,000 VND (0.0%)");
+        deposit = new JTextField();
+    }
+    
+    private void btnAction()
+    {
+        saveBtn.addActionListener((e) -> {
+            control.btnSaveAction(id_bill,(Customer) customerCombo.getSelectedItem(), time_in,time_out,totalRoom,totalService,discountLable,deposit,totalAmountField);
+        });
+        
+        finishBtn.addActionListener((e) -> {
+            control.btnFinishAction(check_out, id_bill);
+        });
+        
+        cancelBtn.addActionListener((e) -> {
+            control.btnCancelAction(id_bill);
+        });
     }
     
     private void setupLayout() {
@@ -61,7 +123,7 @@ public class AddGroupBooking extends JFrame {
         
         // Create main split pane
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        mainSplitPane.setDividerLocation(350);
+        mainSplitPane.setDividerLocation(260);
         
         // Left panel - Room tree
         JPanel leftPanel = createLeftPanel();
@@ -72,18 +134,22 @@ public class AddGroupBooking extends JFrame {
         mainSplitPane.setRightComponent(rightPanel);
         
         add(mainSplitPane, BorderLayout.CENTER);
+        
+        if(id_bill != -1)
+        {
+            control.loadExitBill(id_bill, roomTableModel, serviceDetailModel, deposit, check_in, check_out, customerModel);
+            control.setEnableBtn(finishBtn, cancelBtn, saveBtn, check_in, id_bill);
+        }
     }
     
     private JPanel createToolbar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbar.setBackground(new Color(240, 240, 240));
         toolbar.setBorder(BorderFactory.createRaisedBevelBorder());
-        
-        JButton saveBtn = createToolbarButton("Lưu", "💾");
-        JButton helpBtn = createToolbarButton("Bộ quả", "❓");
-        
+                
         toolbar.add(saveBtn);
-        toolbar.add(helpBtn);
+        toolbar.add(cancelBtn);
+        toolbar.add(finishBtn);
         
         // Add menu items
         JLabel menuLabel1 = new JLabel("Danh sách");
@@ -94,8 +160,8 @@ public class AddGroupBooking extends JFrame {
         menuLabel1.setBackground(Color.WHITE);
         
         toolbar.add(Box.createHorizontalStrut(20));
-        toolbar.add(menuLabel1);
-        toolbar.add(menuLabel2);
+//        toolbar.add(menuLabel1);
+//        toolbar.add(menuLabel2);
         
         return toolbar;
     }
@@ -113,57 +179,41 @@ public class AddGroupBooking extends JFrame {
         JPanel leftPanel = new JPanel(new BorderLayout());
         leftPanel.setBorder(BorderFactory.createTitledBorder("Danh sách phòng trống"));
         leftPanel.setBackground(new Color(230, 230, 250));
-        
         // Create room tree
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("TẦNG");
-        
-        // Floor 1
-        DefaultMutableTreeNode floor1 = new DefaultMutableTreeNode("TẦNG: Tầng 1 (7 phòng trống)");
-        floor1.add(new DefaultMutableTreeNode("Phòng 101 - 35000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 102 - 30000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 103 - 25000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 104 - 35000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 105 - 15000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 106 - 15000000"));
-        floor1.add(new DefaultMutableTreeNode("Phòng 107 - 15000000"));
-        
-        // Floor 2
-        DefaultMutableTreeNode floor2 = new DefaultMutableTreeNode("TẦNG: Tầng 2 (3 phòng trống)");
-        floor2.add(new DefaultMutableTreeNode("Phòng 201 - 25000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 203 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 204 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 205 - 35000000"));
-        floor2.add(new DefaultMutableTreeNode("Phòng 206 - 30000000"));
-        
-        // Floor 3
-        DefaultMutableTreeNode floor3 = new DefaultMutableTreeNode("TẦNG: Tầng 3 (5 phòng trống)");
-        floor3.add(new DefaultMutableTreeNode("Phòng 301 - 30000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 302 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 303 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 304 - 25000000"));
-        floor3.add(new DefaultMutableTreeNode("Phòng 305 - 25000000"));
-        
-        // Floor 4
-        DefaultMutableTreeNode floor4 = new DefaultMutableTreeNode("TẦNG: Tầng 4 (5 phòng trống)");
-        floor4.add(new DefaultMutableTreeNode("Phòng 401 - 25000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 402 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 403 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 404 - 15000000"));
-        floor4.add(new DefaultMutableTreeNode("Phòng 405 - 15000000"));
-        
-        root.add(floor1);
-        root.add(floor2);
-        root.add(floor3);
-        root.add(floor4);
-        
-        roomTree = new JTree(new DefaultTreeModel(root));
+        List<Room> roomAvailable = control.getRoomavailable(time_in, time_out);
+        List<String> roomPrice = control.getRoomPrice();
+        Map<Integer,List<Room>> roombyFloor = new HashMap<>();
+        for (Room r : roomAvailable) {
+            int floor = r.getFloor(); // giả sử Room có getFloor()
+            // Nếu tầng chưa có list, tạo mới
+            roombyFloor.computeIfAbsent(floor, k -> new ArrayList<>()).add(r);
+        }
+        for (Map.Entry<Integer, List<Room>> entry : roombyFloor.entrySet()) {
+            int floor = entry.getKey();
+            List<Room> rooms = entry.getValue();
+
+            String floorLabel = "Tầng " + floor;
+            DefaultMutableTreeNode floorNode = new DefaultMutableTreeNode(floorLabel);
+
+            for (Room r : rooms) {
+                // Node phòng: hiển thị tên + giá (hoặc tùy chỉnh)
+                String roomLabel = "Phòng " + r.getNum() +  roomPrice.get(r.getType());
+                DefaultMutableTreeNode roomNode = new DefaultMutableTreeNode(roomLabel);
+                roomNode.setUserObject(r); // gắn Room thật vào node
+                floorNode.add(roomNode);
+            }
+            root.add(floorNode);
+        }
+        treeModel = new DefaultTreeModel(root);
+        roomTree = new JTree(treeModel);       
         roomTree.setRootVisible(false);
         roomTree.setShowsRootHandles(true);
-        
-        // Expand all nodes
-        for (int i = 0; i < roomTree.getRowCount(); i++) {
+        for(int i = 0 ;i<roomTree.getRowCount();i++)
+        {
             roomTree.expandRow(i);
         }
+        control.getTreeModel(treeModel,roomTree);
         
         JScrollPane treeScrollPane = new JScrollPane(roomTree);
         treeScrollPane.setPreferredSize(new Dimension(330, 500));
@@ -202,36 +252,31 @@ public class AddGroupBooking extends JFrame {
         customerRow.add(new JLabel("Khách hàng"));
         customerCombo.setPreferredSize(new Dimension(200, 25));
         customerRow.add(customerCombo);
-        customerRow.add(new JButton("🔍"));
-        
+        customerRow.add(searchCusBtn);
+        control.fillCustomerCbx(customerModel,searchCusBtn);
         // Date and guest info row
         JPanel dateRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         dateRow.setOpaque(false);
         dateRow.add(new JLabel("Ngày đặt"));
         dateFromField.setPreferredSize(new Dimension(80, 25));
-        dateRow.add(dateFromField);
-        dateRow.add(new JButton("📅"));
+        //dateRow.add(dateFromField);
+        dateRow.add(check_in);
         
         dateRow.add(Box.createHorizontalStrut(10));
         dateRow.add(new JLabel("Ngày trả"));
         dateToField.setPreferredSize(new Dimension(80, 25));
-        dateRow.add(dateToField);
-        dateRow.add(new JButton("📅"));
+        //dateRow.add(dateToField);
+        dateRow.add(check_out);
         
         // Guest count and note row
         JPanel guestRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        guestRow.setOpaque(false);
-        guestRow.add(new JLabel("Số người"));
-        guestCountField.setPreferredSize(new Dimension(50, 25));
-        guestRow.add(guestCountField);
-        
-        guestRow.add(Box.createHorizontalStrut(10));
-        guestRow.add(new JLabel("Trạng thái"));
-        noteField.setPreferredSize(new Dimension(120, 25));
-        guestRow.add(noteField);
-        
-        guestRow.add(Box.createHorizontalStrut(10));
+        guestRow.setOpaque(false);        
+        guestRow.add(new JLabel("Giảm giá : "));
+        guestRow.add(discountLable);
+        guestRow.add(Box.createHorizontalStrut(30));
         guestRow.add(new JLabel("Ghi chú"));
+        noteField.setPreferredSize(new Dimension(300, 25));
+        guestRow.add(noteField);
         
         panel.add(customerRow);
         panel.add(dateRow);
@@ -250,13 +295,13 @@ public class AddGroupBooking extends JFrame {
         // Top table - Room list
         JPanel roomListPanel = new JPanel(new BorderLayout());
         roomListPanel.setBorder(BorderFactory.createTitledBorder("Danh sách phòng đặt"));
-        
-        String[] roomColumns = {"TÊN PHÒNG", "ĐƠN GIÁ"};
+        String[] roomColumns = {"ID","TÊN PHÒNG", "ĐƠN GIÁ (VND)", "THÀNH TIỀN (VND)"};
         roomTableModel = new DefaultTableModel(roomColumns, 0);
         roomListTable = new JTable(roomTableModel);
         roomListTable.setRowHeight(20);
         roomListTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        
+        control.fillRoomtbl(roomListTable,roomTableModel);
+        control.roomSelectAction(roomTree,roomListTable,totalRoom,roomTableModel);
         JScrollPane roomScrollPane = new JScrollPane(roomListTable);
         roomScrollPane.setPreferredSize(new Dimension(400, 150));
         roomListPanel.add(roomScrollPane, BorderLayout.CENTER);
@@ -266,20 +311,14 @@ public class AddGroupBooking extends JFrame {
         servicePanel.setBorder(BorderFactory.createTitledBorder("Sản phẩm - Dịch vụ"));
         servicePanel.setBackground(new Color(255, 250, 240));
         
-        String[] serviceColumns = {"TÊN SP - DV", "ĐƠN GIÁ"};
+        String[] serviceColumns = {"ID","TÊN SP - DV", "ĐƠN GIÁ(VND)"};
         serviceTableModel = new DefaultTableModel(serviceColumns, 0);
         serviceTable = new JTable(serviceTableModel);
         serviceTable.setRowHeight(20);
         serviceTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
         serviceTable.setBackground(new Color(255, 250, 240));
-        
-        // Add sample service data
-        serviceTableModel.addRow(new Object[]{"Coca Cola", "15000"});
-        serviceTableModel.addRow(new Object[]{"Nước suối", "12000"});
-        serviceTableModel.addRow(new Object[]{"RedBull", "20000"});
-        serviceTableModel.addRow(new Object[]{"Fanta", "15000"});
-        serviceTableModel.addRow(new Object[]{"Cam ép", "15000"});
-        serviceTableModel.addRow(new Object[]{"Trà Ô Long", "15000"});
+        serviceTable.setEditingColumn(0);
+        control.fillServicetbl(serviceTable, serviceTableModel);
         
         JScrollPane serviceScrollPane = new JScrollPane(serviceTable);
         serviceScrollPane.setPreferredSize(new Dimension(200, 150));
@@ -297,9 +336,11 @@ public class AddGroupBooking extends JFrame {
         JPanel serviceDetailPanel = new JPanel(new BorderLayout());
         serviceDetailPanel.setBorder(BorderFactory.createTitledBorder("Danh sách Sản phẩm - Dịch vụ"));
         
-        String[] serviceDetailColumns = {"PHÒNG", "TÊN SP - DV", "SL", "ĐƠN GIÁ", "THÀNH TIỀN"};
-        DefaultTableModel serviceDetailModel = new DefaultTableModel(serviceDetailColumns, 0);
-        JTable serviceDetailTable = new JTable(serviceDetailModel);
+        String[] serviceDetailColumns = {"IDPhong","PHÒNG","ID-SP", "TÊN SP - DV", "SL", "ĐƠN GIÁ(VND)", "THÀNH TIỀN(VND)"};
+        serviceDetailModel = new DefaultTableModel(serviceDetailColumns, 0);
+        serviceDetailTable = new JTable(serviceDetailModel);
+        control.fillServiceDetailtbl(serviceDetailTable, serviceDetailModel);
+        control.chooseServicesAction(serviceDetailTable,serviceTable,roomListTable,serviceDetailModel,totalService);
         serviceDetailTable.setRowHeight(20);
         serviceDetailTable.setFont(new Font("Tahoma", Font.PLAIN, 11));
         
@@ -319,28 +360,85 @@ public class AddGroupBooking extends JFrame {
         totalPanel.setBackground(new Color(220, 220, 220));
         totalPanel.setBorder(BorderFactory.createEtchedBorder());
         
-        JLabel totalTitleLabel = new JLabel("TỔNG THANH TOÁN");
+        JLabel totalTitleLabel = new JLabel("THANH TOÁN");
         totalTitleLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
         totalTitleLabel.setForeground(Color.RED);
         
+        totalLabel.setText("Tổng tiền");
         totalLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
         totalLabel.setForeground(Color.RED);
+        JLabel totalroom = new JLabel("Tổng tiền phòng");
+        totalroom.setFont(new Font("Tahoma", Font.BOLD, 14));
+        totalroom.setForeground(Color.RED);
+        JLabel totalser = new JLabel("Tổng tiền dịch vụ");
+        totalser.setFont(new Font("Tahoma", Font.BOLD, 14));
+        totalser.setForeground(Color.RED);
+        totalroom.setForeground(Color.RED);
+        JLabel depo = new JLabel("Đặt cọc");
+        depo.setFont(new Font("Tahoma", Font.BOLD, 14));
+        depo.setForeground(Color.RED);
         
-        totalAmountField.setPreferredSize(new Dimension(100, 30));
+        totalService.setPreferredSize(new Dimension(130, 20));
+        totalService.setFont(new Font("Tahoma", Font.BOLD, 14));
+        totalService.setForeground(Color.RED);
+        totalService.setHorizontalAlignment(JTextField.CENTER);
+        totalService.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalService.setText("00,000");
+        
+        totalRoom.setPreferredSize(new Dimension(130, 20));
+        totalRoom.setFont(new Font("Tahoma", Font.BOLD, 14));
+        totalRoom.setForeground(Color.RED);
+        totalRoom.setHorizontalAlignment(JTextField.CENTER);
+        totalRoom.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalRoom.setText("00,000");
+        
+        totalAmountField.setPreferredSize(new Dimension(130, 20));
         totalAmountField.setFont(new Font("Tahoma", Font.BOLD, 14));
         totalAmountField.setForeground(Color.RED);
         totalAmountField.setHorizontalAlignment(JTextField.CENTER);
         totalAmountField.setBorder(BorderFactory.createLoweredBevelBorder());
+        totalAmountField.setText("00,000");
         
-        JLabel dongLabel = new JLabel("đồng");
+        deposit.setPreferredSize(new Dimension(130, 20));
+        deposit.setFont(new Font("Tahoma", Font.BOLD, 14));
+        deposit.setForeground(Color.RED);
+        deposit.setHorizontalAlignment(JTextField.CENTER);
+        deposit.setBorder(BorderFactory.createLoweredBevelBorder());
+        deposit.setText("00,000");
+        
+        JLabel dongLabel = new JLabel("VDN");
         dongLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
         dongLabel.setForeground(Color.RED);
+        JLabel dongLabel1 = new JLabel("VDN");
+        dongLabel1.setFont(new Font("Tahoma", Font.BOLD, 12));
+        dongLabel1.setForeground(Color.RED);
+        JLabel dongLabel2 = new JLabel("VDN");
+        dongLabel2.setFont(new Font("Tahoma", Font.BOLD, 12));
+        dongLabel2.setForeground(Color.RED);
+        JLabel dongLabel3 = new JLabel("VDN");
+        dongLabel3.setFont(new Font("Tahoma", Font.BOLD, 12));
+        dongLabel3.setForeground(Color.RED);
         
-        totalPanel.add(totalTitleLabel);
+        
+        control.setTextTotal(totalRoom, totalService, totalAmountField, deposit, discountLable);
+        
+        //totalPanel.add(totalTitleLabel,LEFT_ALIGNMENT);
+        //totalPanel.add(Box.createHorizontalStrut(50));
+        totalPanel.add(totalroom);
+        totalPanel.add(totalRoom);
+        totalPanel.add(dongLabel1);
+        totalPanel.add(Box.createHorizontalStrut(50));
+        totalPanel.add(totalser);
+        totalPanel.add(totalService);
+        totalPanel.add(dongLabel2);
         totalPanel.add(Box.createHorizontalStrut(50));
         totalPanel.add(totalLabel);
         totalPanel.add(totalAmountField);
-        totalPanel.add(dongLabel);
+        totalPanel.add(dongLabel3);
+        totalPanel.add(Box.createHorizontalStrut(50));
+        totalPanel.add(depo);
+        totalPanel.add(deposit);
+        totalPanel.add(dongLabel3);
         
         return totalPanel;
     }
@@ -356,12 +454,12 @@ public class AddGroupBooking extends JFrame {
         serviceHeader.setFont(new Font("Tahoma", Font.BOLD, 11));
     }
     
-    private void loadSampleData() {
-        // No initial room bookings
-        totalAmountField.setText("0");
-    }
-    
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SwingUtilities.invokeLater(() -> {
             new AddGroupBooking();
         });

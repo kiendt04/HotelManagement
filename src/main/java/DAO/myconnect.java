@@ -23,6 +23,13 @@ public class myconnect {
                 pass = "";
                 url = "jdbc:mysql://localhost:3306/qlyksan?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     }
+//    public myconnect(){
+//                host = "localhost";
+//                user = "root";
+//                pass = "root";
+//                url = "jdbc:mysql://" + host + ":3306/" + "qlyksan";
+//    
+//    }
     public myconnect(String host , String user , String pass , String url){
         this.host= host ;
         this.user= user ;

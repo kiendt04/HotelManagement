@@ -397,8 +397,8 @@ public class RoomManagement extends JFrame {
             int status = cbxStatus.getSelectedItem().equals("Trống") ? 0 : (cbxStatus.getSelectedItem().equals("Sử dụng") ? 1 : -1);
             String note = txtNote.getText().trim();
             int id = originalRoom == null ? 0 : originalRoom.getId();
-            
-            result = new Room(id, num, floor, type, status, note);
+            Room_type choosen = (Room_type) cbxType.getSelectedItem();
+            result = new Room(id, num, floor, type, status, note,choosen.getPrice_per_hour(),choosen.getPrice_per_night());
             dispose();
         }
 
