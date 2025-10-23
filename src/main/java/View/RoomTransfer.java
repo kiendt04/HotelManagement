@@ -4,15 +4,25 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import Control.*;
+import Model.*;
 
 public class RoomTransfer extends JDialog {
 
     private JCheckBox chkIssue, chkUpgrade;
     private JTable tblRooms;
     private DefaultTableModel tableModel;
+    private JButton btnCancel, btnConfirm;
+    private RoomTransferControl control = new RoomTransferControl();
+    private Room OldRoom;
+    private int id;
+    private boolean isTour;
 
-    public RoomTransfer(Frame parent) {
+    public RoomTransfer(Frame parent,int id,Room oldRoom,boolean tour) {
         super(parent, "Chuyển phòng", true);
+        this.OldRoom =oldRoom;
+        this.id = id;
+        this.isTour = tour;
         initComponents();
     }
 
@@ -44,7 +54,7 @@ public class RoomTransfer extends JDialog {
         add(topPanel, BorderLayout.NORTH);
 
         // ===== Bảng trung tâm =====
-        String[] columnNames = {"Tên phòng", "Giá / đêm", "Giá / giờ"};
+        String[] columnNames = {"ID","Tên phòng", "Giá / giờ", "Giá / đêm"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -57,6 +67,8 @@ public class RoomTransfer extends JDialog {
         tblRooms.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tblRooms.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblRooms.setGridColor(new Color(230, 230, 230));
+        
+        control.loadRoomAvailable(tableModel, id,isTour);
         
         JTableHeaderStyle(tblRooms);
 
@@ -71,8 +83,8 @@ public class RoomTransfer extends JDialog {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         bottomPanel.setBackground(new Color(245, 247, 250));
 
-        JButton btnConfirm = createStyledButton("Xác nhận", new Color(0x4CAF50));
-        JButton btnCancel = createStyledButton("Hủy", new Color(0xF44336));
+        btnConfirm = createStyledButton("Xác nhận", new Color(0x4CAF50));
+        btnCancel = createStyledButton("Hủy", new Color(0xF44336));
 
         bottomPanel.add(btnConfirm);
         bottomPanel.add(btnCancel);
@@ -128,26 +140,5 @@ public class RoomTransfer extends JDialog {
         if (upgrade) msg += "\nLý do: Nâng hạng phòng";
 
         JOptionPane.showMessageDialog(this, msg, "Xác nhận", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    // ===== Hàm thêm dữ liệu động =====
-    public void addRoom(String name, String pricePerNight, String pricePerHour) {
-        tableModel.addRow(new Object[]{name, pricePerNight, pricePerHour});
-    }
-
-    // ===== Test chạy độc lập =====
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        SwingUtilities.invokeLater(() -> {
-            RoomTransfer dialog = new RoomTransfer(null);
-            dialog.addRoom("Phòng 101", "1,200,000", "150,000");
-            dialog.addRoom("Phòng 102", "1,500,000", "180,000");
-            dialog.addRoom("Phòng 203", "1,800,000", "220,000");
-            dialog.setVisible(true);
-        });
     }
 }

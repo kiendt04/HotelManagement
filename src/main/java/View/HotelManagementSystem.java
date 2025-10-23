@@ -294,7 +294,14 @@ public class HotelManagementSystem extends JFrame {
                     prebooking.addActionListener((l) -> {
                         control.PayMentFunc(HotelManagementSystem.this, r,true);
                     });
-                    room_act.add(change_room);
+                    
+                    change_room.addActionListener((l) -> {
+                        control.RoomTransfer(HotelManagementSystem.this, r);
+                    });
+                    if(r.getStatus()!=0)
+                    {
+                        room_act.add(change_room);
+                    }
                     room_act.add(prebooking);
                     room_act.show(panel, e.getX(), e.getY());
                 }

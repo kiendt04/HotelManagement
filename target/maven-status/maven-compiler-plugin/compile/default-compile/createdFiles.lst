@@ -14,6 +14,7 @@ Model\Bill.class
 DAO\FloorDAO.class
 Control\BillHistoryControl.class
 Control\GroupBookingControl$11.class
+Control\RoomTransferControl.class
 View\RoomManagement$RoomDialog.class
 Control\H_MControl$1.class
 View\CustomerList$Cusdialog.class
@@ -51,11 +52,8 @@ View\UserList$3.class
 Control\CustomerListControl$1.class
 Control\GroupBookingControl$3.class
 View\FloorManagement$5.class
-<<<<<<< HEAD
-View\AddGroupBooking$1.class
-=======
 View\Payment$PaymentListener.class
->>>>>>> devtu
+View\AddGroupBooking$1.class
 View\GroupBooking$3.class
 Control\H_MControl.class
 Model\Customer.class

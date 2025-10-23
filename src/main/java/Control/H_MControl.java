@@ -4,16 +4,19 @@
  */
 package Control;
 
-import DAO.BillDAO;
+import DAO.*;
 import DAO.FloorDAO;
 import DAO.RoomDAO;
+import Model.*;
 import Model.Room;
 import View.HotelManagementSystem;
 import View.Payment;
+import View.RoomTransfer;
 import java.awt.Color;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Comparator;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
@@ -27,6 +30,7 @@ public class H_MControl {
     private FloorDAO flc = new FloorDAO();
     private RoomDAO rc = new RoomDAO();
     private BillDAO bc = new BillDAO();
+    private BillGroupBookingDAO bgbDAO = new BillGroupBookingDAO();
     
     public H_MControl() {
     }
@@ -78,6 +82,29 @@ public class H_MControl {
         });
     }
     
+    public void RoomTransfer(HotelManagementSystem frame,Room r)
+    {
+        List<Bill> b = bc.getAll();
+        List<BillGroupBooking> bgb = bgbDAO.getAll();
+        boolean isTour = false;
+        int id;
+        int searchb = bc.getIdByroom(r.getNum());
+        int searchbgb = bgbDAO.getIdByRoom(r.getNum());
+        
+        
+        SwingUtilities.invokeLater(() -> {
+            RoomTransfer rs = new RoomTransfer(frame,0, r, isTour);
+            rs.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    frame.refreshRoomDisplay();
+                }
+            });
+            rs.setVisible(true);
+            
+        });
+        
+    }
     public void getRoom_bill(String room)
     {
         int bill;
