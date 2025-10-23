@@ -73,7 +73,7 @@ public class RoomListTransfer extends JFrame {
                         
                         // Nếu có cửa sổ cha, cập nhật phòng chuyển đến
                         if (parentWindow != null) {
-                            parentWindow.setDestinationRoom(roomName, price);
+                            //parentWindow.setDestinationRoom(roomName, price);
                             dispose(); // Đóng cửa sổ danh sách
                         } else {
                             // Nếu chạy độc lập, mở cửa sổ chuyển phòng mới
@@ -146,6 +146,6 @@ public class RoomListTransfer extends JFrame {
     }
     
     private void openTransferWindow(String roomName, String price) {
-        new RoomTransfer(roomName, price).setVisible(true);
+        //new RoomTransfer(roomName, price).setVisible(true);
     }
 }

@@ -50,11 +50,13 @@ public class AddGroupBooking extends JDialog {
         setSize(parent != null ? parent.getSize() : parent1.getSize());
         setLocationRelativeTo(null);
         initializeComponents();
+        applyCustomStyle();
         setupLayout();
         setupTables();
         btnAction();
         setVisible(true);
     }
+    
     public AddGroupBooking() {
         setTitle("Quản lý đặt phòng theo đoàn");
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -91,10 +93,14 @@ public class AddGroupBooking extends JDialog {
         time_in = new Timestamp(check_in.getDate().getTime());
         time_out = new Timestamp(check_out.getDate().getTime());
         saveBtn = createToolbarButton("Lưu", "💾");
+        saveBtn.setFont(new Font("Noto Color Emoji", Font.PLAIN, 14));
         finishBtn = createToolbarButton("Thanh toán", "💰");
+        finishBtn.setFont(new Font("Noto Color Emoji", Font.PLAIN, 14));
         finishBtn.setEnabled(false);
         cancelBtn = createToolbarButton("Hủy đặt phòng", "❌");
+        cancelBtn.setFont(new Font("SNoto Color Emoji", Font.PLAIN, 14));
         searchCusBtn = new JButton("🔍");
+        searchCusBtn.setFont(new Font("Noto Color Emoji", Font.PLAIN, 14));
         discountLable = new JLabel("00,000 VND (0.0%)");
         deposit = new JTextField();
     }
@@ -114,8 +120,50 @@ public class AddGroupBooking extends JDialog {
         });
     }
     
+    private void applyCustomStyle() {
+        Color primary = new Color(70, 130, 180); // xanh dương nhạt
+        Color secondary = new Color(240, 248, 255); // nền sáng
+        Color accent = new Color(255, 215, 0); // vàng điểm nhấn
+        Font fontRegular = new Font("Segoe UI", Font.PLAIN, 13);
+        Font fontBold = new Font("Segoe UI", Font.BOLD, 13);
+    
+        getContentPane().setBackground(secondary);
+
+        // Toàn bộ label
+        UIManager.put("Label.foreground", new Color(30, 30, 30));
+        UIManager.put("Label.font", fontRegular);
+
+        // Nút chung
+        UIManager.put("Button.background", Color.WHITE);
+        UIManager.put("Button.foreground", primary);
+        UIManager.put("Button.border", BorderFactory.createLineBorder(primary, 1));
+        UIManager.put("Button.font", fontBold);
+
+        // Bảng
+        UIManager.put("Table.alternateRowColor", new Color(245, 250, 255));
+        UIManager.put("Table.selectionBackground", new Color(220, 235, 255));
+        UIManager.put("Table.selectionForeground", Color.BLACK);
+        UIManager.put("Table.gridColor", new Color(220, 220, 220));
+
+        // ScrollPane
+        UIManager.put("ScrollPane.background", secondary);
+        UIManager.put("ScrollPane.border", BorderFactory.createEmptyBorder());
+    
+        // Titled border đẹp hơn
+        UIManager.put("TitledBorder.font", fontBold);
+        UIManager.put("TitledBorder.titleColor", primary);
+    }
+    
     private void setupLayout() {
         setLayout(new BorderLayout());
+        getContentPane().setBackground(new Color(248, 249, 252));
+        UIManager.put("Label.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("Button.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("Table.font", new Font("Segoe UI", Font.PLAIN, 12));
+        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 13));
+        UIManager.put("Table.selectionBackground", new Color(200, 220, 255));
+        UIManager.put("Table.selectionForeground", Color.BLACK);
+        UIManager.put("ScrollPane.border", BorderFactory.createEmptyBorder());
         
         // Create toolbar
         JPanel toolbar = createToolbar();
@@ -123,7 +171,7 @@ public class AddGroupBooking extends JDialog {
         
         // Create main split pane
         JSplitPane mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        mainSplitPane.setDividerLocation(260);
+        mainSplitPane.setDividerLocation(295);
         
         // Left panel - Room tree
         JPanel leftPanel = createLeftPanel();
@@ -167,13 +215,31 @@ public class AddGroupBooking extends JDialog {
     }
     
     private JButton createToolbarButton(String tooltip, String icon) {
-        JButton button = new JButton(icon);
-        button.setToolTipText(tooltip);
-        button.setPreferredSize(new Dimension(32, 32));
-        button.setBorder(BorderFactory.createRaisedBevelBorder());
-        button.setFocusPainted(false);
-        return button;
-    }
+    JButton button = new JButton(icon);
+    button.setToolTipText(tooltip);
+    button.setPreferredSize(new Dimension(36, 36));
+    button.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    button.setBackground(new Color(240, 240, 255));
+    button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(180, 180, 200)),
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+    ));
+    button.setFocusPainted(false);
+    button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+    // Hiệu ứng hover
+    button.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+            button.setBackground(new Color(220, 230, 255));
+        }
+
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+            button.setBackground(new Color(240, 240, 255));     
+        }
+    });
+
+    return button;
+}
     
     private JPanel createLeftPanel() {
         JPanel leftPanel = new JPanel(new BorderLayout());
@@ -218,7 +284,9 @@ public class AddGroupBooking extends JDialog {
         JScrollPane treeScrollPane = new JScrollPane(roomTree);
         treeScrollPane.setPreferredSize(new Dimension(330, 500));
         leftPanel.add(treeScrollPane, BorderLayout.CENTER);
-        
+        roomTree.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        roomTree.setBackground(new Color(250, 250, 255));
+        roomTree.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         return leftPanel;
     }
     
@@ -357,6 +425,11 @@ public class AddGroupBooking extends JDialog {
     
     private JPanel createTotalPanel() {
         JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        totalPanel.setBackground(new Color(245, 245, 255));
+        totalPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(2, 0, 0, 0, new Color(200, 200, 220)),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
         totalPanel.setBackground(new Color(220, 220, 220));
         totalPanel.setBorder(BorderFactory.createEtchedBorder());
         
@@ -452,6 +525,24 @@ public class AddGroupBooking extends JDialog {
         JTableHeader serviceHeader = serviceTable.getTableHeader();
         serviceHeader.setBackground(new Color(240, 240, 240));
         serviceHeader.setFont(new Font("Tahoma", Font.BOLD, 11));
+        
+        roomListTable.setShowGrid(false);
+        serviceTable.setShowGrid(false);
+        serviceDetailTable.setShowGrid(false);
+
+        roomListTable.setIntercellSpacing(new Dimension(0, 0));
+        serviceTable.setIntercellSpacing(new Dimension(0, 0));
+        serviceDetailTable.setIntercellSpacing(new Dimension(0, 0));
+
+        roomListTable.setSelectionBackground(new Color(210, 230, 255));
+        roomListTable.setSelectionForeground(Color.BLACK);
+
+        ((DefaultTableCellRenderer) roomListTable.getTableHeader().getDefaultRenderer())
+                .setHorizontalAlignment(JLabel.CENTER);
+        ((DefaultTableCellRenderer) serviceTable.getTableHeader().getDefaultRenderer())
+                .setHorizontalAlignment(JLabel.CENTER);
+        ((DefaultTableCellRenderer) serviceDetailTable.getTableHeader().getDefaultRenderer())
+                .setHorizontalAlignment(JLabel.CENTER);
     }
     
     public static void main(String[] args) {

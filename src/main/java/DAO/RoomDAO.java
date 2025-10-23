@@ -282,11 +282,11 @@ public class RoomDAO {
         try {
             PreparedStatement pt = conn.prepareStatement("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
                                                        + "FROM room join room_type on room.Type = room_type.id "
-                                                       + "where  room.Number not in ("
-                                                       + "select room from bill where check_in >= ? and check_out <= ? and status <> 0) "
-                                                       + "AND room.Number not in ("
-                                                       + "SELECT room FROM billgroupbookingdetail_room where id in ("
-                                                       + "SELECT id FROM billgroupbooking where check_in >= ? and check_out <= ? and status <> 0))");
+                                                       + "where room.Number not in ( "
+                                                       + "SELECT room from bill where (check_out >= ? or check_in <= ?) and status not in (0,-2)) "
+                                                       + "AND room.Number not in ( "
+                                                       + "SELECT room FROM billgroupbookingdetail_room where id in ( "
+                                                       + "SELECT id FROM billgroupbooking where (check_out >= ? or check_in <= ? ) and status not in (-2,0,2)))");
             pt.setTimestamp(1, in);
             pt.setTimestamp(2, out);
             pt.setTimestamp(3, in);

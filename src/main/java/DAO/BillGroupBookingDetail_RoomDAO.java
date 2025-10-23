@@ -123,7 +123,7 @@ public class BillGroupBookingDetail_RoomDAO {
     {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(" SELECT sum(room.price_per_night) as tong FROM billgroupbooking_room br join room r on br.room = r.Number where id = " + id + "");
+            ResultSet rs = st.executeQuery(" SELECT sum(room.price_per_night) as tong FROM billgroupbookingdetail_room br join room r on br.room = r.Number where id = " + id + "");
             if(rs.next())
             {
                 return rs.getInt("tong");

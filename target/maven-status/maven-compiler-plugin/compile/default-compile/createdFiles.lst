@@ -51,6 +51,7 @@ View\UserList$3.class
 Control\CustomerListControl$1.class
 Control\GroupBookingControl$3.class
 View\FloorManagement$5.class
+View\AddGroupBooking$1.class
 View\GroupBooking$3.class
 Control\H_MControl.class
 Model\Customer.class
