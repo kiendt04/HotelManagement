@@ -244,9 +244,7 @@ public class BillHistoryControl {
         Font footerContentFont = workbook.createFont();
         FormatAbility(headerFont, tableHeaderFont, tableContentFont, footerLableFont, footerContentFont,headerExportTimeFont);
         
-        Color awtColor = new Color(255, 255, 153); // Light yellow RGB
-        // 2. Create the XSSFColor wrapper object
-        // The second argument (null) is for compatibility with the old HSSF palette, which is usually null for XSSF
+        Color awtColor = new Color(61,203,181); // Light yellow RGB
         XSSFColor customColor = new XSSFColor(awtColor, null);
         
         try {
@@ -274,7 +272,9 @@ public class BillHistoryControl {
             Row header2Row = sheet.createRow(3);
             Cell exportDate = header2Row.createCell(10);
             sheet.addMergedRegion(new CellRangeAddress(3,3,10,13));
-            exportDate.setCellValue("Ngày xuất: " + LocalDate.now() + " " + LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            exportDate.setCellValue("Ngày xuất: " + formatter);
             CellStyle exportdate = workbook.createCellStyle();
             exportdate.setAlignment(HorizontalAlignment.CENTER);
             exportdate.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -514,14 +514,10 @@ public class BillHistoryControl {
     
     // 1. Tạo Renderer
     DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
-    
     // 2. Thiết lập kiểu căn chỉnh
-    // alignment có thể là: SwingConstants.LEFT, SwingConstants.CENTER, hoặc SwingConstants.RIGHT
     renderer.setHorizontalAlignment(alignment);
-    
     // 3. Lấy đối tượng cột
     TableColumn column = table.getColumnModel().getColumn(columnIndex);
-    
     // 4. Áp dụng Renderer cho cột
     column.setCellRenderer(renderer);
     }

@@ -151,12 +151,12 @@ public class Payment extends JFrame {
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toolbarPanel.setBackground(new Color(240, 240, 240));
 
-        saveBtn = new JButton("💾 Lưu");
-        printBtn = new JButton("🖨️ In");
-        exitBtn = new JButton("➔ Thoát");
-        finishBtn = new JButton("💰 Thanh toán");
-        cancelBtn = new JButton("❌ Hủy đặt phòng");
-        toolbarPanel.add(saveBtn);
+        saveBtn = new JButton("💾 Lưu"); //1
+        printBtn = new JButton("🖨️ In");//4
+        exitBtn = new JButton("➔ Thoát");//5
+        finishBtn = new JButton("💰 Thanh toán");//3
+        cancelBtn = new JButton("❌ Hủy đặt trước");//2
+        toolbarPanel.add(saveBtn); 
         toolbarPanel.add(cancelBtn);
         toolbarPanel.add(finishBtn);
         toolbarPanel.add(printBtn);
