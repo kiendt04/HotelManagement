@@ -39,7 +39,11 @@ public class RoomManagement extends JFrame {
         setSize(550, 400);
         setLocationRelativeTo(null);
         setResizable(false);
-        
+        UIManager.put("Label.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("Button.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("ComboBox.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("Table.font", new Font("Segoe UI", Font.PLAIN, 13));
+        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 13));
         // Icon
         addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
         editIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
@@ -113,6 +117,14 @@ public class RoomManagement extends JFrame {
         roomTable.getColumnModel().getColumn(0).setPreferredWidth(30);
         roomTable.getColumnModel().getColumn(0).setMaxWidth(30);
         roomTable.getColumnModel().getColumn(1).setPreferredWidth(60);
+        roomTable.setRowHeight(28);
+        roomTable.setGridColor(new Color(230, 230, 230));
+        roomTable.setSelectionBackground(new Color(173, 216, 230));
+        roomTable.setSelectionForeground(Color.BLACK);
+        roomTable.setBackground(Color.WHITE);
+        roomTable.getTableHeader().setBackground(new Color(245, 245, 245));
+        roomTable.getTableHeader().setForeground(Color.DARK_GRAY);
+        roomTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
     }
     
     private void loadTableData() {
@@ -138,6 +150,8 @@ public class RoomManagement extends JFrame {
         
         // Panel toolbar
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        toolbarPanel.setBackground(new Color(245, 247, 250)); // Màu nền sáng nhẹ
+        toolbarPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
         toolbarPanel.add(addButton);
         toolbarPanel.add(editButton);
         toolbarPanel.add(deleteButton);
@@ -173,7 +187,16 @@ public class RoomManagement extends JFrame {
             TitledBorder.LEFT, 
             TitledBorder.TOP
         ));
-        
+        tablePanel.setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createLineBorder(new Color(210, 210, 210)), 
+        "Danh sách", 
+        TitledBorder.LEFT, 
+        TitledBorder.TOP,
+        new Font("Segoe UI", Font.BOLD, 13)
+        ));
+        tablePanel.setBackground(Color.WHITE);
+        infoPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(new Color(250, 250, 250));
         JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         fieldPanel.add(new JLabel("Tên:"));
         nameField.setPreferredSize(new Dimension(200, 25));

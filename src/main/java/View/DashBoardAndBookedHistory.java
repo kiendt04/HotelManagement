@@ -66,54 +66,160 @@ public class DashBoardAndBookedHistory extends JDialog {
     
     private void init()
     {
-        btnPrint = new JButton("In");
-        chkDon = new JCheckBox("Khách lẻ");
-        chkNhom = new JCheckBox("Tour");
+//        btnPrint = new JButton("In");
+//        chkDon = new JCheckBox("Khách lẻ");
+//        chkNhom = new JCheckBox("Tour");
+//
+//        lblNam = new JLabel("Năm:");
+//        lblThang = new JLabel("Tháng:");
+//        lblNgay = new JLabel("Ngày:");
+//        lblTotal = new JLabel("Tổng doanh thu");
+//        lblTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
+//        lblTotal.setForeground(Color.RED);
+//
+//        txfTotal = new JTextField();
+//        txfTotal.setPreferredSize(new Dimension(130, 20));
+//        txfTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
+//        txfTotal.setForeground(Color.RED);
+//        txfTotal.setHorizontalAlignment(JTextField.CENTER);
+//        txfTotal.setBorder(BorderFactory.createLoweredBevelBorder());
+//        txfTotal.setText("00,000");
+//        txfTotal.setEditable(false);
+//        
+//        
+//        
+//        cbxNam = new JComboBox<>(new String[]{"All", "2025", "2024","2023"});
+//        cbxThang = new JComboBox<>(new String[]{"All", "1", "2", "3","4", "5", "6", "7","8", "9", "10", "11","12"});
+//        cbxNgay = new JComboBox<>(new String[]{"All", "1", "2", "3"});
+//
+//        lblList = new JLabel("Danh sách");
+//        lblList.setFont(new Font("Segoe UI", Font.BOLD, 13));
+//        
+//        String[] billDetailColumn = {"ID", "Phòng", "Khách hàng", "Ngày nhận","Ngày trả","Tiền phòng","Tiền dịch vụ","Tổng","Phụ thu","Khuyến mãi","Đặt cọc","Đã thu", "Trạng thái"};
+//        billDetailModel = new DefaultTableModel(billDetailColumn, 0)
+//        {
+//            @Override
+//            public boolean isCellEditable(int row, int column) {    
+//                return false;
+//            }
+//        };
+//        table = new JTable(billDetailModel);
+//        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+//        table.getColumnModel().getColumn(0).setMaxWidth(40);
+//        table.getColumnModel().getColumn(1).setPreferredWidth(60);
+//        table.getColumnModel().getColumn(1).setMaxWidth(60);
+//        scrollPane = new JScrollPane(table);
+//
+//        // ===== Panel chứa thanh điều khiển =====
+//        topPanel = new JPanel();
+//        layout = new GroupLayout(topPanel);
+//        BHC = new BillHistoryControl(btnPrint, chkDon, chkNhom, cbxNam, cbxThang, table, billDetailModel, txfTotal);
+            btnPrint = new JButton("🖨 In");
+    btnPrint.setFocusPainted(false);
+    btnPrint.setBackground(new Color(51, 153, 255));
+    btnPrint.setForeground(Color.WHITE);
+    btnPrint.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    btnPrint.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 12));
+    btnPrint.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        lblNam = new JLabel("Năm:");
-        lblThang = new JLabel("Tháng:");
-        lblNgay = new JLabel("Ngày:");
-        lblTotal = new JLabel("Tổng doanh thu");
-        lblTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
-        lblTotal.setForeground(Color.RED);
+    chkDon = new JCheckBox("Khách lẻ");
+    chkNhom = new JCheckBox("Tour");
 
-        txfTotal = new JTextField();
-        txfTotal.setPreferredSize(new Dimension(130, 20));
-        txfTotal.setFont(new Font("Tahoma", Font.BOLD, 14));
-        txfTotal.setForeground(Color.RED);
-        txfTotal.setHorizontalAlignment(JTextField.CENTER);
-        txfTotal.setBorder(BorderFactory.createLoweredBevelBorder());
-        txfTotal.setText("00,000");
-        txfTotal.setEditable(false);
-        
-        
-        
-        cbxNam = new JComboBox<>(new String[]{"All", "2025", "2024","2023"});
-        cbxThang = new JComboBox<>(new String[]{"All", "1", "2", "3","4", "5", "6", "7","8", "9", "10", "11","12"});
-        cbxNgay = new JComboBox<>(new String[]{"All", "1", "2", "3"});
+    Font chkFont = new Font("Segoe UI", Font.PLAIN, 13);
+    chkDon.setFont(chkFont);
+    chkNhom.setFont(chkFont);
+    chkDon.setOpaque(false);
+    chkNhom.setOpaque(false);
 
-        lblList = new JLabel("Danh sách");
-        lblList.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        
-        String[] billDetailColumn = {"ID", "Phòng", "Khách hàng", "Ngày nhận","Ngày trả","Tiền phòng","Tiền dịch vụ","Tổng","Phụ thu","Khuyến mãi","Đặt cọc","Đã thu", "Trạng thái"};
-        billDetailModel = new DefaultTableModel(billDetailColumn, 0)
-        {
-            @Override
-            public boolean isCellEditable(int row, int column) {    
-                return false;
-            }
-        };
-        table = new JTable(billDetailModel);
-        table.getColumnModel().getColumn(0).setPreferredWidth(40);
-        table.getColumnModel().getColumn(0).setMaxWidth(40);
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);
-        table.getColumnModel().getColumn(1).setMaxWidth(60);
-        scrollPane = new JScrollPane(table);
+    lblNam = new JLabel("Năm:");
+    lblThang = new JLabel("Tháng:");
+    lblNgay = new JLabel("Ngày:");
+    Font labelFont = new Font("Segoe UI", Font.BOLD, 13);
+    lblNam.setFont(labelFont);
+    lblThang.setFont(labelFont);
+    lblNgay.setFont(labelFont);
 
-        // ===== Panel chứa thanh điều khiển =====
-        topPanel = new JPanel();
-        layout = new GroupLayout(topPanel);
-        BHC = new BillHistoryControl(btnPrint, chkDon, chkNhom, cbxNam, cbxThang, table, billDetailModel, txfTotal);
+    lblTotal = new JLabel("Tổng doanh thu");
+    lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    lblTotal.setForeground(new Color(200, 30, 30));
+
+    txfTotal = new JTextField();
+    txfTotal.setPreferredSize(new Dimension(130, 25));
+    txfTotal.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    txfTotal.setForeground(new Color(200, 30, 30));
+    txfTotal.setHorizontalAlignment(JTextField.CENTER);
+    txfTotal.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 30, 30), 1, true),
+            BorderFactory.createEmptyBorder(2, 5, 2, 5)
+    ));
+    txfTotal.setText("00,000");
+    txfTotal.setEditable(false);
+
+    cbxNam = new JComboBox<>(new String[]{"All", "2025", "2024", "2023"});
+    cbxThang = new JComboBox<>(new String[]{"All", "1", "2", "3", "4", "5", "6", "7",
+            "8", "9", "10", "11", "12"});
+    cbxNgay = new JComboBox<>(new String[]{"All", "1", "2", "3"});
+
+    for (JComboBox<String> cb : new JComboBox[]{cbxNam, cbxThang, cbxNgay}) {
+        cb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cb.setBackground(Color.WHITE);
+        cb.setFocusable(false);
+    }
+
+    lblList = new JLabel("Danh sách");
+    lblList.setFont(new Font("Segoe UI", Font.BOLD, 15));
+    lblList.setForeground(new Color(60, 60, 60));
+
+    // ===== Table =====
+    String[] billDetailColumn = {
+            "ID", "Phòng", "Khách hàng", "Ngày nhận", "Ngày trả", "Tiền phòng",
+            "Tiền dịch vụ", "Tổng", "Phụ thu", "Khuyến mãi", "Đặt cọc", "Đã thu", "Trạng thái"
+    };
+    billDetailModel = new DefaultTableModel(billDetailColumn, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+
+    table = new JTable(billDetailModel);
+    table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+    table.setRowHeight(25);
+    table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+    table.getTableHeader().setBackground(new Color(245, 245, 245));
+    table.getTableHeader().setOpaque(true);
+    table.setGridColor(new Color(230, 230, 230));
+    table.setSelectionBackground(new Color(51, 153, 255));
+    table.setSelectionForeground(Color.WHITE);
+
+    scrollPane = new JScrollPane(table);
+    scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+    // Panel control trên
+    topPanel = new JPanel();
+    topPanel.setBackground(new Color(245, 247, 250));
+    layout = new GroupLayout(topPanel);
+
+    // Panel giữa
+    centerPanel = new JPanel(new BorderLayout(5, 5));
+    centerPanel.setBackground(Color.WHITE);
+
+    // Panel dưới
+    bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    bottomPanel.setBackground(new Color(245, 247, 250));
+    bottomPanel.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+
+    JLabel vnd = new JLabel("VND");
+    vnd.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    vnd.setForeground(new Color(200, 30, 30));
+
+    bottomPanel.add(lblTotal);
+    bottomPanel.add(txfTotal);
+    bottomPanel.add(vnd);
+    bottomPanel.add(Box.createHorizontalStrut(150));
+
+    // Control logic
+    BHC = new BillHistoryControl(btnPrint, chkDon, chkNhom, cbxNam, cbxThang, table, billDetailModel, txfTotal);
     }
     
     private void setUplayout()

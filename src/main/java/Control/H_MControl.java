@@ -101,7 +101,6 @@ public class H_MControl {
                 }
             });
             rs.setVisible(true);
-            
         });
         
     }
