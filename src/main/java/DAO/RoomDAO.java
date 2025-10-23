@@ -130,6 +130,38 @@ public class RoomDAO {
         }
         return null;
     }
+    public Room getByNum(String num) {
+    try {
+        PreparedStatement pt = conn.prepareStatement(
+            "SELECT room.Id, Number, floor, room.Type, Status, Note, " +
+            "       room_type.price_per_hour, room_type.price_per_night " +
+            "FROM room " +
+            "JOIN room_type ON room.Type = room_type.id " +
+            "WHERE room.Number = ? " +
+            "LIMIT 1"
+        );
+        pt.setString(1, num);
+        ResultSet rs = pt.executeQuery();
+        if (rs.next()) {
+            return new Room(
+                rs.getInt("Id"),
+                rs.getString("Number"),
+                rs.getInt("floor"),
+                rs.getInt("Type"),
+                rs.getInt("Status"),
+                rs.getString("Note"),
+                rs.getDouble("price_per_hour"),
+                rs.getDouble("price_per_night")
+            );
+        }
+        rs.close();
+        pt.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
     
     public int count()
     {

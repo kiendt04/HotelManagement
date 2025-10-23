@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 import javax.swing.table.DefaultTableModel;
 
 public class DashBoardAndBookedHistory extends JDialog {
@@ -39,6 +40,28 @@ public class DashBoardAndBookedHistory extends JDialog {
         setUplayout();
         BHC.loadData();
         componentLogic();
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+        private long lastRefresh = 0;
+
+        @Override
+        public void windowGainedFocus(java.awt.event.WindowEvent e) {
+            // chống refresh liên tục khi focus chớp tắt
+            long now = System.currentTimeMillis();
+            if (now - lastRefresh > 500) {
+                try {
+                    BHC.loadData();
+                } catch (Exception ex) {
+                    System.err.println("Refresh error: " + ex.getMessage());
+                }
+                lastRefresh = now;
+            }
+        }
+
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                throw new UnsupportedOperationException("Not supported yet."); 
+            }
+        });
     }
     
     private void init()
@@ -200,5 +223,6 @@ public class DashBoardAndBookedHistory extends JDialog {
             }
         });
     }
+    
 }
 

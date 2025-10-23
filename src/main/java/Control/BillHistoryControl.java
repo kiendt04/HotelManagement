@@ -111,17 +111,17 @@ public class BillHistoryControl {
     }
     
     public void openBill(JDialog parent,int row)
-    {
-        int id = Integer.parseInt(table.getModel().getValueAt(row, 0).toString().trim());
-        if(!table.getModel().getValueAt(row, 1).equals(""))
-        {
-            new Payment(id, true).setVisible(true);
-        }
-        else
-        {
-            new AddGroupBooking(null, parent, id);  
-        }
+{
+    int billId = Integer.parseInt(table.getModel().getValueAt(row, 0).toString().trim());
+
+    if (!table.getModel().getValueAt(row, 1).equals("")) {
+        new Payment(billId).setVisible(true);   
+    } else {
+        new AddGroupBooking(null, parent, billId);
     }
+}
+
+
     
     public void checkBoxAction()
     {

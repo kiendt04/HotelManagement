@@ -142,8 +142,8 @@ public class BillDAO {
         int rs = 0;
         try {
             PreparedStatement pt = conn.prepareStatement("UPDATE bill set status = ? where id = ?");
-            pt.setInt(1, id);
-            pt.setInt(2, status);
+            pt.setInt(1, status);
+            pt.setInt(2, id);
             rs = pt.executeUpdate();
             
         } catch (Exception e) {
@@ -215,5 +215,35 @@ public class BillDAO {
         }
         return 0;
     }
+    
+    public Bill getLatestByRoom(String room) {
+    final String sql = "SELECT * FROM bill WHERE room = ? ORDER BY id DESC LIMIT 1";
+    try (PreparedStatement pt = conn.prepareStatement(sql)) {
+        pt.setString(1, room);
+        try (ResultSet rs = pt.executeQuery()) {
+            if (rs.next()) {
+                return new Bill(
+                    rs.getInt("id"),
+                    rs.getString("room"),
+                    rs.getString("user"),
+                    rs.getTimestamp("check_in"),
+                    rs.getTimestamp("check_out"),
+                    rs.getDouble("total_time"),
+                    rs.getInt("total_service"),
+                    rs.getDouble("total"),
+                    rs.getDouble("exchange"),
+                    rs.getDouble("discount"),
+                    rs.getDouble("deposit"),
+                    rs.getDouble("actual_pay"),
+                    rs.getInt("status")
+                );
+            }
+        }
+    } catch (Exception e) {
+        System.err.println(e);
+    }
+    return null;
+}
+
     
 }
