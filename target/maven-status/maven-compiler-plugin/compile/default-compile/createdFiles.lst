@@ -12,6 +12,7 @@ DAO\ServiceDAO.class
 View\RoomListTransfer$2.class
 Model\Bill.class
 DAO\FloorDAO.class
+Control\BillHistoryControl.class
 Control\GroupBookingControl$11.class
 View\RoomManagement$RoomDialog.class
 Control\H_MControl$1.class
@@ -73,6 +74,7 @@ View\FloorManagement$2.class
 View\CustomerList$8.class
 View\ServiceManager.class
 Control\ServiceControl$1.class
+View\RoomTypeManagement.class
 Control\GroupBookingControl$5.class
 View\CustomerList$5.class
 Model\BillGroupBooking.class
@@ -83,6 +85,7 @@ View\Payment$1.class
 Control\GroupBookingControl$7.class
 DAO\BillGroupBookingDetail_RoomDAO.class
 View\GroupBooking$2.class
+View\RoomTypeManagement$RoomTypeDialog.class
 View\UserList.class
 View\GroupBooking.class
 DAO\DiscountDAO.class
@@ -99,6 +102,7 @@ View\HotelManagementSystem$changeRoom.class
 View\RoomManagement.class
 DAO\UserDAO.class
 View\CustomerList$4.class
+View\RoomTypeManagement$1.class
 View\HotelManagementSystem$1.class
 Model\Discount.class
 DAO\BillDAO.class
