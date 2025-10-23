@@ -42,6 +42,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import java.awt.Color; // Rất tiện lợi!
+import java.awt.Frame;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -107,6 +110,19 @@ public class BillHistoryControl {
         checkBoxAction();
     }
     
+    public void openBill(JDialog parent,int row)
+    {
+        int id = Integer.parseInt(table.getModel().getValueAt(row, 0).toString().trim());
+        if(!table.getModel().getValueAt(row, 1).equals(""))
+        {
+            new Payment(id, true).setVisible(true);
+        }
+        else
+        {
+            new AddGroupBooking(null, parent, id);  
+        }
+    }
+    
     public void checkBoxAction()
     {
         cbxAction();
@@ -114,7 +130,6 @@ public class BillHistoryControl {
         if(chkDon.isSelected() && !chkNhom.isSelected())
         {
             billDetailModel.setRowCount(0);
-            showColumn(table, 1);
             for (int i=0;i<billFilterLst.size();i++)
             {
                 Bill b = billFilterLst.get(i);
@@ -128,27 +143,25 @@ public class BillHistoryControl {
         else if (chkNhom.isSelected() && !chkDon.isSelected())
         {
             billDetailModel.setRowCount(0);
-            hideColumn(table, 1);
             for (int i=0;i<billgroupFilterLst.size();i++)
             {
                 BillGroupBooking bgb = billgroupFilterLst.get(i);
                 sum+= bgb.getActual_pay();
                 Customer cus = customerLst.stream().filter(c -> c.getId().equals(bgb.getCus())).findFirst().orElse(null);
                 String Stats = bgb.getStatus() == -2 ? "Đặt trước/Đã hủy" : bgb.getStatus() == -1 ? "Đặt trước/Chưa nhận phòng" : bgb.getStatus() == 0 ? "Đã trả" : bgb.getStatus() == 1 ? "Chưa trả" : "Trả phòng sớm";
-                billDetailModel.addRow(new Object[]{bgb.getId(),cus.getName(),bgb.getIn(),bgb.getOut(),formatDouble(bgb.getTotal_room()),formatDouble(bgb.getTotal_ser()),formatDouble(bgb.getTotal()),formatDouble(bgb.getEx_charge()),formatDouble(bgb.getDiscount()),formatDouble(bgb.getDeposit()),formatDouble(bgb.getActual_pay()),Stats});
+                billDetailModel.addRow(new Object[]{bgb.getId(),"",cus.getName(),bgb.getIn(),bgb.getOut(),formatDouble(bgb.getTotal_room()),formatDouble(bgb.getTotal_ser()),formatDouble(bgb.getTotal()),formatDouble(bgb.getEx_charge()),formatDouble(bgb.getDiscount()),formatDouble(bgb.getDeposit()),formatDouble(bgb.getActual_pay()),Stats});
             }
             billDetailModel.fireTableDataChanged();
         }
         else if(chkNhom.isSelected() && chkDon.isSelected())
         {
             billDetailModel.setRowCount(0);
-            showColumn(table, 1);
             for (int i=0;i<billFilterLst.size();i++)
             {
                 Bill b = billFilterLst.get(i);
                 sum += b.getActual_pay();
                 Customer cus = customerLst.stream().filter(c -> c.getId().equals(b.getUser())).findFirst().orElse(null);
-                String Stats = b.getStatus() == -2 ? "Đặt trước/Đã hủy" : b.getStatus() == -1 ? "Đặt trước/Chưa nhận phòng" : b.getStatus() == 0 ? "Đã thanh toán" : "Chưa thanh toán" ;
+                String Stats = b.getStatus() == -2 ? "Đặt trước/Đã hủy" : b.getStatus() == -1 ? "Đặt trước/Chưa nhận phòng" : b.getStatus() == 0 ? "Đã trả" : "Chưa trả phòng" ;
                 billDetailModel.addRow(new Object[]{b.getId(),b.getRoom(),cus.getName(),b.getCheck_in(),b.getCheck_out(),formatDouble(b.getTotal_time()),formatDouble((double) b.getTotal_service()),formatDouble(b.getTotal()),formatDouble(b.getExchange()),formatDouble(b.getDisount()),formatDouble(b.getDeposit()),formatDouble(b.getActual_pay()),Stats});
             }
             
@@ -192,7 +205,7 @@ public class BillHistoryControl {
         
     }
     
-    public void FormatAbility(Font header,Font tableHeader, Font tableContent, Font footerlable,Font footerContent,Font headerExportTime)
+    public void FormatAbility(Font header,Font hotelName,Font tableHeader, Font tableContent, Font footerlable,Font footerContent,Font headerExportTime)
     {
         // 2. Thiết lập Tên Font (Font Name)
         header.setFontName("Times New Roman"); 
@@ -202,6 +215,11 @@ public class BillHistoryControl {
         header.setBold(true);
         // 5. Thiết lập Màu Chữ (Color)
         header.setColor(IndexedColors.BLACK.getIndex());
+        
+        hotelName.setFontName("Times New Roman"); 
+        hotelName.setFontHeightInPoints((short) 11); 
+        hotelName.setBold(true);
+        hotelName.setColor(IndexedColors.BLACK.getIndex());
         
         headerExportTime.setFontName("Times New Roman"); 
         headerExportTime.setFontHeightInPoints((short) 11); 
@@ -237,12 +255,13 @@ public class BillHistoryControl {
         TableModel model = table.getModel();
         // 1. Tạo một đối tượng Font mới
         Font headerFont = workbook.createFont();
+        Font hotelnameFont = workbook.createFont();
         Font headerExportTimeFont = workbook.createFont();
         Font tableHeaderFont = workbook.createFont();
         Font tableContentFont = workbook.createFont();
         Font footerLableFont = workbook.createFont();
         Font footerContentFont = workbook.createFont();
-        FormatAbility(headerFont, tableHeaderFont, tableContentFont, footerLableFont, footerContentFont,headerExportTimeFont);
+        FormatAbility(headerFont, hotelnameFont ,tableHeaderFont, tableContentFont, footerLableFont, footerContentFont,headerExportTimeFont);
         
         Color awtColor = new Color(61,203,181); // Light yellow RGB
         XSSFColor customColor = new XSSFColor(awtColor, null);
@@ -259,14 +278,13 @@ public class BillHistoryControl {
             header.setCellStyle(headerTitle);
             
             Row header1Row = sheet.createRow(2);
-            Cell hotelName = header1Row.createCell(5);
-            sheet.addMergedRegion(new CellRangeAddress(2,2,5,9));
+            Cell hotelName = header1Row.createCell(1);
+            sheet.addMergedRegion(new CellRangeAddress(2,2,1,13));
             hotelName.setCellValue("GREENHOTEL HADONG");
             CellStyle hotelname = workbook.createCellStyle();
             hotelname.setAlignment(HorizontalAlignment.CENTER);
             hotelname.setVerticalAlignment(VerticalAlignment.CENTER);
-            headerFont.setFontHeightInPoints((short) 11);
-            hotelname.setFont(headerFont);
+            hotelname.setFont(hotelnameFont);
             hotelName.setCellStyle(hotelname);
             
             Row header2Row = sheet.createRow(3);
@@ -274,7 +292,7 @@ public class BillHistoryControl {
             sheet.addMergedRegion(new CellRangeAddress(3,3,10,13));
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-            exportDate.setCellValue("Ngày xuất: " + formatter);
+            exportDate.setCellValue("Ngày xuất: " + now.format(formatter));
             CellStyle exportdate = workbook.createCellStyle();
             exportdate.setAlignment(HorizontalAlignment.CENTER);
             exportdate.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -410,8 +428,8 @@ public class BillHistoryControl {
             for(int i = 0; i < model.getColumnCount(); i++) {
             sheet.autoSizeColumn(i);
             }
-            
-            File file = new File("D:/DH/Nam 2024-2025/JavaNC/HotelManagement/src/main/resources/revenue/Baocao_Doanhthu_" + getFileName() + "_" + exportDate() +".xlsx");
+            String path = "D:/DH/Nam 2024-2025/JavaNC/HotelManagement/src/main/resources/revenue/";
+            File file = new File(path + "Baocao_Doanhthu_" + getFileName() + "_" + exportDate() +".xlsx");
             
             // Ghi Workbook ra file
             FileOutputStream fileOut = new FileOutputStream(file);
@@ -419,7 +437,7 @@ public class BillHistoryControl {
             fileOut.close();
             workbook.close();
         
-            System.out.println("Xuất file Excel thành công!");
+            JOptionPane.showMessageDialog(btnPrint, "Xuất file thành công!!!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -462,7 +480,7 @@ public class BillHistoryControl {
         {
             if(thang.equals("All"))
             {
-                return "quacacnam";
+                return "Quacacnam";
             }
             else
             {
@@ -477,7 +495,7 @@ public class BillHistoryControl {
             }
             else
             {
-                return "Thang" + thang + "_quacacnam";
+                return "Thang" + thang + "_Quacacnam";
             }
         }
     }
@@ -485,7 +503,7 @@ public class BillHistoryControl {
     public String exportDate()
     {
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyyHHmmss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MM yyyy_HH mm ss");
         return now.format(formatter);
     }
     

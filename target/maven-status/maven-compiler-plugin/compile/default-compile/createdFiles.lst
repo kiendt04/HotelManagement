@@ -74,6 +74,7 @@ View\FloorManagement$2.class
 View\CustomerList$8.class
 View\ServiceManager.class
 Control\ServiceControl$1.class
+View\DashBoardAndBookedHistory$1.class
 View\RoomTypeManagement.class
 Control\GroupBookingControl$5.class
 View\CustomerList$5.class
@@ -91,6 +92,7 @@ View\GroupBooking.class
 DAO\DiscountDAO.class
 Control\GroupBookingControl$4$1.class
 View\CustomerList$3.class
+View\DashBoardAndBookedHistory$2.class
 Control\UserControl.class
 View\FloorManagement.class
 View\RoomTransfer.class

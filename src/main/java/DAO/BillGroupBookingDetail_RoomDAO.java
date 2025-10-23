@@ -46,7 +46,7 @@ public class BillGroupBookingDetail_RoomDAO {
     {
         List<BillGroupBookingDetail_Room> list = new ArrayList<>();
         try {
-            Statement st = conn.createStatement();
+            Statement st = conn.createStatement();  
             ResultSet rs = st.executeQuery("SELECT * FROM billgroupbookingdetail_room where id = " + id + "" );
             while (rs.next())
             {

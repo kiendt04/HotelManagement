@@ -276,25 +276,30 @@ public class RoomDAO {
     
     public List<Room> getRoomAvailable( Timestamp in, Timestamp out)
     {
+        System.err.println(in + " - " + out);
         List<Room> roomavailable = new ArrayList<>();
         ResultSet rs; 
         try {
             PreparedStatement pt = conn.prepareStatement("SELECT room.Id, Number, floor, room.Type, Status, Note, room_type.price_per_hour, room_type.price_per_night "
                                                        + "FROM room join room_type on room.Type = room_type.id "
                                                        + "where  room.Number not in ("
-                                                       + "select room from bill where check_in >= ? and check_out <= ? and status <> 0)");
+                                                       + "select room from bill where check_in >= ? and check_out <= ? and status <> 0) "
+                                                       + "AND room.Number not in ("
+                                                       + "SELECT room FROM billgroupbookingdetail_room where id in ("
+                                                       + "SELECT id FROM billgroupbooking where check_in >= ? and check_out <= ? and status <> 0))");
             pt.setTimestamp(1, in);
             pt.setTimestamp(2, out);
+            pt.setTimestamp(3, in);
+            pt.setTimestamp(4, out);
             rs = pt.executeQuery();
-            
             while (rs.next())
             {
                 Room r = new Room(rs.getInt("Id"),rs.getString("Number"),rs.getInt("floor") ,rs.getInt("Type"),rs.getInt("Status"), rs.getString("Note"),rs.getDouble("price_per_hour"),rs.getDouble("price_per_night"));
                 roomavailable.add(r);
-                System.out.println(r);
             }
             pt.close();
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return roomavailable;
     }

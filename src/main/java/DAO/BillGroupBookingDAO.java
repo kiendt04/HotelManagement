@@ -92,49 +92,6 @@ public class BillGroupBookingDAO {
         return rs;
     }
     
-//    public List<Bill> search(String x,Date in,Date out)
-//    {
-//        List<Bill> list = new ArrayList<>();
-//        ResultSet rs ;
-//        try {
-//            if (x.isBlank())
-//            {
-//                PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill where check_in = ? or check_out = ?");
-//                pt.setDate(1, in);
-//                pt.setDate(2, out);
-//                rs = pt.executeQuery();
-//            }
-//            else if (!x.isBlank() && in != null && out != null)
-//            {
-//                PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill where user = ? or check_in = ? or check_out = ?");
-//                pt.setString(1, x);
-//                pt.setDate(2, in);
-//                pt.setDate(3, out);
-//                rs = pt.executeQuery();
-//            }
-//            else
-//            {
-//               PreparedStatement pt = conn.prepareStatement("SELECT * FROM bill where user = ?");
-//               pt.setString(1, x);
-//               rs = pt.executeQuery();
-//                
-//            }
-//            if(rs == null)
-//            {
-//                return list;
-//            }
-//            while(rs.next())
-//                {
-//                    Bill b = new Bill(rs.getInt("id"),rs.getString("room"), rs.getString("user"), rs.getTimestamp("check_in"), rs.getTimestamp("check_out"),rs.getDouble("total_time"),rs.getInt("total_service"), rs.getDouble("total"),rs.getDouble("exchange"),rs.getDouble("discount"),rs.getDouble("deposit"),rs.getDouble("actual_pay") ,rs.getInt("status"));
-//                    list.add(b);
-//                } 
-//        } catch (Exception e) {
-            
-//        }
-//        
-//        return list;
-//    }
-    
     public int finishBill(int id,int status)
     {
         int rs = 0;

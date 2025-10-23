@@ -42,12 +42,12 @@ public class AddGroupBooking extends JDialog {
     private JButton saveBtn, finishBtn, searchCusBtn,cancelBtn;
     private int id_bill = -1 ;
     
-    public AddGroupBooking(Frame parent,int id) {
+    public AddGroupBooking(Frame parent, JDialog parent1, int id) {
         super(parent, "Quản lý đặt phòng theo đoàn", true);
         id_bill = id;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setResizable(false);
-        setSize(parent.getSize());
+        setSize(parent != null ? parent.getSize() : parent1.getSize());
         setLocationRelativeTo(null);
         initializeComponents();
         setupLayout();
@@ -68,9 +68,7 @@ public class AddGroupBooking extends JDialog {
         setVisible(true);
     }
     
-    private void initializeComponents() {
-        
-        
+    private void initializeComponents() {        
         // Initialize components
         customerModel = new DefaultComboBoxModel<>();
         customerCombo = new JComboBox<>(customerModel);
@@ -89,7 +87,7 @@ public class AddGroupBooking extends JDialog {
         check_in.setDateFormatString("dd/MM/yyyy HH:mm:ss");
         check_out = new JDateChooser();
         check_out.setDateFormatString("dd/MM/yyyy HH:MM:ss");
-        control.initDate(check_in,check_out);
+        control.initDate(check_in,check_out,id_bill);
         time_in = new Timestamp(check_in.getDate().getTime());
         time_out = new Timestamp(check_out.getDate().getTime());
         saveBtn = createToolbarButton("Lưu", "💾");
@@ -184,7 +182,7 @@ public class AddGroupBooking extends JDialog {
         // Create room tree
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("TẦNG");
         List<Room> roomAvailable = control.getRoomavailable(time_in, time_out);
-        List<String> roomPrice = control.getRoomPrice();        
+        List<String> roomPrice = control.getRoomPrice();
         Map<Integer,List<Room>> roombyFloor = new HashMap<>();
         for (Room r : roomAvailable) {
             int floor = r.getFloor(); // giả sử Room có getFloor()
@@ -195,7 +193,7 @@ public class AddGroupBooking extends JDialog {
             int floor = entry.getKey();
             List<Room> rooms = entry.getValue();
 
-            String floorLabel = "Tầng " + floor + " (" + rooms.size() + " phòng trống)";
+            String floorLabel = "Tầng " + floor;
             DefaultMutableTreeNode floorNode = new DefaultMutableTreeNode(floorLabel);
 
             for (Room r : rooms) {
@@ -297,7 +295,6 @@ public class AddGroupBooking extends JDialog {
         // Top table - Room list
         JPanel roomListPanel = new JPanel(new BorderLayout());
         roomListPanel.setBorder(BorderFactory.createTitledBorder("Danh sách phòng đặt"));
-        
         String[] roomColumns = {"ID","TÊN PHÒNG", "ĐƠN GIÁ (VND)", "THÀNH TIỀN (VND)"};
         roomTableModel = new DefaultTableModel(roomColumns, 0);
         roomListTable = new JTable(roomTableModel);

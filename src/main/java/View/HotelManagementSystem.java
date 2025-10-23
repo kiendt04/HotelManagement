@@ -193,10 +193,10 @@ public class HotelManagementSystem extends JFrame {
                     }
                     break;
                 case 5:
-                    new AddGroupBooking(this,8);
+                    new AddGroupBooking(this,null,-1);
                     break;
                 case 6:
-                    new DashBoardAndBookedHistory(this, true).setVisible(true);
+                    new DashBoardAndBookedHistory(this, null,false).setVisible(true);
                     break;
                     // TODO: xử lý đặt phòng theo đoàn
             }

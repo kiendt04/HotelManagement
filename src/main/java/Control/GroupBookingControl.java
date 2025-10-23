@@ -74,36 +74,16 @@ public class GroupBookingControl {
         this.modelTree = model;
         roomTree.getModel().addTreeModelListener(new TreeModelListener() {
             @Override
-            public void treeNodesChanged(TreeModelEvent e) {
-                for(int i = 0 ;i<roomTree.getRowCount();i++)
-                {
-                    roomTree.expandRow(i);
-                }
-            }
+            public void treeNodesChanged(TreeModelEvent e) { for(int i = 0 ;i<roomTree.getRowCount();i++){roomTree.expandRow(i);} }
 
             @Override
-            public void treeNodesInserted(TreeModelEvent e) {
-                for(int i = 0 ;i<roomTree.getRowCount();i++)
-                {
-                    roomTree.expandRow(i);
-                }
-            }
+            public void treeNodesInserted(TreeModelEvent e) { for(int i = 0 ;i<roomTree.getRowCount();i++){roomTree.expandRow(i);} }
 
             @Override
-            public void treeNodesRemoved(TreeModelEvent e) {
-                for(int i = 0 ;i<roomTree.getRowCount();i++)
-                {
-                    roomTree.expandRow(i);
-                }
-            }
+            public void treeNodesRemoved(TreeModelEvent e) { for(int i = 0 ;i<roomTree.getRowCount();i++){roomTree.expandRow(i);} }
 
             @Override
-            public void treeStructureChanged(TreeModelEvent e) {
-                for(int i = 0 ;i<roomTree.getRowCount();i++)
-                {
-                    roomTree.expandRow(i);
-                }
-            }
+            public void treeStructureChanged(TreeModelEvent e) { for(int i = 0 ;i<roomTree.getRowCount();i++){roomTree.expandRow(i);} } 
         });
     }
     
@@ -115,7 +95,6 @@ public class GroupBookingControl {
         {
             list.add(t.getPrice_per_night() + "");
         }
-        System.out.println(list);
         return list;
     }
     
@@ -142,17 +121,15 @@ public class GroupBookingControl {
         List<BillGroupBookingDetail_Room> bookedRoom = roomGroupDetail.getByID(id_bill);
         List<BillGroupBookingDetail_Service> serviceDetail = serviceGroupDetail.getById(id_bill);
         deposit.setText(formatDouble(bgb.getDeposit()));
-        time_in.setDate(bgb.getIn());
-        time_out.setDate(bgb.getOut());
         cbx.setSelectedItem(cusDAO.getById(bgb.getCus()));
-
+        
         for (int i=0;i<bookedRoom.size();i++)
         {
             String Number = bookedRoom.get(i).getRoom();
             Room roomID = roomLst.stream().filter(r-> r.getNum().equals(Number)).findFirst().orElse(null);
             roomModel.addRow(new Object[]{roomID.getId(),roomID.getNum(),formatDouble(roomID.getPpn()),formatDouble(bookedRoom.get(i).getTotal())});
         }
-        
+        roomModel.fireTableDataChanged();
         
         for(int i=0;i<serviceDetail.size();i++)
         {
@@ -162,13 +139,15 @@ public class GroupBookingControl {
             Service serviceID = serLst.stream().filter(s -> s.getId() == id).findFirst().orElse(null);
             service_detailModel.addRow(new Object[]{roomID.getId(),Number,serviceID.getId(),serviceID.getName(),serviceDetail.get(i).getQuantity(),formatDouble(serviceID.getPrice()),formatDouble(serviceDetail.get(i).getTotal())});
         }
-        
+        service_detailModel.fireTableDataChanged();        
+//        time_in.setDate(bgb.getIn());
+//        time_out.setDate(bgb.getOut());
+        System.out.println(time_in.getDate() + " - " + time_out.getDate());
         this.upt = true;
     }
     
-    public void initDate(JDateChooser in, JDateChooser out)
+    public void initDate(JDateChooser in, JDateChooser out,int id)
     {
-        
         in.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -179,6 +158,7 @@ public class GroupBookingControl {
                     time = (int) ChronoUnit.DAYS.between(in.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),out.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                     reloadRoomModelByTime();
                     if(LoadTimes < 0 ) {
+                        System.err.println("reLoadModel");
                         modelTree.reload();
                     } else {
                         LoadTimes += 1;
@@ -206,15 +186,32 @@ public class GroupBookingControl {
         });
         Calendar cal= Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 7);
-        in.setDate(cal.getTime());
-        in.getJCalendar().setMinSelectableDate(cal.getTime());
+        if(id == -1)
+        {
+            in.setDate(cal.getTime());
+        }
+        else
+        {
+            BillGroupBooking bgb = billgroupDAO.getBillById(id);
+            in.setDate(bgb.getIn());
+        }
+        in.getJCalendar().setMinSelectableDate(cal.getTime());  
         cal.add(Calendar.DAY_OF_MONTH, 1);
         //cal.add(in.getDate().getDay(), 1);
         out.getJCalendar().setMinSelectableDate(cal.getTime());
         cal.add(Calendar.DAY_OF_MONTH, 6);
         //cal.add(in.getDate().getDay(), 6);
-        out.setDate(cal.getTime());
+        if(id == -1)
+        {
+            out.setDate(cal.getTime());
+        }
+        else
+        {
+            BillGroupBooking bgb = billgroupDAO.getBillById(id);
+            out.setDate(bgb.getOut());
+        }
         out.getJCalendar().setMaxSelectableDate(cal.getTime());
+        in.getJCalendar().setMaxSelectableDate(cal.getTime());
     }
     
     public void setEnableBtn(JButton finish,JButton cancel,JButton save,JDateChooser time_in,int id)
@@ -469,16 +466,8 @@ public class GroupBookingControl {
                             BillGroupBooking bgb = new BillGroupBooking(id, cus.getId(), in, out, total_room, total_ser, total, 0, discount, deposit, actual_pay, -1);
                             if (billgroupDAO.uptBill(bgb) !=  0)
                             {
-                                
-                                if(roomGroupDetail.delAll(id) == 0)
-                                {
-                                    JOptionPane.showMessageDialog(parent, "Thay đổi phòng thất bại");
-                                }
-                                
-                                if(serviceGroupDetail.delAll(id) == 0)
-                                {
-                                    JOptionPane.showMessageDialog(parent, "Thay đổi dịch vụ thất bại");
-                                }
+                               roomGroupDetail.delAll(id);
+                               serviceGroupDetail.delAll(id);
                             }
                             else
                             {

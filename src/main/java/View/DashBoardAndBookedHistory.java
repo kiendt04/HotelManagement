@@ -11,6 +11,8 @@ package View;
 import Control.BillHistoryControl;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.table.DefaultTableModel;
 
 public class DashBoardAndBookedHistory extends JDialog {
@@ -28,7 +30,7 @@ public class DashBoardAndBookedHistory extends JDialog {
     private BillHistoryControl BHC;
     
     
-    public DashBoardAndBookedHistory(Frame parent, boolean modal) {
+    public DashBoardAndBookedHistory(Frame parent, JDialog parent1, boolean modal) {
         super(parent, "Lịch sử đặt và doanh thu", modal);
         setSize(Toolkit.getDefaultToolkit().getScreenSize());
         setLocationRelativeTo(null);
@@ -71,7 +73,13 @@ public class DashBoardAndBookedHistory extends JDialog {
         lblList.setFont(new Font("Segoe UI", Font.BOLD, 13));
         
         String[] billDetailColumn = {"ID", "Phòng", "Khách hàng", "Ngày nhận","Ngày trả","Tiền phòng","Tiền dịch vụ","Tổng","Phụ thu","Khuyến mãi","Đặt cọc","Đã thu", "Trạng thái"};
-        billDetailModel = new DefaultTableModel(billDetailColumn, 0);
+        billDetailModel = new DefaultTableModel(billDetailColumn, 0)
+        {
+            @Override
+            public boolean isCellEditable(int row, int column) {    
+                return false;
+            }
+        };
         table = new JTable(billDetailModel);
         table.getColumnModel().getColumn(0).setPreferredWidth(40);
         table.getColumnModel().getColumn(0).setMaxWidth(40);
@@ -180,14 +188,16 @@ public class DashBoardAndBookedHistory extends JDialog {
         btnPrint.addActionListener((e) -> {
             BHC.ExportExcelFile();
         });
-    }
-
-    // ===== Chạy thử độc lập =====
-    public static void main(String[] args) {
-        HotelManagementSystem frame = new HotelManagementSystem();
-        SwingUtilities.invokeLater(() -> {
-            DashBoardAndBookedHistory dialog = new DashBoardAndBookedHistory(frame, true);
-            dialog.setVisible(true);
+        
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2)
+                {
+                    int index = table.getSelectedRow();
+                    BHC.openBill(DashBoardAndBookedHistory.this,index);
+                }
+            }
         });
     }
 }
