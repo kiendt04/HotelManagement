@@ -92,13 +92,15 @@ public class BillGroupBookingDAO {
         return rs;
     }
     
-    public int finishBill(int id,int status)
+    public int finishBill(int id,int status,double extra_charge)
     {
         int rs = 0;
         try {
-            PreparedStatement pt = conn.prepareStatement("UPDATE billgroupbooking set status = ? where id = ?");
-            pt.setInt(1, id);
-            pt.setInt(2, status);
+            PreparedStatement pt = conn.prepareStatement("UPDATE billgroupbooking set extra_charge = ?, actual_pay = actual_pay + ? ,status = ? where id = ?");
+            pt.setInt(4, id);
+            pt.setInt(3, status);
+            pt.setDouble(1, extra_charge);
+            pt.setDouble(2, extra_charge);
             rs = pt.executeUpdate();
         } catch (Exception e) {
             System.err.println(e);

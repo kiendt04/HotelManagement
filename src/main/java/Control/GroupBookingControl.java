@@ -37,6 +37,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import jdk.jshell.execution.JdiDefaultExecutionControl;
 
 /**
  *
@@ -53,6 +54,7 @@ public class GroupBookingControl {
     private BillGroupBookingDAO billgroupDAO = new BillGroupBookingDAO();
     private BillGroupBookingDetail_RoomDAO roomGroupDetail = new BillGroupBookingDetail_RoomDAO();
     private BillGroupBookingDetail_ServiceDAO serviceGroupDetail = new BillGroupBookingDetail_ServiceDAO();
+    private JButton save,canl,finish;
     private int indexServ, indexRoom = -1,time = 1,LoadTimes = -1;
     private boolean isSavedBill = false,upt = false;
     private JDialog parent;
@@ -157,9 +159,10 @@ public class GroupBookingControl {
                     GroupBookingControl.this.out = new Timestamp(out.getDate().getTime());
                     time = (int) ChronoUnit.DAYS.between(in.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),out.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                     reloadRoomModelByTime();
-                    if(LoadTimes < 0 ) {
+                    if(LoadTimes >= 0 ) {
                         System.err.println("reLoadModel");
                         modelTree.reload();
+                        
                     } else {
                         LoadTimes += 1;
                     }
@@ -176,7 +179,7 @@ public class GroupBookingControl {
                     GroupBookingControl.this.out = new Timestamp(out.getDate().getTime());
                     time = (int) ChronoUnit.DAYS.between(in.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),out.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                     reloadRoomModelByTime();
-                    if(LoadTimes < -1) {
+                    if(LoadTimes >= 0) {
                         modelTree.reload();
                     } else {
                         LoadTimes += 1;
@@ -216,6 +219,7 @@ public class GroupBookingControl {
     
     public void setEnableBtn(JButton finish,JButton cancel,JButton save,JDateChooser time_in,int id)
     {
+        this.save = save; this.finish = finish; this.canl = cancel;
         Date now = new Date();
         BillGroupBooking bgb =  billgroupDAO.getBillById(id);
         if(bgb.getStatus() == 0 || bgb.getStatus() == -2 || bgb.getStatus() == 2)
@@ -226,7 +230,7 @@ public class GroupBookingControl {
         }
         else
         {
-        if(time_in.getDate().before(now))
+        if(time_in.getDate().after(now))
         {
             cancel.setEnabled(true);
             finish.setEnabled(false);
@@ -430,7 +434,7 @@ public class GroupBookingControl {
     }
         
     
-    public void btnSaveAction(int id_bill, Customer cus , Timestamp in,Timestamp out, JTextField total_r, JTextField total_sr, JLabel dis ,JTextField dps, JTextField act)
+    public void btnSaveAction(int id_bill, Customer cus , Timestamp in,Timestamp out, JTextField total_r, JTextField total_sr, JLabel dis ,JTextField dps, JTextField act,JDialog parent)
     {
         if(checkVailidateInfor(act, cus))
             {
@@ -462,7 +466,6 @@ public class GroupBookingControl {
                         }
                         else
                         {
-                            
                             BillGroupBooking bgb = new BillGroupBooking(id, cus.getId(), in, out, total_room, total_ser, total, 0, discount, deposit, actual_pay, -1);
                             if (billgroupDAO.uptBill(bgb) !=  0)
                             {
@@ -503,7 +506,9 @@ public class GroupBookingControl {
                             }
                         }
                         JOptionPane.showMessageDialog(parent, "Thành công", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        canl.setEnabled(true);
                         upt = true;
+                        parent.dispose();
                     }
             }
                 else 
@@ -524,7 +529,7 @@ public class GroupBookingControl {
         else
         {
             Date now = new Date();
-            if(now.before(now))
+            if(time_out.getDate().after(now))
             {
                 if(JOptionPane.showConfirmDialog(parent, "Chưa đến hạn trả phòng!!\nXác nhận thanh toán?", "Thông báo", JOptionPane.QUESTION_MESSAGE) ==  0)
                 {
@@ -533,14 +538,24 @@ public class GroupBookingControl {
             }
             else
             {
-                
+                status = 0;
+            }
+            if(billgroupDAO.finishBill(id, status,status == -2 ? extra_charge : 0) != 0 )
+            {
+                JOptionPane.showMessageDialog(parent, "Thành công");
+                this.save.setEnabled(false);
+                this.finish.setEnabled(false);
+                this.canl.setEnabled(false);
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(parent, "Thất bại");
             }
         }
     }
     
     public void btnCancelAction(int id)
     {
-        
         if(upt)
         {
             if(JOptionPane.showConfirmDialog(parent, "Hủy đặt phòng?","Thông báo",JOptionPane.OK_CANCEL_OPTION) == JOptionPane.YES_OPTION)
@@ -548,6 +563,9 @@ public class GroupBookingControl {
                 if(billgroupDAO.cancelBill(id) != 0)
                 {
                     JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                    this.save.setEnabled(false);
+                    this.finish.setEnabled(false);
+                    this.canl.setEnabled(false);
                 }
                 else
                 {
@@ -562,6 +580,9 @@ public class GroupBookingControl {
                 if(billgroupDAO.cancelBill(id) != 0)
                 {
                     JOptionPane.showMessageDialog(parent, "Thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+                    this.save.setEnabled(false);
+                    this.finish.setEnabled(false);
+                    this.canl.setEnabled(false);
                 }
                 else
                 {

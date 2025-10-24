@@ -99,6 +99,7 @@ public class AddGroupBooking extends JDialog {
         finishBtn.setEnabled(false);
         cancelBtn = createToolbarButton("Hủy đặt phòng", "❌");
         cancelBtn.setFont(new Font("SNoto Color Emoji", Font.PLAIN, 14));
+        cancelBtn.setEnabled(false);
         searchCusBtn = new JButton("🔍");
         searchCusBtn.setFont(new Font("Noto Color Emoji", Font.PLAIN, 14));
         discountLable = new JLabel("00,000 VND (0.0%)");
@@ -108,7 +109,7 @@ public class AddGroupBooking extends JDialog {
     private void btnAction()
     {
         saveBtn.addActionListener((e) -> {
-            control.btnSaveAction(id_bill,(Customer) customerCombo.getSelectedItem(), time_in,time_out,totalRoom,totalService,discountLable,deposit,totalAmountField);
+            control.btnSaveAction(id_bill,(Customer) customerCombo.getSelectedItem(), new Timestamp(check_in.getDate().getTime()),new Timestamp(check_out.getDate().getTime()),totalRoom,totalService,discountLable,deposit,totalAmountField,this);
         });
         
         finishBtn.addActionListener((e) -> {

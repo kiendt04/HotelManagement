@@ -19,8 +19,8 @@ public class RoomManagement extends JFrame {
     private JTable roomTable;
     private DefaultTableModel tableModel;
     private JTextField nameField;
-    private JButton addButton, editButton, deleteButton;
-    private ImageIcon addIcon, editIcon, delIcon, setIcon;
+    private JButton addButton, editButton, deleteButton,printButton;
+    private ImageIcon addIcon, editIcon, delIcon, printIcon;
     private RoomManagementControl controller;
     private JComboBox<Floor> floorCbx;
     private JComboBox<Room_type> rtCbx;
@@ -48,7 +48,7 @@ public class RoomManagement extends JFrame {
         addIcon = new ImageIcon(getClass().getResource("/img/add.png"));
         editIcon = new ImageIcon(getClass().getResource("/img/refresh.png"));
         delIcon = new ImageIcon(getClass().getResource("/img/trash.png"));
-        setIcon = new ImageIcon(getClass().getResource("/img/settings.png"));
+        printIcon = new ImageIcon(getClass().getResource("/img/export.png"));
         
         // Tạo toolbar buttons với icons
         addButton = new JButton();
@@ -65,6 +65,11 @@ public class RoomManagement extends JFrame {
         deleteButton.setIcon(delIcon);
         deleteButton.setToolTipText("Xóa");
         deleteButton.setPreferredSize(new Dimension(30, 30));
+        
+        printButton = new JButton();
+        printButton.setIcon(printIcon);
+        printButton.setToolTipText("Xuất file");
+        printButton.setPreferredSize(new Dimension(30, 30));
         
         // Initialize ComboBoxes
         initializeComboBoxes();
@@ -155,6 +160,7 @@ public class RoomManagement extends JFrame {
         toolbarPanel.add(addButton);
         toolbarPanel.add(editButton);
         toolbarPanel.add(deleteButton);
+        toolbarPanel.add(printButton);
         toolbarPanel.add(Box.createHorizontalStrut(100));
         toolbarPanel.add(new JLabel("Tầng: "));
         toolbarPanel.add(floorCbx);
@@ -232,6 +238,7 @@ public class RoomManagement extends JFrame {
         addButton.addActionListener(e -> addRoom());
         editButton.addActionListener(e -> editRoom());
         deleteButton.addActionListener(e -> deleteRoom());
+        printButton.addActionListener((e) -> { controller.ExportExcelFile(roomTable, this);});
     }
     
     private void addRoom() {

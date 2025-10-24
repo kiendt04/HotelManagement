@@ -59,7 +59,6 @@ Control\H_MControl.class
 Model\Customer.class
 View\CustomerList$7.class
 View\CustomerList$1.class
-View\ServiceManager$1.class
 Model\User.class
 View\HotelManagementSystem.class
 View\UserList$2.class
@@ -94,7 +93,6 @@ View\GroupBooking$2.class
 View\RoomTypeManagement$RoomTypeDialog.class
 View\UserList.class
 View\GroupBooking.class
-View\ServiceManager$CenterTableCellRenderer.class
 DAO\DiscountDAO.class
 Control\GroupBookingControl$4$1.class
 View\CustomerList$3.class
